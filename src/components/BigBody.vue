@@ -8,6 +8,7 @@
         }"
       >
         <img
+          type="image/svg+xml"
           :alt="wireItem.name"
           :src="wireItem.src"
           draggable="false"
@@ -20,6 +21,7 @@
         class="bBcontent_img"
       >
         <img
+          type="image/svg+xml"
           :alt="control.name"
           :src="control.src"
           draggable="true"

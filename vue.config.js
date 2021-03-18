@@ -1,3 +1,4 @@
 module.exports = {
-  publicPath: '/sfes/'
-}
+  publicPath: "/sfes/",
+  outputDir: "docs",
+};

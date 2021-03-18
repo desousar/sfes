@@ -2,30 +2,30 @@
   <div class="toolBar">
     <!--<div class="first">
       <div class="content_img">
-        <img alt="New" src="/image/toolBar/new.svg" draggable="false" />
+        <img alt="New" src="@/assets/toolBar/new.svg" draggable="false" />
         <div>{{ neu[getCurrentLanguage] }}</div>
       </div>
       <div class="content_img">
-        <img alt="Open" src="/image/toolBar/open.svg" draggable="false" />
+        <img alt="Open" src="@/assets/toolBar/open.svg" draggable="false" />
         <div>{{ open[getCurrentLanguage] }}</div>
       </div>
       <div class="content_img">
-        <img alt="Save As" src="/image/toolBar/save.svg" draggable="false" />
+        <img alt="Save As" src="@/assets/toolBar/save.svg" draggable="false" />
         <div>{{ saveAs[getCurrentLanguage] }}</div>
       </div>
     </div>-->
 
     <!--<div class="second">
       <div class="content_img">
-        <img alt="Cut" src="/image/toolBar/cut.svg" draggable="false" />
+        <img alt="Cut" src="@/assets/toolBar/cut.svg" draggable="false" />
         <div>{{ cut[getCurrentLanguage] }}</div>
       </div>
       <div class="content_img">
-        <img alt="Copy" src="/image/toolBar/copy.svg" draggable="false" />
+        <img alt="Copy" src="@/assets/toolBar/copy.svg" draggable="false" />
         <div>{{ copy[getCurrentLanguage] }}</div>
       </div>
       <div class="content_img">
-        <img alt="Paste" src="/image/toolBar/paste.svg" draggable="false" />
+        <img alt="Paste" src="@/assets/toolBar/paste.svg" draggable="false" />
         <div>{{ paste[getCurrentLanguage] }}</div>
       </div>
     </div>-->
@@ -39,7 +39,7 @@
       >
         <img
           alt="Delete"
-          src="/image/toolBar/delete.svg"
+          src="@/assets/toolBar/delete.svg"
           draggable="false"
           @click="deleteItem"
         />
@@ -53,7 +53,7 @@
       >
         <img
           alt="Rotate"
-          src="/image/toolBar/rotate.svg"
+          src="@/assets/toolBar/rotate.svg"
           draggable="false"
           @click="rotateItem"
         />
@@ -67,7 +67,7 @@
       >
         <img
           alt="Movement"
-          src="/image/toolBar/moveIcon.svg"
+          src="@/assets/toolBar/moveIcon.svg"
           draggable="false"
           @click="movementItem"
         />
@@ -81,7 +81,7 @@
       >
         <img
           alt="Select"
-          src="/image/toolBar/select.svg"
+          src="@/assets/toolBar/select.svg"
           draggable="false"
           @click="selectItem"
         />
@@ -90,7 +90,7 @@
       <div class="content_img">
         <img
           alt="Mouse"
-          src="/image/toolBar/mouse.svg"
+          src="@/assets/toolBar/mouse.svg"
           draggable="false"
           @click="mouseItem"
         />

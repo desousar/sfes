@@ -5,8 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "deploy": "node scripts/gh-pages-deploy.js"
+    "lint": "vue-cli-service lint"
   },
   "dependencies": {
     "@mdi/font": "^5.9.55",
@@ -22,7 +21,6 @@
     "babel-eslint": "^10.0.3",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.1.2",
-    "vue-template-compiler": "^2.6.12",
-    "execa": "latest"
+    "vue-template-compiler": "^2.6.12"
   }
 }

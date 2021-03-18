@@ -210,7 +210,7 @@ import Circuit from "./jsFolder/constructorComponent/Circuit";
 import MultipleRinSerie from "./Conversion/MultipleRinSerie.js";
 
 function srcPath(file) {
-  return "/image/components/" + file;
+  return "./image/components/" + file;
 }
 const wireItem = { name: "Wire", src: srcPath("Wire.svg") };
 const componentsItem = [

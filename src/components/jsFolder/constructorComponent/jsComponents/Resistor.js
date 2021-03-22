@@ -37,12 +37,23 @@ export default class Resistor extends Component {
    * @param {*} rowCounter
    */
   bauteilEqu(A, b, listModel, nb, rowCounter) {
-    //1*U+(-R)*I=0
-    let indexU = this.addValueUinListModelANDgetIndex(listModel, nb);
-    A[nb].set(rowCounter, indexU, 1); //-> 1*U
-    let indexI = this.addValueIinListModelANDgetIndex(listModel, nb);
-    A[nb].set(rowCounter, indexI, -1 * this.valueR); //-> -R*I
-    b[nb].set(rowCounter, 0, 0); //-> equation equals 0
+    if (this.directionI === this.directionU) {
+      //falls beide Pfeile in selben Richtung
+      //1*U+(-R)*I=0
+      let indexU = this.addValueUinListModelANDgetIndex(listModel, nb);
+      A[nb].set(rowCounter, indexU, 1); //-> 1*U
+      let indexI = this.addValueIinListModelANDgetIndex(listModel, nb);
+      A[nb].set(rowCounter, indexI, -1 * this.valueR); //-> -R*I
+      b[nb].set(rowCounter, 0, 0); //-> equation equals 0
+    } else {
+      //Pfeile in unterschiedliche Richtungen
+      //1*U+R*I=0
+      let indexU = this.addValueUinListModelANDgetIndex(listModel, nb);
+      A[nb].set(rowCounter, indexU, 1); //-> 1*U
+      let indexI = this.addValueIinListModelANDgetIndex(listModel, nb);
+      A[nb].set(rowCounter, indexI, 1 * this.valueR); //-> R*I
+      b[nb].set(rowCounter, 0, 0); //-> equation equals 0
+    }
   }
 
   resetCalculatedValues() {

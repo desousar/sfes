@@ -16,8 +16,8 @@
           {{ content_data2[getCurrentLanguage] }}<br />
           {{ content_data3[getCurrentLanguage] }}<br />
           {{ content_data4[getCurrentLanguage] }}
-          <a href="https://github.com/desousar/Simulationstool-fuer-Schaltungen"
-            >https://github.com/desousar/Simulationstool-fuer-Schaltungen</a
+          <a href="https://github.com/desousar/sfes"
+            >https://github.com/desousar/sfes</a
           ><br />
           {{ content_data5[getCurrentLanguage] }}<br />
           {{ content_data6[getCurrentLanguage] }}

@@ -322,7 +322,7 @@
         <circle
           v-if="component.showPin1"
           class="pin"
-          @click="(ev) => $emit('pin', 'pin1', 0, ev)"
+          @click="(ev) => $emit('pin', 0)"
           r="2.3447022"
           cy="29.202511"
           cx="2.9999013"

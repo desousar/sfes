@@ -272,12 +272,9 @@ function myIndexOf(o, solutionArray) {
 }
 
 /*
-npm install -g nodemon DON'T WORK
-npm i -g babel-cli DON'T WORK
 npm install esm
 
-cd D:\Ben\Documents\ICS-Suisse_S5-7\Projekt5-S6\gitRep\Simulationstool-fuer-Schaltungen\code\sfs\src\test-circuits
-nodemon --exec babel-node circuit-1.js DON'T WORK
+cd sfes\src\test-circuits
 node -r esm circuit-1.js
 
 In Default Shell = bash

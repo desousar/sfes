@@ -1,0 +1,14 @@
+Folder structur = .../myFolder
+IMPORT GitHub Repo
+	myFolder$ git init
+	git clone ...
+
+Folder structur .../myFolder/sfes
+
+PUSH new code
+	sfes (main)$ npm run build
+	git add .
+	git status      (to be sure)
+	git commit -am "your commentar"
+	git branch -M main      (only if sfes(master)is written instead of sfes(main))
+	git push -u origin main

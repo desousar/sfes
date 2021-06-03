@@ -4,5 +4,5 @@ export default {
   TOOL_ROTATE: 1,
   TOOL_MOVE: 2,
   TOOL_CREATE_WIRE: 3,
-  TOOL_SELECT: 4,
+  TOOL_SELECT: 4
 };

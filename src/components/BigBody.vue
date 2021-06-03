@@ -4,7 +4,7 @@
       <div
         class="bBcontent_img"
         v-bind:class="{
-          greenClass: this.selectedTool === this.toolState.TOOL_CREATE_WIRE
+          greenClass: selectedTool === toolState.TOOL_CREATE_WIRE
         }"
       >
         <img
@@ -43,7 +43,7 @@
       @contextmenu="openMenu"
       :class="{ 'z-50': false, 'z-75': true }"
     >
-      <template v-for="(component, idx) in this.circuit.components">
+      <template v-for="(component, idx) in circuit.components">
         <span :key="'complabel-' + idx" v-if="component.showSymbol">
           <span
             v-if="!component.isMultiPin"
@@ -108,7 +108,7 @@
         :height="dynamicHeight()"
         :class="{ limitA4Paper: inA4Format }"
       >
-        <template v-for="(wire, idx) in this.circuit.wires">
+        <template v-for="(wire, idx) in circuit.wires">
           <line
             style="cursor: pointer; stroke: black; stroke-width: 2"
             :key="'line-' + idx"
@@ -134,22 +134,22 @@
       <popupComp
         v-show="isPopupCompVisible"
         @close="openClosePopupComp"
-        :compoToPass="this.CompoToPass"
-        :arrayComponents="this.circuit.components"
+        :compoToPass="CompoToPass"
+        :arrayComponents="circuit.components"
         :currentLanguage="currentLanguage"
       />
 
       <popupResult
         v-show="isPopupResultVisible"
         @close="openClosePopupResult"
-        :arrayComponents="this.circuit.components"
+        :arrayComponents="circuit.components"
         :currentLanguage="currentLanguage"
       />
 
       <popupEquivalentSrc
         v-show="isPopupEquivalentSrcVisible"
         @close="openClosePopupEquivalentSrc"
-        :circuitcomplet="this.circuit"
+        :circuitcomplet="circuit"
         :currentLanguage="currentLanguage"
       />
 

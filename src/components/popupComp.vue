@@ -1,7 +1,7 @@
 <!-- src : https://www.digitalocean.com/community/tutorials/vuejs-vue-modal-component -->
 
 <template>
-  <transition name="popupComp-fade" v-if="this.compoToPass">
+  <transition name="popupComp-fade" v-if="compoToPass">
     <div class="popupComp-backdrop">
       <div
         class="popupComp"
@@ -15,14 +15,7 @@
         <section class="popupComp-body-gridContainer" id="popupCompDescription">
           <slot>
             <div>Symbol is</div>
-            <input
-              type="text"
-              id="newID"
-              :value="this.compoToPass.symbol"
-              :placeholder="
-                this.compoToPass.symbol === undefined ? 'undefined' : ''
-              "
-            />
+            <input type="text" id="newID" :value="compoToPass.symbol" />
             <div></div>
           </slot>
 
@@ -32,13 +25,11 @@
               type="number"
               id="newValueR"
               :value="
-                this.compoToPass.valueR === undefined
+                compoToPass.valueR === undefined
                   ? undefined
-                  : this.compoToPass.valueR
+                  : compoToPass.valueR
               "
-              :placeholder="
-                this.compoToPass.valueR === undefined ? 'undefined' : ''
-              "
+              :placeholder="compoToPass.valueR === undefined ? 'undefined' : ''"
             />
             <div>&#8486;</div>
           </slot>
@@ -52,12 +43,12 @@
               type="number"
               id="newValuePotential"
               :value="
-                this.compoToPass.valuePotentialSource === undefined
+                compoToPass.valuePotentialSource === undefined
                   ? undefined
-                  : this.compoToPass.valuePotentialSource
+                  : compoToPass.valuePotentialSource
               "
               :placeholder="
-                this.compoToPass.valuePotentialSource === undefined
+                compoToPass.valuePotentialSource === undefined
                   ? 'undefined'
                   : ''
               "
@@ -73,9 +64,9 @@
               type="number"
               id="newValuePhiDisabled"
               :value="
-                this.compoToPass.valuePhi === undefined
+                compoToPass.valuePhi === undefined
                   ? undefined
-                  : this.compoToPass.valuePhi
+                  : compoToPass.valuePhi
               "
             />
             <div>V</div>
@@ -85,9 +76,9 @@
           <slot
             v-if="
               isResistor() ||
-              isKnotenWithPotentialSrc() ||
-              isVoltageSource() ||
-              isAmpermeter()
+                isKnotenWithPotentialSrc() ||
+                isVoltageSource() ||
+                isAmpermeter()
             "
           >
             <div>
@@ -99,9 +90,9 @@
               type="number"
               id="newValueIDisabled"
               :value="
-                this.compoToPass.valueI === undefined
+                compoToPass.valueI === undefined
                   ? undefined
-                  : this.compoToPass.valueI
+                  : compoToPass.valueI
               "
             />
             <div>A</div>
@@ -116,13 +107,11 @@
               type="number"
               id="newValueI"
               :value="
-                this.compoToPass.valueI === undefined
+                compoToPass.valueI === undefined
                   ? undefined
-                  : this.compoToPass.valueI
+                  : compoToPass.valueI
               "
-              :placeholder="
-                this.compoToPass.valueI === undefined ? 'undefined' : ''
-              "
+              :placeholder="compoToPass.valueI === undefined ? 'undefined' : ''"
             />
             <div>A</div>
           </slot>
@@ -138,9 +127,9 @@
               type="number"
               id="newValueUDisabled"
               :value="
-                this.compoToPass.valueU === undefined
+                compoToPass.valueU === undefined
                   ? undefined
-                  : this.compoToPass.valueU
+                  : compoToPass.valueU
               "
             />
             <div>V</div>
@@ -155,13 +144,11 @@
               type="number"
               id="newValueU"
               :value="
-                this.compoToPass.valueU === undefined
+                compoToPass.valueU === undefined
                   ? undefined
-                  : this.compoToPass.valueU
+                  : compoToPass.valueU
               "
-              :placeholder="
-                this.compoToPass.valueU === undefined ? 'undefined' : ''
-              "
+              :placeholder="compoToPass.valueU === undefined ? 'undefined' : ''"
             />
             <div>V</div>
           </slot>
@@ -173,7 +160,7 @@
           </button>
         </section>
         <!--possibility to "play" with current and voltage only if component isn't MultiPin-->
-        <section v-if="!this.compoToPass.isMultiPin">
+        <section v-if="!compoToPass.isMultiPin">
           <section class="oneLine">
             <button class="btn-width40pct" @click="flipdirI()">
               flip {{ current_data[getCurrentLanguage] }} arrow
@@ -249,38 +236,38 @@ import {
   isAmpermeter,
   isVoltmeter,
   isKnoten,
-  isKlemme,
-} from "./instanceofFunction.js";
+  isKlemme
+} from './instanceofFunction.js';
 
 export default {
   props: {
     compoToPass: Object,
     arrayComponents: Array,
-    currentLanguage: String,
+    currentLanguage: String
   },
   data() {
     return {
       valueIsModified: false,
 
       select_data: {
-        en: "You have selected a component",
-        de: "Sie haben eine Komponente ausgewählt",
+        en: 'You have selected a component',
+        de: 'Sie haben eine Komponente ausgewählt'
       },
-      be3pers: { en: "is", de: "ist" },
-      source_data: { en: "Source", de: "Quelle" },
-      current_data: { en: "Current", de: "Strom" },
-      voltage_data: { en: "Voltage", de: "Spannung" },
+      be3pers: { en: 'is', de: 'ist' },
+      source_data: { en: 'Source', de: 'Quelle' },
+      current_data: { en: 'Current', de: 'Strom' },
+      voltage_data: { en: 'Voltage', de: 'Spannung' },
       checkboxArrow_data: {
-        en: "check if you want to display arrows:",
-        de: "Anhaken, wenn Sie die Pfeile anzeigen möchten:",
+        en: 'check if you want to display arrows:',
+        de: 'Anhaken, wenn Sie die Pfeile anzeigen möchten:'
       },
-      close_data: { en: "Close", de: "Schliessen" },
+      close_data: { en: 'Close', de: 'Schliessen' }
     };
   },
   computed: {
-    getCurrentLanguage: function () {
+    getCurrentLanguage: function() {
       return this.currentLanguage;
-    },
+    }
   },
   methods: {
     isResistor() {
@@ -342,19 +329,19 @@ export default {
       //graphical aspect
       if (this.compoToPass.directionI === 0) {
         this.compoToPass.directionI = 1;
-        if (document.getElementById("displayDirI").checked) {
+        if (document.getElementById('displayDirI').checked) {
           this.compoToPass.showIdir0 = false;
           this.compoToPass.showIdir1 = true;
         }
       } else if (this.compoToPass.directionI === 1) {
         this.compoToPass.directionI = 0;
-        if (document.getElementById("displayDirI").checked) {
+        if (document.getElementById('displayDirI').checked) {
           this.compoToPass.showIdir0 = true;
           this.compoToPass.showIdir1 = false;
         }
       }
-      document.getElementById("alertHint").style.color = "green";
-      document.getElementById("alertHint").innerText = `flip ${
+      document.getElementById('alertHint').style.color = 'green';
+      document.getElementById('alertHint').innerText = `flip ${
         this.current_data[this.getCurrentLanguage]
       } direction done`;
     },
@@ -390,19 +377,19 @@ export default {
       //graphical aspect
       if (this.compoToPass.directionU === 0) {
         this.compoToPass.directionU = 1;
-        if (document.getElementById("displayDirU").checked) {
+        if (document.getElementById('displayDirU').checked) {
           this.compoToPass.showUdir0 = false;
           this.compoToPass.showUdir1 = true;
         }
       } else if (this.compoToPass.directionU === 1) {
         this.compoToPass.directionU = 0;
-        if (document.getElementById("displayDirU").checked) {
+        if (document.getElementById('displayDirU').checked) {
           this.compoToPass.showUdir0 = true;
           this.compoToPass.showUdir1 = false;
         }
       }
-      document.getElementById("alertHint").style.color = "green";
-      document.getElementById("alertHint").innerText = `flip ${
+      document.getElementById('alertHint').style.color = 'green';
+      document.getElementById('alertHint').innerText = `flip ${
         this.voltage_data[this.getCurrentLanguage]
       } direction done`;
     },
@@ -426,7 +413,7 @@ export default {
      * function for Potential on Knoten
      */
     deletePotentialvalue() {
-      document.getElementById("newValuePotential").value = "";
+      document.getElementById('newValuePotential').value = '';
     },
 
     assertAttribution() {
@@ -435,15 +422,15 @@ export default {
        */
       //Resistor
       if (this.isResistor()) {
-        var tempValueR = document.getElementById("newValueR").value;
+        var tempValueR = document.getElementById('newValueR').value;
 
         if (tempValueR.length === 0) {
           tempValueR = undefined;
         } else {
           tempValueR = parseFloat(tempValueR);
           if (tempValueR < 0) {
-            document.getElementById("alertHint").style.color = "red";
-            document.getElementById("alertHint").innerText =
+            document.getElementById('alertHint').style.color = 'red';
+            document.getElementById('alertHint').innerText =
               "Resistor can't be negative";
             return false;
           }
@@ -453,14 +440,14 @@ export default {
           this.valueIsModified = true;
         }
 
-        document.getElementById("alertHint").style.color = "red";
-        document.getElementById("alertHint").innerText = "";
+        document.getElementById('alertHint').style.color = 'red';
+        document.getElementById('alertHint').innerText = '';
         this.compoToPass.valueR = tempValueR; //attribution valueR
       }
 
       //Knoten
       if (this.isKnoten()) {
-        var tempValuePotential = document.getElementById("newValuePotential")
+        var tempValuePotential = document.getElementById('newValuePotential')
           .value;
         if (tempValuePotential.length === 0) {
           tempValuePotential = undefined;
@@ -469,8 +456,8 @@ export default {
           tempValuePotential = parseFloat(tempValuePotential);
           this.compoToPass.showPotential = true;
           if (tempValuePotential < 0) {
-            document.getElementById("alertHint").style.color = "red";
-            document.getElementById("alertHint").innerText =
+            document.getElementById('alertHint').style.color = 'red';
+            document.getElementById('alertHint').innerText =
               "Potential can't be negative";
             return false;
           }
@@ -479,14 +466,14 @@ export default {
           this.valueIsModified = true;
         }
 
-        document.getElementById("alertHint").style.color = "red";
-        document.getElementById("alertHint").innerText = "";
+        document.getElementById('alertHint').style.color = 'red';
+        document.getElementById('alertHint').innerText = '';
         this.compoToPass.valuePotentialSource = tempValuePotential; //attribution valuePotentialSource
       }
 
       //CurrentSource
       if (this.isCurrentSource()) {
-        let tempValueI = document.getElementById("newValueI").value;
+        let tempValueI = document.getElementById('newValueI').value;
         if (tempValueI.length === 0) {
           tempValueI = undefined;
         } else {
@@ -500,7 +487,7 @@ export default {
 
       //VoltageSource
       if (this.isVoltageSource()) {
-        let tempValueU = document.getElementById("newValueU").value;
+        let tempValueU = document.getElementById('newValueU').value;
         if (tempValueU.length === 0) {
           tempValueU = undefined;
         } else {
@@ -515,8 +502,8 @@ export default {
        * check symbol before attribution
        */
       let tempValueSymbol = document
-        .getElementById("newID")
-        .value.replace(/\s/g, "");
+        .getElementById('newID')
+        .value.replace(/\s/g, '');
       if (tempValueSymbol.length !== 0) {
         if (this.compoToPass.symbol != tempValueSymbol) {
           for (let index = 0; index < this.arrayComponents.length; index++) {
@@ -524,11 +511,11 @@ export default {
               if (this.checkSymbolisUnique() == true) {
                 this.compoToPass.symbol = tempValueSymbol;
               } else {
-                document.getElementById("alertHint").style.color = "red";
-                document.getElementById("alertHint").innerText =
-                  "symbol " + tempValueSymbol + " exists already ";
+                document.getElementById('alertHint').style.color = 'red';
+                document.getElementById('alertHint').innerText =
+                  'symbol ' + tempValueSymbol + ' exists already ';
                 document.getElementById(
-                  "newID"
+                  'newID'
                 ).value = this.compoToPass.symbol;
                 return false;
               }
@@ -536,9 +523,9 @@ export default {
           }
         }
       } else {
-        document.getElementById("alertHint").style.color = "red";
-        document.getElementById("alertHint").innerText = "symbol can't be null";
-        document.getElementById("newID").value = this.compoToPass.symbol;
+        document.getElementById('alertHint').style.color = 'red';
+        document.getElementById('alertHint').innerText = "symbol can't be null";
+        document.getElementById('newID').value = this.compoToPass.symbol;
         return false;
       }
       return true;
@@ -552,12 +539,12 @@ export default {
        */
       if (this.assertAttribution()) {
         if (this.valueIsModified) {
-          this.arrayComponents.forEach((comp) => {
+          this.arrayComponents.forEach(comp => {
             comp.resetCalculatedValues();
           });
         }
         this.valueIsModified = false;
-        this.$emit("close");
+        this.$emit('close');
       }
     },
     /**
@@ -567,15 +554,15 @@ export default {
     checkSymbolisUnique() {
       for (let index = 0; index < this.arrayComponents.length; index++) {
         if (
-          document.getElementById("newID").value.replace(/\s/g, "") ==
+          document.getElementById('newID').value.replace(/\s/g, '') ==
           this.arrayComponents[index].symbol
         ) {
           return false;
         }
       }
       return true;
-    },
-  },
+    }
+  }
 };
 </script>
 

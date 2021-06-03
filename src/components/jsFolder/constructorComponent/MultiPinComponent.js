@@ -1,4 +1,4 @@
-import BaseComponent from "./BaseComponent.js";
+import BaseComponent from './BaseComponent.js';
 
 export default class MultiPinComponent extends BaseComponent {
   constructor(name, symbol, pins, valueLeft, valueTop) {
@@ -9,11 +9,11 @@ export default class MultiPinComponent extends BaseComponent {
   }
   //function
   addValuePHIinListModelANDgetIndex(listModel, nb) {
-    if (listModel[nb].indexOf("valuePhi".concat(this.uniqueID)) === -1) {
-      listModel[nb].push("valuePhi".concat(this.uniqueID));
-      return listModel[nb].indexOf("valuePhi".concat(this.uniqueID));
+    if (listModel[nb].indexOf('valuePhi'.concat(this.uniqueID)) === -1) {
+      listModel[nb].push('valuePhi'.concat(this.uniqueID));
+      return listModel[nb].indexOf('valuePhi'.concat(this.uniqueID));
     } else {
-      return listModel[nb].indexOf("valuePhi".concat(this.uniqueID));
+      return listModel[nb].indexOf('valuePhi'.concat(this.uniqueID));
     }
   }
 }

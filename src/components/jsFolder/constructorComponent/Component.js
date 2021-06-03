@@ -1,4 +1,4 @@
-import BaseComponent from "./BaseComponent.js";
+import BaseComponent from './BaseComponent.js';
 export {
   valueLeftPin0KompRot0,
   valueTopPin0KompRot0,
@@ -7,7 +7,7 @@ export {
   valueLeftPin0KompRot90,
   valueTopPin0KompRot90,
   valueLeftPin1KompRot90,
-  valueTopPin1KompRot90,
+  valueTopPin1KompRot90
 };
 
 /*
@@ -112,32 +112,32 @@ export default class Component extends BaseComponent {
 
   assertMainValue() {
     // do not throw any error => specification in children class
-    throw new Error("Error Software component unknown");
+    throw new Error('Error Software component unknown');
   }
 
   createElementTDvalueR() {
-    let td = document.createElement("td");
-    td.className = "td";
-    td.innerHTML = "valueR " + this.valueR + " Ohm";
+    let td = document.createElement('td');
+    td.className = 'td';
+    td.innerHTML = 'valueR ' + this.valueR + ' Ohm';
     return td;
   }
   createElementTDvalueI() {
-    let td = document.createElement("td");
-    td.className = "td";
-    td.innerHTML = "valueI " + this.valueI + " A";
+    let td = document.createElement('td');
+    td.className = 'td';
+    td.innerHTML = 'valueI ' + this.valueI + ' A';
     return td;
   }
   createElementTDvalueU() {
-    let td = document.createElement("td");
-    td.className = "td";
-    td.innerHTML = "valueU " + this.valueU + " V";
+    let td = document.createElement('td');
+    td.className = 'td';
+    td.innerHTML = 'valueU ' + this.valueU + ' V';
     return td;
   }
   createElementTDvaluePotentials() {
-    let td = document.createElement("td");
-    td.className = "td";
+    let td = document.createElement('td');
+    td.className = 'td';
     td.innerHTML =
-      "Potential " +
+      'Potential ' +
       this.potentialPin0 +
       " <span class='mdi mdi-arrow-right'></span> " +
       this.potentialPin1;

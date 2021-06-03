@@ -34,7 +34,7 @@
       <div
         class="content_img"
         v-bind:class="{
-          greenClass: this.selectedTool === this.toolState.TOOL_DELETE,
+          greenClass: selectedTool === toolState.TOOL_DELETE
         }"
       >
         <img
@@ -48,7 +48,7 @@
       <div
         class="content_img"
         v-bind:class="{
-          greenClass: this.selectedTool === this.toolState.TOOL_ROTATE,
+          greenClass: selectedTool === toolState.TOOL_ROTATE
         }"
       >
         <img
@@ -62,7 +62,7 @@
       <div
         class="content_img"
         v-bind:class="{
-          greenClass: this.selectedTool === this.toolState.TOOL_MOVE,
+          greenClass: selectedTool === toolState.TOOL_MOVE
         }"
       >
         <img
@@ -76,7 +76,7 @@
       <div
         class="content_img"
         v-bind:class="{
-          greenClass: this.selectedTool === this.toolState.TOOL_SELECT,
+          greenClass: selectedTool === toolState.TOOL_SELECT
         }"
       >
         <img
@@ -101,54 +101,54 @@
 </template>
 
 <script>
-import toolStates from "../states.js";
+import toolStates from '../states.js';
 export default {
   //name: 'TitleBanner',
   props: {
     //variable, who I obtain from App.vue (one stage up of this stage)
     //I need to give the type, after that I can us it into html part like {{...}}
     currentLanguage: String,
-    selectedTool: Number,
+    selectedTool: Number
   },
   data() {
     return {
-      neu: { en: "New", de: "Neu" },
-      open: { en: "Open", de: "Öffnen" },
-      saveAs: { en: "Save As", de: "Speichern als" },
-      copy: { en: "Copy", de: "Kopieren" },
-      cut: { en: "Cut", de: "Schneiden" },
-      paste: { en: "Paste", de: "Einfügen" },
-      deleteIcon: { en: "Delete", de: "Löschen" },
-      rotate: { en: "Rotate", de: "Drehen" },
-      movement: { en: "Move", de: "Bewegen" },
-      select: { en: "Select", de: "Wählen" },
-      mouse: { en: "Reset", de: "Reset" },
+      neu: { en: 'New', de: 'Neu' },
+      open: { en: 'Open', de: 'Öffnen' },
+      saveAs: { en: 'Save As', de: 'Speichern als' },
+      copy: { en: 'Copy', de: 'Kopieren' },
+      cut: { en: 'Cut', de: 'Schneiden' },
+      paste: { en: 'Paste', de: 'Einfügen' },
+      deleteIcon: { en: 'Delete', de: 'Löschen' },
+      rotate: { en: 'Rotate', de: 'Drehen' },
+      movement: { en: 'Move', de: 'Bewegen' },
+      select: { en: 'Select', de: 'Wählen' },
+      mouse: { en: 'Reset', de: 'Reset' },
 
-      toolState: toolStates,
+      toolState: toolStates
     };
   },
   computed: {
-    getCurrentLanguage: function () {
+    getCurrentLanguage: function() {
       return this.currentLanguage;
-    },
+    }
   },
   methods: {
-    deleteItem: function () {
-      this.$emit("tool-state-changed", this.toolState.TOOL_DELETE);
+    deleteItem: function() {
+      this.$emit('tool-state-changed', this.toolState.TOOL_DELETE);
     },
-    rotateItem: function () {
-      this.$emit("tool-state-changed", this.toolState.TOOL_ROTATE);
+    rotateItem: function() {
+      this.$emit('tool-state-changed', this.toolState.TOOL_ROTATE);
     },
-    movementItem: function () {
-      this.$emit("tool-state-changed", this.toolState.TOOL_MOVE);
+    movementItem: function() {
+      this.$emit('tool-state-changed', this.toolState.TOOL_MOVE);
     },
-    selectItem: function () {
-      this.$emit("tool-state-changed", this.toolState.TOOL_SELECT);
+    selectItem: function() {
+      this.$emit('tool-state-changed', this.toolState.TOOL_SELECT);
     },
-    mouseItem: function () {
-      this.$emit("tool-state-changed", this.toolState.STATE_IDLE);
-    },
-  },
+    mouseItem: function() {
+      this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
+    }
+  }
 };
 </script>
 

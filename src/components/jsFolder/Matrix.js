@@ -21,16 +21,16 @@ export default class Matrix {
   }
 
   print(msg) {
-    console.log("======" + msg + "=========");
-    console.log("rows", this.row, "and cols", this.column);
+    console.log('======' + msg + '=========');
+    console.log('rows', this.row, 'and cols', this.column);
     for (let i = 0; i < this.row; ++i) {
-      let line = "";
+      let line = '';
       for (let j = 0; j < this.column; ++j) {
-        line += this.mtx[i][j] + ", ";
+        line += this.mtx[i][j] + ', ';
       }
       console.log(line);
     }
-    console.log("==========================");
+    console.log('==========================');
   }
   deepCopy() {
     return Object.assign(
@@ -40,13 +40,13 @@ export default class Matrix {
   }
 
   toReducedRowEchelonForm() {
-    console.log("--##########--ReducedRowEchelonForm--##########--");
+    console.log('--##########--ReducedRowEchelonForm--##########--');
     let lead = 0;
     for (let r = 0; r < this.row; r++) {
       if (this.column <= lead) {
         this.rank = this.row;
         for (let i = 0; i < this.row; i++) {
-          if (this.mtx[i].every((item) => item === 0)) {
+          if (this.mtx[i].every(item => item === 0)) {
             this.rank--;
           }
         }
@@ -61,7 +61,7 @@ export default class Matrix {
           if (this.column == lead) {
             this.rank = this.row;
             for (let i = 0; i < this.row; i++) {
-              if (this.mtx[i].every((item) => item === 0)) {
+              if (this.mtx[i].every(item => item === 0)) {
                 this.rank--;
               }
             }
@@ -100,7 +100,7 @@ export default class Matrix {
     for (let k = 0; k < Math.min(m, n); ++k) {
       // Find the k-th pivot
       let i_max = this.findPivot(k);
-      if (this.mtx[(i_max, k)] == 0) throw "matrix is singular";
+      if (this.mtx[(i_max, k)] == 0) throw 'matrix is singular';
       this.swap_rows(k, i_max);
       // Do for all rows below pivot
       for (let i = k + 1; i < m; ++i) {
@@ -166,21 +166,21 @@ export default class Matrix {
   }
 
   solve(b) {
-    console.log("--##########--Gauss Elimination--##########--");
-    this.print("A");
-    b.print("b");
-    this.print("A");
+    console.log('--##########--Gauss Elimination--##########--');
+    this.print('A');
+    b.print('b');
+    this.print('A');
     this.makeAug(b);
-    this.print("Aug");
+    this.print('Aug');
     this.diagonalize();
-    this.print("diag");
+    this.print('diag');
     this.substitute();
-    this.print("subst");
+    this.print('subst');
     let x = new Matrix({
-      ary: this.extractX(),
+      ary: this.extractX()
     });
-    console.log("*******************");
-    x.mtx.forEach((n) => {
+    console.log('*******************');
+    x.mtx.forEach(n => {
       n[0] = parseFloat(n[0]).toFixed(6);
     });
     //x.print("x");

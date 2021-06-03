@@ -4,7 +4,7 @@
       <div
         class="bBcontent_img"
         v-bind:class="{
-          greenClass: this.selectedTool === this.toolState.TOOL_CREATE_WIRE,
+          greenClass: this.selectedTool === this.toolState.TOOL_CREATE_WIRE
         }"
       >
         <img
@@ -51,7 +51,7 @@
             :style="{
               left: component.x + 5 + 'px',
               top: component.y - 30 + 'px',
-              position: 'absolute',
+              position: 'absolute'
             }"
           >
             {{ component.symbol }}
@@ -62,7 +62,7 @@
             :style="{
               left: component.x + 'px',
               top: component.y + 10 + 'px',
-              position: 'absolute',
+              position: 'absolute'
             }"
           >
             {{ component.symbol }}
@@ -70,13 +70,13 @@
           <span
             v-if="
               component.isMultiPin &&
-              !(component.name === 'Knoten' && !component.showPotential)
+                !(component.name === 'Knoten' && !component.showPotential)
             "
             :key="'label-' + idx"
             :style="{
               left: component.x + 'px',
               top: component.y - 20 + 'px',
-              position: 'absolute',
+              position: 'absolute'
             }"
           >
             {{ component.symbol }}
@@ -89,7 +89,7 @@
           :component="component"
           @simpleClick="simpleClick(component)"
           @doubleClick="doubleClick(component)"
-          @pin="(nr) => pinClicked(component, nr)"
+          @pin="nr => pinClicked(component, nr)"
           @mousedown="moveStart($event, component)"
           @mousemove="showTooltip($event, component)"
           @mouseout="hideTooltip()"
@@ -184,45 +184,45 @@
 </template>
 
 <script>
-import EventBus from "./jsFolder/event-bus";
-import toolStates from "../states.js";
-import { dropComp } from "./jsFolder/dropComponent.js";
-import CircuitSolver from "./jsFolder/constructorComponent/CircuitSolver.js";
+import EventBus from './jsFolder/event-bus';
+import toolStates from '../states.js';
+import { dropComp } from './jsFolder/dropComponent.js';
+import CircuitSolver from './jsFolder/constructorComponent/CircuitSolver.js';
 
-import popupComp from "./popupComp.vue";
-import popupResult from "./popupResult.vue";
-import popupEquivalentSrc from "./popupEquivalentSrc.vue";
-import popupAboutUs from "./popupAboutUs.vue";
-import popupHelp from "./popupHelp.vue";
-import Knoten from "./elements/Knoten.vue";
-import Klemme from "./elements/Klemme.vue";
-import Resistor from "./elements/Resistor.vue";
+import popupComp from './popupComp.vue';
+import popupResult from './popupResult.vue';
+import popupEquivalentSrc from './popupEquivalentSrc.vue';
+import popupAboutUs from './popupAboutUs.vue';
+import popupHelp from './popupHelp.vue';
+import Knoten from './elements/Knoten.vue';
+import Klemme from './elements/Klemme.vue';
+import Resistor from './elements/Resistor.vue';
 /*import Inductor from "./elements/Inductor.vue";
 import Capacitor from "./elements/Capacitor.vue";*/
-import CurrentSource from "./elements/CurrentSource.vue";
-import VoltageSource from "./elements/VoltageSource.vue";
-import Ampermeter from "./elements/Ampermeter.vue";
-import Voltmeter from "./elements/Voltmeter.vue";
+import CurrentSource from './elements/CurrentSource.vue';
+import VoltageSource from './elements/VoltageSource.vue';
+import Ampermeter from './elements/Ampermeter.vue';
+import Voltmeter from './elements/Voltmeter.vue';
 
-import WireJS from "./jsFolder/constructorComponent/Wire.js";
-import Circuit from "./jsFolder/constructorComponent/Circuit";
+import WireJS from './jsFolder/constructorComponent/Wire.js';
+import Circuit from './jsFolder/constructorComponent/Circuit';
 
-import MultipleRinSerie from "./Conversion/MultipleRinSerie.js";
+import MultipleRinSerie from './Conversion/MultipleRinSerie.js';
 
 function srcPath(file) {
-  return "./image/components/" + file;
+  return './image/components/' + file;
 }
-const wireItem = { name: "Wire", src: srcPath("Wire.svg") };
+const wireItem = { name: 'Wire', src: srcPath('Wire.svg') };
 const componentsItem = [
-  { name: "Knoten", src: srcPath("Knoten.svg") },
-  { name: "Klemme", src: srcPath("Klemme.svg") },
-  { name: "Resistor", src: srcPath("Resistor.svg") },
+  { name: 'Knoten', src: srcPath('Knoten.svg') },
+  { name: 'Klemme', src: srcPath('Klemme.svg') },
+  { name: 'Resistor', src: srcPath('Resistor.svg') },
   /*{ name: "Inductor", src: srcPath("Inductor.svg") },
   { name: "Capacitor", src: srcPath("Capacitor.svg") },*/
-  { name: "CurrentSource", src: srcPath("CurrentSource.svg") },
-  { name: "VoltageSource", src: srcPath("VoltageSource.svg") },
-  { name: "Ampermeter", src: srcPath("Ampermeter.svg") },
-  { name: "Voltmeter", src: srcPath("Voltmeter.svg") },
+  { name: 'CurrentSource', src: srcPath('CurrentSource.svg') },
+  { name: 'VoltageSource', src: srcPath('VoltageSource.svg') },
+  { name: 'Ampermeter', src: srcPath('Ampermeter.svg') },
+  { name: 'Voltmeter', src: srcPath('Voltmeter.svg') }
 ];
 
 export default {
@@ -240,39 +240,39 @@ export default {
     CurrentSource,
     VoltageSource,
     Ampermeter,
-    Voltmeter,
+    Voltmeter
   },
   props: {
     currentLanguage: String,
     selectedTool: Number,
-    circuit: Object, //circuit with components and wires array
+    circuit: Object //circuit with components and wires array
   },
-  mounted: function () {
-    EventBus.$on("MBcapture", () => {
+  mounted: function() {
+    EventBus.$on('MBcapture', () => {
       this.MBcapture();
     });
-    EventBus.$on("MBa4Format", (newA4Bool) => {
+    EventBus.$on('MBa4Format', newA4Bool => {
       this.inA4Format = newA4Bool;
     });
-    EventBus.$on("MBsolve", () => {
+    EventBus.$on('MBsolve', () => {
       this.MBsolve();
     });
-    EventBus.$on("MBopenFile", () => {
+    EventBus.$on('MBopenFile', () => {
       this.MBopenFile();
     });
-    EventBus.$on("MBsaveFile", () => {
+    EventBus.$on('MBsaveFile', () => {
       this.MBsaveFile();
     });
-    EventBus.$on("MBequivalentSource", () => {
+    EventBus.$on('MBequivalentSource', () => {
       this.MBequivalentSource();
     });
-    EventBus.$on("MBgetEmptyCircuit", () => {
+    EventBus.$on('MBgetEmptyCircuit', () => {
       this.MBgetEmptyCircuit();
     });
-    EventBus.$on("MBaboutUs", () => {
+    EventBus.$on('MBaboutUs', () => {
       this.MBaboutUs();
     });
-    EventBus.$on("MBhelp", () => {
+    EventBus.$on('MBhelp', () => {
       this.MBhelp();
     });
   },
@@ -300,48 +300,48 @@ export default {
       toolState: toolStates,
 
       viewMenu: false,
-      top: "0px",
-      left: "0px",
-      multipleRinSerie_data: false,
+      top: '0px',
+      left: '0px',
+      multipleRinSerie_data: false
     };
   },
   methods: {
-    showTooltip: function (e, comp) {
+    showTooltip: function(e, comp) {
       if (this.selectedTool === this.toolState.STATE_IDLE) {
-        let tooltip = document.getElementById("tooltip");
+        let tooltip = document.getElementById('tooltip');
         tooltip.innerHTML = comp.getString();
-        tooltip.style.display = "block";
+        tooltip.style.display = 'block';
 
         let targetDiv = this.$refs.targetDiv;
         let tgt = targetDiv.getBoundingClientRect();
         let valueTop = e.clientY - tgt.top + targetDiv.scrollTop;
         let valueLeft = e.clientX - tgt.left + targetDiv.scrollLeft;
 
-        tooltip.style.left = valueLeft + 10 + "px";
-        tooltip.style.top = valueTop + 10 + "px";
+        tooltip.style.left = valueLeft + 10 + 'px';
+        tooltip.style.top = valueTop + 10 + 'px';
       }
     },
-    hideTooltip: function () {
-      let tooltip = document.getElementById("tooltip");
-      tooltip.style.display = "none";
+    hideTooltip: function() {
+      let tooltip = document.getElementById('tooltip');
+      tooltip.style.display = 'none';
     },
-    dynamicWidth: function () {
+    dynamicWidth: function() {
       let targetDiv = this.$refs.targetDiv;
       if (targetDiv !== undefined) {
         let width = targetDiv.scrollWidth;
-        return width + "px";
+        return width + 'px';
       }
     },
-    dynamicHeight: function () {
+    dynamicHeight: function() {
       let targetDiv = this.$refs.targetDiv;
       if (targetDiv !== undefined) {
         let height = targetDiv.scrollHeight - 4;
 
-        return height + "px";
+        return height + 'px';
       }
     },
 
-    setMenu: function (top, left) {
+    setMenu: function(top, left) {
       let targetDiv = this.$refs.targetDiv;
       let tgt = targetDiv.getBoundingClientRect();
       let valueScrollTop = targetDiv.scrollTop; //if the srollcar is used, valueScrollTop and Left take this offset
@@ -350,27 +350,27 @@ export default {
       let valueTop = top - tgt.top + valueScrollTop; //calculate the correct coordinate
       let valueLeft = left - tgt.left + valueScrollLeft;
 
-      this.top = valueTop + "px";
-      this.left = valueLeft + "px";
+      this.top = valueTop + 'px';
+      this.left = valueLeft + 'px';
     },
 
-    closeMenu: function () {
+    closeMenu: function() {
       this.viewMenu = false;
     },
 
-    openMenu: function (e) {
+    openMenu: function(e) {
       this.viewMenu = true;
       this.$nextTick(
-        function () {
+        function() {
           this.$refs.right.focus();
           this.setMenu(e.y, e.x);
         }.bind(this)
       );
       e.preventDefault();
-      console.log("open menu");
+      console.log('open menu');
       this.multipleRinSerie_openMenu();
     },
-    multipleRinSerie_openMenu: function () {
+    multipleRinSerie_openMenu: function() {
       let multiRinSerie = new MultipleRinSerie();
       this.multipleRinSerie_data = multiRinSerie.isPossible(
         this.circuit.getSelectedComponents(),
@@ -378,14 +378,14 @@ export default {
       );
     },
 
-    printAllSelected: function () {
-      console.log("printAllSelected");
-      this.circuit.getSelectedComponents().forEach((comp) => {
+    printAllSelected: function() {
+      console.log('printAllSelected');
+      this.circuit.getSelectedComponents().forEach(comp => {
         const idx = this.circuit.components.indexOf(comp);
-        console.log(idx + ": " + comp.symbol);
+        console.log(idx + ': ' + comp.symbol);
       });
     },
-    multipleRinSerie_function: function () {
+    multipleRinSerie_function: function() {
       let multiRinSerie = new MultipleRinSerie();
       multiRinSerie.isPossible(
         this.circuit.getSelectedComponents(),
@@ -398,23 +398,23 @@ export default {
       this.closeMenu();
     },
 
-    openClosePopupComp: function () {
+    openClosePopupComp: function() {
       this.isPopupCompVisible = !this.isPopupCompVisible;
     },
-    openClosePopupResult: function () {
+    openClosePopupResult: function() {
       this.isPopupResultVisible = !this.isPopupResultVisible;
     },
-    openClosePopupEquivalentSrc: function () {
+    openClosePopupEquivalentSrc: function() {
       this.isPopupEquivalentSrcVisible = !this.isPopupEquivalentSrcVisible;
     },
-    openClosePopupAboutUs: function () {
+    openClosePopupAboutUs: function() {
       this.isPopupAboutUsVisible = !this.isPopupAboutUsVisible;
     },
-    openClosePopupHelp: function () {
+    openClosePopupHelp: function() {
       this.isPopupHelpVisible = !this.isPopupHelpVisible;
     },
 
-    doubleClick: function (component) {
+    doubleClick: function(component) {
       if (this.selectedTool === this.toolState.STATE_IDLE) {
         this.CompoToPass = component;
         this.openClosePopupComp();
@@ -424,16 +424,16 @@ export default {
     /**
      * #region Drag&Drop
      */
-    dragStart: function (e) {
-      this.$emit("tool-state-changed", this.toolState.STATE_IDLE);
+    dragStart: function(e) {
+      this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
       this.resetbyfalseCreationWire(false);
 
       const target = e.target;
-      e.dataTransfer.setData("c_id", target.alt); // target.alt is the correct name of the component
+      e.dataTransfer.setData('c_id', target.alt); // target.alt is the correct name of the component
     },
-    drop: function (e) {
-      const c_id = e.dataTransfer.getData("c_id");
-      if (c_id != "") {
+    drop: function(e) {
+      const c_id = e.dataTransfer.getData('c_id');
+      if (c_id != '') {
         //security
         let targetDiv = this.$refs.targetDiv; //instead of document.getElementById("targetDiv");
         let tgt = targetDiv.getBoundingClientRect();
@@ -457,14 +457,14 @@ export default {
     /**
      * #region Movement
      */
-    moveStart: function (event, component) {
+    moveStart: function(event, component) {
       if (this.selectedTool === this.toolState.TOOL_MOVE) {
         this.selectedComponent = component;
         this.shiftX = event.offsetX; //where I click inside Component
         this.shiftY = event.offsetY;
       }
     },
-    moveMotion: function (e) {
+    moveMotion: function(e) {
       if (
         this.selectedComponent &&
         this.selectedTool === this.toolState.TOOL_MOVE
@@ -495,7 +495,7 @@ export default {
         this.selectedComponent.x = valueLeft;
       }
     },
-    moveEnd: function (e) {
+    moveEnd: function(e) {
       if (
         this.selectedComponent &&
         this.selectedTool === this.toolState.TOOL_MOVE
@@ -508,7 +508,7 @@ export default {
      * #endregion
      */
 
-    simpleClick: function (component) {
+    simpleClick: function(component) {
       if (
         this.selectedTool === this.toolState.TOOL_SELECT &&
         component.isMultiPin === false
@@ -530,11 +530,11 @@ export default {
     /**
      * #region Wire
      */
-    creationWire: function () {
+    creationWire: function() {
       this.resetbyfalseCreationWire(true);
     },
 
-    pinClicked: function (component, nr) {
+    pinClicked: function(component, nr) {
       if (this.selectedTool !== this.toolState.TOOL_CREATE_WIRE) {
         return;
       }
@@ -552,19 +552,19 @@ export default {
         this.drawWire();
         this.resetbyfalseCreationWire(false);
       } else {
-        alert("You can choose pin of the same component");
+        alert('You can choose pin of the same component');
         this.resetbyfalseCreationWire(false);
       }
     },
-    resetbyfalseCreationWire: function (bool) {
+    resetbyfalseCreationWire: function(bool) {
       if (bool === true) {
-        this.$emit("tool-state-changed", this.toolState.TOOL_CREATE_WIRE);
+        this.$emit('tool-state-changed', this.toolState.TOOL_CREATE_WIRE);
       } else if (bool === false) {
-        this.$emit("tool-state-changed", this.toolState.STATE_IDLE);
+        this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
       }
       this.fromComponent = this.fromComponentPin = this.toComponent = this.toComponentPin = null;
     },
-    selectedWire: function (line) {
+    selectedWire: function(line) {
       if (this.selectedTool === this.toolState.TOOL_DELETE) {
         this.circuit.wires.forEach((wire, index) => {
           console.log(line);
@@ -606,20 +606,20 @@ export default {
         }
       }
       this.circuit.wires.splice(index, 1); //delete line graphical
-      this.circuit.components.forEach((comp) => {
+      this.circuit.components.forEach(comp => {
         comp.resetCalculatedValues();
       });
     },
-    drawWire: function () {
+    drawWire: function() {
       let wire = new WireJS({
         from: this.fromComponent.pins[this.fromComponentPin],
-        to: this.toComponent.pins[this.toComponentPin],
+        to: this.toComponent.pins[this.toComponentPin]
       });
       this.circuit.wires.push(wire);
       this.pinOpacity0(wire);
     },
 
-    pinOpacity0: function (wire) {
+    pinOpacity0: function(wire) {
       const showHidePin = (c, pinNB) => {
         if (c.isMultiPin === false) {
           if (pinNB === 0) {
@@ -644,7 +644,7 @@ export default {
     /**
      * #region MenuBar function
      */
-    MBcapture: function () {
+    MBcapture: function() {
       print();
     },
 
@@ -655,7 +655,7 @@ export default {
           solver.solveWithAttribution(this.circuit);
           this.openClosePopupResult();
         } catch (e) {
-          alert("*****ERROR*****\n" + e.message);
+          alert('*****ERROR*****\n' + e.message);
         }
       }
     },
@@ -663,40 +663,40 @@ export default {
       this.openClosePopupEquivalentSrc();
     },
     MBopenFile() {
-      var file = document.getElementById("fileInput").files[0];
-      const blob = new Blob([file], { type: "application/json" });
+      var file = document.getElementById('fileInput').files[0];
+      const blob = new Blob([file], { type: 'application/json' });
       const fr = new FileReader();
       var obj;
       var self = this;
 
-      fr.onload = function () {
+      fr.onload = function() {
         obj = JSON.parse(fr.result);
-        console.log("JSON.parse(fr.result)\n", obj);
+        console.log('JSON.parse(fr.result)\n', obj);
       };
       fr.readAsText(blob);
-      fr.onloadend = function () {
-        console.log("START Load");
+      fr.onloadend = function() {
+        console.log('START Load');
         self.circuit.loadNewCircuit(obj);
-        console.log("Comp Ok, Wire load start");
+        console.log('Comp Ok, Wire load start');
         self.circuit.loadWireOfNewCircuit(obj);
-        console.log("CIRCUIT LOADED", self.circuit);
+        console.log('CIRCUIT LOADED', self.circuit);
       };
     },
     MBsaveFile() {
       let data = this.circuit;
       // Convert the text to BLOB.
-      const textToBLOB = new Blob([JSON.stringify(data)], {
-        type: "application/json",
+      const textToBLOB = new Blob([JSON.stringify(data, null, 2)], {
+        type: 'application/json'
       });
-      const sFileName = "SfeS-circuit.json"; // The file to save the data.
-      let newLink = document.createElement("a");
+      const sFileName = 'SfeS-circuit.json'; // The file to save the data.
+      let newLink = document.createElement('a');
       newLink.download = sFileName;
 
       if (window.webkitURL != null) {
         newLink.href = window.webkitURL.createObjectURL(textToBLOB);
       } else {
         newLink.href = window.URL.createObjectURL(textToBLOB);
-        newLink.style.display = "none";
+        newLink.style.display = 'none';
         document.body.appendChild(newLink);
       }
       newLink.click();
@@ -709,13 +709,13 @@ export default {
     },
     MBhelp() {
       this.openClosePopupHelp();
-    },
-  },
+    }
+  }
 };
 </script>
 
 <style>
-@import "./cssFolder/bigBody.css";
+@import './cssFolder/bigBody.css';
 
 @media print {
   body * {

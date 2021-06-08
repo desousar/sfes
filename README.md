@@ -8,7 +8,7 @@
 - [Converting components](#converting-components)
 - [Solve the circuit](#solve-the-circuit)
 - [Calculate equivalent sources](#calculate-equivalent-sources)
-- [Advanced solving, how does it work?](#advanced-solving--how-does-it-work-)
+- [Advanced solving, how does it work](#advanced-solving--how-does-it-work)
 ***
 Available as a GitHub Page: https://desousar.github.io/sfes/
 This web-application allows to solve electronic circuits. 
@@ -20,10 +20,10 @@ You have the electronic components present in DC (same order as on the picture):
 - of course Wires to link these components
 - Nodes
 - Terminal
-- resistor
-- current source
-- voltage source
-- ammeter and voltmeter
+- Resistor
+- Current source
+- Voltage source
+- Ammeter and voltmeter
 
 ![Screen components](./screenREADME/listComponents1.png)
 ![Screen components](./screenREADME/listComponents2.png)
@@ -61,7 +61,7 @@ In case of error, please follow the instructions.
 If you have placed 2 Terminals in your circuit, then you can click on 'Equivalent source' and select in which direction the equivalent sources should be calculated.
 This web-application has been implemented in such a way to find the ideal current and voltage sources.
 
-### Advanced solving, how does it work?
+### Advanced solving, how does it work
 
 To solve these electronic circuits, I implemented the Nodal analysis (Knotenpotentialverfahren).
 Without going into too much detail, I divided this analysis into 3 phases of equation recovery:

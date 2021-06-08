@@ -174,9 +174,15 @@
         v-on:blur="closeMenu"
         :style="{ top: top, left: left }"
       >
-        <li @click="printAllSelected">print selected components</li>
+        <li>available conversions:</li>
         <li v-if="multipleRinSerie_data" @click="multipleRinSerie_function">
           multiple R in Série
+        </li>
+        <li
+          v-if="multipleRinParallel_data"
+          @click="multipleRinParallel_function"
+        >
+          multiple R in Parallel
         </li>
       </ul>
     </div>
@@ -207,7 +213,8 @@ import Voltmeter from './elements/Voltmeter.vue';
 import WireJS from './jsFolder/constructorComponent/Wire.js';
 import Circuit from './jsFolder/constructorComponent/Circuit';
 
-import MultipleRinSerie from './Conversion/MultipleRinSerie.js';
+import MultipleRinSerie from './Conversion/implementations/MultipleRinSerie.js';
+import MultipleRinParallel from './Conversion/implementations/MultipleRinParallel.js';
 
 function srcPath(file) {
   return './image/components/' + file;
@@ -302,7 +309,8 @@ export default {
       viewMenu: false,
       top: '0px',
       left: '0px',
-      multipleRinSerie_data: false
+      multipleRinSerie_data: false,
+      multipleRinParallel_data: false
     };
   },
   methods: {
@@ -368,23 +376,25 @@ export default {
       );
       e.preventDefault();
       console.log('open menu');
-      this.multipleRinSerie_openMenu();
+      const selectedComp = this.circuit.getSelectedComponents();
+      this.multipleRinSerie_openMenu(selectedComp);
+      this.multipleRinParallel_openMenu(selectedComp);
     },
-    multipleRinSerie_openMenu: function() {
+    multipleRinSerie_openMenu: function(selectedComp) {
       let multiRinSerie = new MultipleRinSerie();
       this.multipleRinSerie_data = multiRinSerie.isPossible(
-        this.circuit.getSelectedComponents(),
+        selectedComp,
+        this.circuit
+      );
+    },
+    multipleRinParallel_openMenu: function(selectedComp) {
+      let multiRinParallel = new MultipleRinParallel();
+      this.multipleRinParallel_data = multiRinParallel.isPossible(
+        selectedComp,
         this.circuit
       );
     },
 
-    printAllSelected: function() {
-      console.log('printAllSelected');
-      this.circuit.getSelectedComponents().forEach(comp => {
-        const idx = this.circuit.components.indexOf(comp);
-        console.log(idx + ': ' + comp.symbol);
-      });
-    },
     multipleRinSerie_function: function() {
       let multiRinSerie = new MultipleRinSerie();
       multiRinSerie.isPossible(
@@ -395,6 +405,13 @@ export default {
         this.circuit.getSelectedComponents(),
         this.circuit
       );
+      this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
+      this.closeMenu();
+    },
+    multipleRinParallel_function: function() {
+      let multiRinParallel = new MultipleRinParallel();
+      multiRinParallel.conversion(this.circuit);
+      this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
       this.closeMenu();
     },
 
@@ -515,11 +532,7 @@ export default {
       ) {
         component.selected = !component.selected;
       } else if (this.selectedTool === this.toolState.TOOL_DELETE) {
-        this.circuit.components.forEach((comp, index) => {
-          if (component === comp) {
-            this.circuit.deleteOneComponent(component, index); //call the function delete
-          }
-        });
+        this.circuit.deleteOneComponent(component); //call the function delete
       } else if (
         this.selectedTool === this.toolState.TOOL_ROTATE &&
         component.isMultiPin === false

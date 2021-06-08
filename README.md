@@ -8,9 +8,10 @@
 - [Converting components](#converting-components)
 - [Solve the circuit](#solve-the-circuit)
 - [Calculate equivalent sources](#calculate-equivalent-sources)
-- [Advanced solving, how does it work](#advanced-solving--how-does-it-work)
+- [Advanced solving, how does it work](#advanced-solving-how-does-it-work)
 ***
 Available as a GitHub Page: https://desousar.github.io/sfes/
+
 This web-application allows to solve electronic circuits. 
 Currently only Direct Current (DC) circuits are supported.
 

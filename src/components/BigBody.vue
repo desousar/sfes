@@ -87,6 +87,11 @@
           :key="'component-' + idx"
           :alt="component.name"
           :component="component"
+          :style="{
+            left: component.x + 'px',
+            top: component.y + 'px',
+            position: 'absolute'
+          }"
           @simpleClick="simpleClick(component)"
           @doubleClick="doubleClick(component)"
           @pin="nr => pinClicked(component, nr)"

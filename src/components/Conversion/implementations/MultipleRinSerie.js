@@ -102,7 +102,9 @@ export default class MultipleRinSerie {
       return;
     } else if (
       comp.selected ||
-      (comp instanceof KnotenJS && circuit.getCountConnection(comp) === 2)
+      (comp instanceof KnotenJS &&
+        circuit.getCountConnection(comp) === 2 &&
+        comp.valuePotentialSource === undefined)
     ) {
       comp.flagConversion = true;
       console.log(comp.symbol, 'flagConversion = true');

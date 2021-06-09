@@ -65,11 +65,27 @@ export default class MultipleRinParallel {
       const toComp = circuit.componentFromPin(w.to);
       if (firstComp === fromComp) {
         // check "path" based on 1st pin
-        this.fusionNeighborsKnoten(circuit, selArray, fromComp, toComp);
+        const result = this.fusionNeighborsKnoten(
+          circuit,
+          selArray,
+          fromComp,
+          toComp
+        );
+        if (!result) {
+          return false;
+        }
       }
       if (firstComp === toComp) {
         // check "path" based on 2nd pin
-        this.fusionNeighborsKnoten(circuit, selArray, toComp, fromComp);
+        const result = this.fusionNeighborsKnoten(
+          circuit,
+          selArray,
+          toComp,
+          fromComp
+        );
+        if (!result) {
+          return false;
+        }
       }
     }
     let bool_data2 = this.is2KnotenNeighbors(circuit, selArray);
@@ -89,7 +105,10 @@ export default class MultipleRinParallel {
         const toComp = circuit.componentFromPin(w.to);
         if (comp === fromComp) {
           console.log('find1', comp.symbol, toComp instanceof KnotenJS);
-          if (!(toComp instanceof KnotenJS)) {
+          if (
+            !(toComp instanceof KnotenJS) ||
+            toComp.valuePotentialSource !== undefined
+          ) {
             console.log('STOP1');
             return false;
           } else {
@@ -98,7 +117,10 @@ export default class MultipleRinParallel {
         }
         if (comp === toComp) {
           console.log('find2', comp.symbol, fromComp instanceof KnotenJS);
-          if (!(fromComp instanceof KnotenJS)) {
+          if (
+            !(fromComp instanceof KnotenJS) ||
+            fromComp.valuePotentialSource !== undefined
+          ) {
             console.log('STOP2');
             return false;
           } else {
@@ -126,6 +148,7 @@ export default class MultipleRinParallel {
     let result = selArray.every(comp => comp.flagConversion);
     console.log('***', result);
     if (!result) {
+      console.log('return false');
       return false;
     }
     selArray.map(comp => (comp.flagConversion = false));
@@ -143,10 +166,18 @@ export default class MultipleRinParallel {
       for (let wire of circuit.wires) {
         const compFrom = circuit.componentFromPin(wire.from);
         const compTo = circuit.componentFromPin(wire.to);
-        if (lk === compFrom && !(compTo instanceof KnotenJS)) {
+        if (
+          lk === compFrom &&
+          (!(compTo instanceof KnotenJS) ||
+            compTo.valuePotentialSource !== undefined)
+        ) {
           wire.from = keepAlive.pins[0];
         }
-        if (lk === compTo && !(compFrom instanceof KnotenJS)) {
+        if (
+          lk === compTo &&
+          (!(compFrom instanceof KnotenJS) ||
+            compFrom.valuePotentialSource !== undefined)
+        ) {
           wire.to = keepAlive.pins[0];
         }
       }
@@ -155,6 +186,7 @@ export default class MultipleRinParallel {
     localKnoten.forEach(lk => {
       circuit.deleteOneComponent(lk);
     });
+    return true;
   }
 
   nextNeighbor(circuit, origin, comp) {
@@ -170,7 +202,11 @@ export default class MultipleRinParallel {
       const compTo = circuit.componentFromPin(wire.to);
       if (comp === compFrom) {
         console.log('ENTER 10 find:', compTo.symbol);
-        if (compTo instanceof KnotenJS && !compTo.visited) {
+        if (
+          compTo instanceof KnotenJS &&
+          !compTo.visited &&
+          compTo.valuePotentialSource === undefined
+        ) {
           this.nextNeighbor(circuit, compFrom, compTo);
         }
         if (selArray.includes(compTo)) {
@@ -179,7 +215,11 @@ export default class MultipleRinParallel {
         }
       } else if (comp === compTo) {
         console.log('ENTER 20 find:', compFrom.symbol);
-        if (compFrom instanceof KnotenJS && !compFrom.visited) {
+        if (
+          compFrom instanceof KnotenJS &&
+          !compFrom.visited &&
+          compFrom.valuePotentialSource === undefined
+        ) {
           this.nextNeighbor(circuit, compTo, compFrom);
         }
         if (selArray.indexOf(compFrom) !== -1) {

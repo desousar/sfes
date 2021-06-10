@@ -1,3 +1,8 @@
+<!-- undo redo Memento Pattern src: 
+https://codepen.io/zerbene/pen/oNZPWdY
+https://medium.com/fbbd/intro-to-writing-undo-redo-systems-in-javascript-af17148a852b
+-->
+
 <template>
   <div id="app">
     <!--<img alt="Vue logo" src="./assets/logo.png"> => explain how to import a picture-->
@@ -13,54 +18,80 @@
       :currentLanguage="currentLanguage"
       :selectedTool="tool"
       @tool-state-changed="onToolStateChanged"
+      :circuit="circuit"
+      :undoRedoData="undoRedoData"
+      @set-position="setPosition"
+      @set-circuit="setCircuit"
     />
     <BigBody
       :currentLanguage="currentLanguage"
       :selectedTool="tool"
       @tool-state-changed="onToolStateChanged"
       :circuit="circuit"
+      :undoRedoData="undoRedoData"
+      @set-position="setPosition"
+      @shift-history="shiftHistory"
+      @push-history="pushHistory"
     />
   </div>
 </template>
 
 <script>
-import TitleBanner from "./components/TitleBanner.vue";
-import MenuBar from "./components/MenuBar.vue";
-import ToolBar from "./components/ToolBar.vue";
-import BigBody from "./components/BigBody.vue";
+import TitleBanner from './components/TitleBanner.vue';
+import MenuBar from './components/MenuBar.vue';
+import ToolBar from './components/ToolBar.vue';
+import BigBody from './components/BigBody.vue';
 
-import toolStates from "./states.js";
+import toolStates from './states.js';
 
-import Circuit from "./components/jsFolder/constructorComponent/Circuit.js";
+import Circuit from './components/jsFolder/constructorComponent/Circuit.js';
 
 export default {
-  name: "App",
+  name: 'App',
   components: {
     TitleBanner,
     MenuBar,
     ToolBar,
-    BigBody,
+    BigBody
   },
   data() {
     return {
-      currentLanguage: "en", //default language
+      currentLanguage: 'en', //default language
       locales: [
-        { id: "en", name: "English" },
-        { id: "de", name: "Deutsch" },
+        { id: 'en', name: 'English' },
+        { id: 'de', name: 'Deutsch' }
       ],
       tool: toolStates.STATE_IDLE, //default first state
       circuit: new Circuit([], []), //init a circuit
+      undoRedoData: {
+        // state history [older,...,younger]
+        history: [new Circuit([], [])], //1st state in history written manual
+        position: 0,
+        historyMaxLength: 7
+      }
     };
   },
   methods: {
-    updateLanguage: function (updatedLanguage) {
+    updateLanguage: function(updatedLanguage) {
       this.currentLanguage = updatedLanguage;
     },
 
     onToolStateChanged(nextState) {
       this.tool = nextState;
     },
-  },
+    setPosition(val) {
+      this.undoRedoData.position += val;
+    },
+    setCircuit(val) {
+      this.circuit = val;
+    },
+    shiftHistory() {
+      this.undoRedoData.history.shift();
+    },
+    pushHistory(val) {
+      this.undoRedoData.history.push(val);
+    }
+  }
 };
 </script>
 
@@ -73,7 +104,7 @@ html {
   width: 100vw;
 }
 #app {
-  font-family: "Times New Roman", Helvetica, Arial, serif;
+  font-family: 'Times New Roman', Helvetica, Arial, serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   height: 100vh;

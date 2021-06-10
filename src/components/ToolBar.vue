@@ -97,6 +97,12 @@
         <div>{{ mouse[getCurrentLanguage] }}</div>
       </div>
     </div>
+    <div class="third">
+      <button @click="undo" :disabled="!canUndo" style="margin-right:10px">
+        Undo
+      </button>
+      <button @click="redo" :disabled="!canRedo">Redo</button>
+    </div>
   </div>
 </template>
 
@@ -108,7 +114,9 @@ export default {
     //variable, who I obtain from App.vue (one stage up of this stage)
     //I need to give the type, after that I can us it into html part like {{...}}
     currentLanguage: String,
-    selectedTool: Number
+    selectedTool: Number,
+    circuit: Object,
+    undoRedoData: Object
   },
   data() {
     return {
@@ -130,6 +138,14 @@ export default {
   computed: {
     getCurrentLanguage: function() {
       return this.currentLanguage;
+    },
+    canUndo: function() {
+      return this.undoRedoData.position > 0;
+    },
+    canRedo: function() {
+      return (
+        this.undoRedoData.history.length - 1 - this.undoRedoData.position > 0
+      );
     }
   },
   methods: {
@@ -147,6 +163,25 @@ export default {
     },
     mouseItem: function() {
       this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
+    },
+    // Undo and Redo
+    undo() {
+      if (this.undoRedoData.position > 0) {
+        this.$emit('set-position', -1);
+      }
+      let deepcopy = this.undoRedoData.history[
+        this.undoRedoData.position
+      ].project();
+      this.$emit('set-circuit', deepcopy);
+    },
+    redo() {
+      if (this.undoRedoData.position < this.undoRedoData.history.length - 1) {
+        this.$emit('set-position', 1);
+      }
+      let deepcopy = this.undoRedoData.history[
+        this.undoRedoData.position
+      ].project();
+      this.$emit('set-circuit', deepcopy);
     }
   }
 };

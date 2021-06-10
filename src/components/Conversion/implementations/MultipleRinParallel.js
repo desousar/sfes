@@ -236,8 +236,8 @@ export default class MultipleRinParallel {
    */
   conversion(circuit) {
     const selectedComp_array = circuit.getSelectedComponents();
-    let onRealCircuit = true;
-    this.isInParallel(circuit, onRealCircuit);
+    // let onRealCircuit = true;
+    // this.isInParallel(circuit, onRealCircuit);
     let sum = 0;
     selectedComp_array.forEach(comp => {
       console.log('value:', 1 / comp.valueR);
@@ -247,10 +247,11 @@ export default class MultipleRinParallel {
 
     let [keepAlive] = selectedComp_array.splice(0, 1);
     keepAlive.symbol += 'SUM';
-    keepAlive.valueR = sum;
+    keepAlive.valueR = 1 / sum;
     keepAlive.selected = false;
     selectedComp_array.forEach(component => {
       circuit.deleteOneComponent(component);
     });
+    // while a Knoten in the circuit has just 1 connection && this co is with a Knoten without potentialSrc => delete this one
   }
 }

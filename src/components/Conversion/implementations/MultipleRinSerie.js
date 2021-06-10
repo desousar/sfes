@@ -3,6 +3,7 @@ import ResistorJS from '../../jsFolder/constructorComponent/jsComponents/Resisto
 import WireJS from '../../jsFolder/constructorComponent/Wire.js';
 
 import { distanceBtw2Points } from '../util/mathFunction';
+import { dropComp } from '../../jsFolder/dropComponent';
 
 export default class MultipleRinSerie {
   constructor() {
@@ -10,6 +11,7 @@ export default class MultipleRinSerie {
     this.extremity2_comp = undefined;
     this.extremity1_pinID = undefined;
     this.extremity2_pinID = undefined;
+    this.circuitAsLoop = false;
   }
 
   /**
@@ -73,7 +75,12 @@ export default class MultipleRinSerie {
     const result = selectedComp_array.every(
       comp => comp.flagConversion === true
     );
+    // console.log(
+    //   'boucle:',
+    //   circuit.components.every(comp => comp.flagConversion)
+    // );
     circuit.components.map(comp => (comp.flagConversion = false));
+    console.log('extremity', this.extremity1_comp, this.extremity2_comp);
     return result;
   }
 
@@ -98,7 +105,8 @@ export default class MultipleRinSerie {
   nextNeighbor(circuit, origin, comp) {
     console.log(comp.symbol, 'is under test');
     if (comp.flagConversion === true) {
-      console.log(comp.symbol, ' flagConversion is already true');
+      console.log(comp.symbol, ' flagConversion is already true A LOOP');
+      this.circuitAsLoop = true;
       return;
     } else if (
       comp.selected ||
@@ -162,10 +170,21 @@ export default class MultipleRinSerie {
     newR.valueR = sumR;
     newR.showSymbol = true;
     newR.rotation = selectedComp_array[0].rotation;
-
     circuit.components.push(newR);
+
+    if (this.circuitAsLoop) {
+      let kn = dropComp(
+        'Knoten',
+        selectedComp_array[1].x,
+        selectedComp_array[1].y,
+        '-1'
+      );
+      circuit.components.push(kn);
+      this.create1Wire(circuit, newR, 0, kn, 0);
+      this.create1Wire(circuit, newR, 1, kn, 0);
+    }
     // check coord x and y for graphical attribution
-    if (
+    else if (
       this.extremity1_comp !== undefined &&
       this.extremity2_comp !== undefined
     ) {

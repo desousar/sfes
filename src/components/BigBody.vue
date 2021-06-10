@@ -257,7 +257,8 @@ export default {
   props: {
     currentLanguage: String,
     selectedTool: Number,
-    circuit: Object //circuit with components and wires array
+    circuit: Object, //circuit with components and wires array
+    undoRedoData: Object
   },
   mounted: function() {
     EventBus.$on('MBcapture', () => {
@@ -412,15 +413,21 @@ export default {
       );
       this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
       this.closeMenu();
+      this.save();
     },
     multipleRinParallel_function: function() {
       let multiRinParallel = new MultipleRinParallel();
       multiRinParallel.conversion(this.circuit);
       this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
       this.closeMenu();
+      this.save();
     },
 
     openClosePopupComp: function() {
+      // situation: click on close button from pop up windows
+      if (this.isPopupCompVisible) {
+        this.save();
+      }
       this.isPopupCompVisible = !this.isPopupCompVisible;
     },
     openClosePopupResult: function() {
@@ -470,6 +477,7 @@ export default {
 
         this.circuit.components.push(c);
         this.symbolNumber = this.symbolNumber + 1;
+        this.save();
       }
     },
     /**
@@ -524,6 +532,7 @@ export default {
       ) {
         this.moveMotion(e);
         this.selectedComponent = null;
+        this.save();
       }
     },
     /**
@@ -538,6 +547,7 @@ export default {
         component.selected = !component.selected;
       } else if (this.selectedTool === this.toolState.TOOL_DELETE) {
         this.circuit.deleteOneComponent(component); //call the function delete
+        this.save();
       } else if (
         this.selectedTool === this.toolState.TOOL_ROTATE &&
         component.isMultiPin === false
@@ -569,6 +579,7 @@ export default {
 
         this.drawWire();
         this.resetbyfalseCreationWire(false);
+        this.save();
       } else {
         alert('You can choose pin of the same component');
         this.resetbyfalseCreationWire(false);
@@ -588,6 +599,7 @@ export default {
           console.log(line);
           if (line === wire) {
             this.deleteOneWire(wire, index);
+            this.save();
           }
         });
       }
@@ -660,6 +672,35 @@ export default {
      */
 
     /**
+     * #region Undo Redo function
+     */
+    setValue(value) {
+      if (this.undoRedoData.position < this.undoRedoData.history.length - 1) {
+        this.undoRedoData.history = this.undoRedoData.history.slice(
+          0,
+          this.undoRedoData.position + 1
+        );
+      }
+      if (
+        this.undoRedoData.position ===
+        this.undoRedoData.historyMaxLength - 1
+      ) {
+        this.$emit('shift-history');
+        this.$emit('set-position', -1);
+      }
+      this.$emit('push-history', value);
+      this.$emit('set-position', 1);
+    },
+    save() {
+      const deepCopy = this.circuit.project();
+      console.log(deepCopy.components);
+      this.setValue(deepCopy);
+    },
+    /**
+     * #endregion
+     */
+
+    /**
      * #region MenuBar function
      */
     MBcapture: function() {
@@ -672,6 +713,7 @@ export default {
         try {
           solver.solveWithAttribution(this.circuit);
           this.openClosePopupResult();
+          this.save();
         } catch (e) {
           alert('*****ERROR*****\n' + e.message);
         }
@@ -699,6 +741,7 @@ export default {
         self.circuit.loadWireOfNewCircuit(obj);
         console.log('CIRCUIT LOADED', self.circuit);
       };
+      this.save();
     },
     MBsaveFile() {
       let data = this.circuit;
@@ -721,6 +764,7 @@ export default {
     },
     MBgetEmptyCircuit() {
       this.circuit = new Circuit([], []);
+      this.save();
     },
     MBaboutUs() {
       this.openClosePopupAboutUs();

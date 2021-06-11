@@ -456,6 +456,7 @@ export default {
     dragStart: function(e) {
       this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
       this.resetbyfalseCreationWire(false);
+      this.resetCompFromWire();
 
       const target = e.target;
       e.dataTransfer.setData('c_id', target.alt); // target.alt is the correct name of the component
@@ -553,13 +554,19 @@ export default {
         component.isMultiPin === false
       ) {
         component.rotateRight();
+        this.save();
       }
     },
     /**
      * #region Wire
      */
     creationWire: function() {
-      this.resetbyfalseCreationWire(true);
+      if (this.selectedTool === this.toolState.TOOL_CREATE_WIRE) {
+        this.resetbyfalseCreationWire(false);
+      } else {
+        this.resetbyfalseCreationWire(true);
+      }
+      this.resetCompFromWire();
     },
 
     pinClicked: function(component, nr) {
@@ -578,11 +585,34 @@ export default {
         this.toComponent = component;
 
         this.drawWire();
-        this.resetbyfalseCreationWire(false);
+        this.resetCompFromWire();
+        this.save();
+      } else if (
+        this.fromComponent !== null &&
+        this.toComponent === null &&
+        this.fromComponentPin !== nr
+      ) {
+        // you are on same comp BUT not same pin
+        const newValLeft = this.fromComponent.x - 50;
+        const newValTop = this.fromComponent.y + 50;
+        const kn = dropComp('Knoten', newValLeft, newValTop, 'temp');
+        this.circuit.components.push(kn);
+        //connect 2 pins from this.fromComponent with kn pin
+        const createWire = (fC, fCpin, tC, tCpin) => {
+          let wire = new WireJS({
+            from: fC.pins[fCpin],
+            to: tC.pins[tCpin]
+          });
+          this.circuit.wires.push(wire);
+          this.pinOpacity0(wire);
+        };
+        createWire(this.fromComponent, 0, kn, 0);
+        createWire(this.fromComponent, 1, kn, 0);
+        this.resetCompFromWire();
         this.save();
       } else {
-        alert('You can choose pin of the same component');
-        this.resetbyfalseCreationWire(false);
+        alert('You can choose same pin of the same component');
+        this.resetCompFromWire();
       }
     },
     resetbyfalseCreationWire: function(bool) {
@@ -591,6 +621,8 @@ export default {
       } else if (bool === false) {
         this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
       }
+    },
+    resetCompFromWire() {
       this.fromComponent = this.fromComponentPin = this.toComponent = this.toComponentPin = null;
     },
     selectedWire: function(line) {

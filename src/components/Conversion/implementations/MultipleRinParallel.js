@@ -100,7 +100,6 @@ export default class MultipleRinParallel {
     if (!bool_data2) {
       return false;
     }
-    console.log((this.ext1.symbol, 'and', this.ext2.symbol));
     return true;
   }
 
@@ -318,8 +317,13 @@ export default class MultipleRinParallel {
   }
   everyKnotenHas2CoMin_function(circuit) {
     circuit.components.forEach(kn => {
-      if (kn instanceof KnotenJS && kn.valuePotentialSource === undefined) {
-        if (circuit.getCountConnection(kn) < 2) {
+      if (this.isSimpleKnoten(kn)) {
+        if (circuit.getCountConnection(kn) === 1) {
+          const tempComp = this.getNeighborFor1Co(circuit, kn);
+          if (this.isSimpleKnoten(tempComp)) {
+            circuit.deleteOneComponent(kn);
+          }
+        } else if (circuit.getCountConnection(kn) === 0) {
           circuit.deleteOneComponent(kn);
         }
       }
@@ -327,11 +331,33 @@ export default class MultipleRinParallel {
   }
   everyKnotenHas2CoMin_control(circuit) {
     for (let kn of circuit.components) {
-      if (kn instanceof KnotenJS && kn.valuePotentialSource === undefined) {
-        if (circuit.getCountConnection(kn) < 2) {
+      if (this.isSimpleKnoten(kn)) {
+        if (circuit.getCountConnection(kn) === 1) {
+          const tempComp = this.getNeighborFor1Co(circuit, kn);
+          if (this.isSimpleKnoten(tempComp)) {
+            return false;
+          }
+        } else if (circuit.getCountConnection(kn) === 0) {
           return false;
         }
       }
     }
+  }
+  getNeighborFor1Co(circuit, comp) {
+    let compToReturn;
+    for (let wire of circuit.wires) {
+      var compFrom = circuit.componentFromPin(wire.from);
+      var compTo = circuit.componentFromPin(wire.to);
+      if (comp === compFrom) {
+        compToReturn = compTo;
+      }
+      if (comp === compTo) {
+        compToReturn = compFrom;
+      }
+    }
+    return compToReturn;
+  }
+  isSimpleKnoten(comp) {
+    return comp instanceof KnotenJS && comp.valuePotentialSource === undefined;
   }
 }

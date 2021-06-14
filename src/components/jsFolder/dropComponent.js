@@ -22,7 +22,13 @@ import VoltageSourceJS from './constructorComponent/jsComponents/VoltageSource.j
 import AmpermeterJS from './constructorComponent/jsComponents/Ampermeter.js';
 import VoltmeterJS from './constructorComponent/jsComponents/Voltmeter.js';
 
-const dropComp = (c_id, valueLeft, valueTop, symbolNumber) => {
+const dropComp = ({
+  withPresValue,
+  c_id,
+  valueLeft,
+  valueTop,
+  symbolNumber
+}) => {
   const compID = c_id;
   switch (compID) {
     case 'Knoten':
@@ -63,7 +69,8 @@ const dropComp = (c_id, valueLeft, valueTop, symbolNumber) => {
             x: valueLeft + valueLeftPin1KompRot0,
             y: valueTop + valueTopPin1KompRot0
           }
-        ]
+        ],
+        valR: withPresValue ? 1000 : undefined
       });
     case 'VoltageSource':
       return new VoltageSourceJS({
@@ -79,7 +86,8 @@ const dropComp = (c_id, valueLeft, valueTop, symbolNumber) => {
             x: valueLeft + valueLeftPin1KompRot0,
             y: valueTop + valueTopPin1KompRot0
           }
-        ]
+        ],
+        valU: withPresValue ? 10 : undefined
       });
     case 'CurrentSource':
       return new CurrentSourceJS({
@@ -95,7 +103,8 @@ const dropComp = (c_id, valueLeft, valueTop, symbolNumber) => {
             x: valueLeft + valueLeftPin1KompRot0,
             y: valueTop + valueTopPin1KompRot0
           }
-        ]
+        ],
+        valI: withPresValue ? 1 : undefined
       });
     case 'Ampermeter':
       return new AmpermeterJS({

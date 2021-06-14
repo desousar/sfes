@@ -1,4 +1,4 @@
-import Component from "../Component.js";
+import Component from '../Component.js';
 
 export default class VoltageSource extends Component {
   constructor({
@@ -9,23 +9,25 @@ export default class VoltageSource extends Component {
     valueTop = 0,
     pins = [
       { x: 0, y: 0 },
-      { x: 0, y: 0 },
+      { x: 0, y: 0 }
     ],
+    valU
   }) {
-    super(
-      "VoltageSource",
+    super({
+      name: 'VoltageSource',
       symbol,
       pins,
       valueLeft,
       valueTop,
       directionU,
-      directionI
-    );
+      directionI,
+      valU
+    });
   }
 
   assertMainValue() {
     if (this.valueU == undefined) {
-      throw new Error("missing voltage value on " + this.symbol);
+      throw new Error('missing voltage value on ' + this.symbol);
     }
   }
 
@@ -46,23 +48,23 @@ export default class VoltageSource extends Component {
   getString() {
     let txt =
       this.symbol +
-      " = " +
+      ' = ' +
       this.valueU +
-      " V<br>I_" +
+      ' V<br>I_' +
       this.symbol +
-      " = " +
+      ' = ' +
       this.valueI +
-      " A";
+      ' A';
     return txt;
   }
 
   getPopupResultRow(table) {
-    let tr = document.createElement("tr");
+    let tr = document.createElement('tr');
     /**
      * left column
      */
-    var tdg = document.createElement("td");
-    tdg.className = "td";
+    var tdg = document.createElement('td');
+    tdg.className = 'td';
     tdg.rowSpan = 3;
     var textg = document.createTextNode(this.symbol);
     tdg.appendChild(textg);
@@ -76,13 +78,13 @@ export default class VoltageSource extends Component {
     table.appendChild(tr);
 
     /*other line valueI*/
-    let tr2 = document.createElement("tr");
+    let tr2 = document.createElement('tr');
     let tdvalueI = this.createElementTDvalueI();
     tr2.appendChild(tdvalueI);
     table.appendChild(tr2);
 
     /*other line valuePotentials*/
-    let tr4 = document.createElement("tr");
+    let tr4 = document.createElement('tr');
     let tdvaluePotentials = this.createElementTDvaluePotentials();
     tr4.appendChild(tdvaluePotentials);
     table.appendChild(tr4);

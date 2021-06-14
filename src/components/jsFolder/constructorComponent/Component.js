@@ -43,7 +43,18 @@ export default class Component extends BaseComponent {
   static PIN0_TO_PIN1 = 0;
   static PIN1_TO_PIN0 = 1;
 
-  constructor(name, symbol, pins, valueLeft, valueTop, directionU, directionI) {
+  constructor({
+    name,
+    symbol,
+    pins,
+    valueLeft,
+    valueTop,
+    directionU,
+    directionI,
+    valR,
+    valU,
+    valI
+  }) {
     super(name, symbol, valueLeft, valueTop);
     this.pins = pins;
     this.rotation = 0;
@@ -53,10 +64,10 @@ export default class Component extends BaseComponent {
     this.showPin1 = true;
     this.showPin2 = true;
 
-    this.valueR = undefined;
-    this.valueU = undefined;
+    this.valueR = valR;
+    this.valueU = valU;
     this.directionU = directionU;
-    this.valueI = undefined;
+    this.valueI = valI;
     this.directionI = directionI;
 
     this.potentialPin0 = undefined;

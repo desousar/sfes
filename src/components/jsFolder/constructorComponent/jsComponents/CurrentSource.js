@@ -1,4 +1,4 @@
-import Component from "../Component.js";
+import Component from '../Component.js';
 
 export default class CurrentSource extends Component {
   constructor({
@@ -9,23 +9,25 @@ export default class CurrentSource extends Component {
     valueTop = 0,
     pins = [
       { x: 0, y: 0 },
-      { x: 0, y: 0 },
+      { x: 0, y: 0 }
     ],
+    valI
   }) {
-    super(
-      "CurrentSource",
+    super({
+      name: 'CurrentSource',
       symbol,
       pins,
       valueLeft,
       valueTop,
       directionU,
-      directionI
-    );
+      directionI,
+      valI
+    });
   }
 
   assertMainValue() {
     if (this.valueI == undefined) {
-      throw new Error("missing current value on " + this.symbol);
+      throw new Error('missing current value on ' + this.symbol);
     }
   }
 
@@ -61,12 +63,12 @@ U_${this.symbol} = ${this.valueU} V
   }
 
   getPopupResultRow(table) {
-    let tr = document.createElement("tr");
+    let tr = document.createElement('tr');
     /**
      * left column
      */
-    var tdg = document.createElement("td");
-    tdg.className = "td";
+    var tdg = document.createElement('td');
+    tdg.className = 'td';
     tdg.rowSpan = 3;
     var textg = document.createTextNode(this.symbol);
     tdg.appendChild(textg);
@@ -80,13 +82,13 @@ U_${this.symbol} = ${this.valueU} V
     table.appendChild(tr);
 
     /*other line valueU*/
-    let tr3 = document.createElement("tr");
+    let tr3 = document.createElement('tr');
     let tdvalueU = this.createElementTDvalueU();
     tr3.appendChild(tdvalueU);
     table.appendChild(tr3);
 
     /*other line valuePotentials*/
-    let tr4 = document.createElement("tr");
+    let tr4 = document.createElement('tr');
     let tdvaluePotentials = this.createElementTDvaluePotentials();
     tr4.appendChild(tdvaluePotentials);
     table.appendChild(tr4);

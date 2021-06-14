@@ -288,6 +288,9 @@ export default {
     EventBus.$on('MBhelp', () => {
       this.MBhelp();
     });
+    EventBus.$on('TBpredVal', predValue => {
+      this.withPredefinedValue = predValue;
+    });
   },
 
   data() {
@@ -311,6 +314,7 @@ export default {
       isPopupHelpVisible: false,
 
       toolState: toolStates,
+      withPredefinedValue: false,
 
       viewMenu: false,
       top: '0px',
@@ -474,7 +478,13 @@ export default {
         let valueLeft = e.clientX - tgt.left + valueScrollLeft;
 
         //method from dropComponent.js
-        let c = dropComp(c_id, valueLeft, valueTop, this.symbolNumber);
+        let c = dropComp({
+          withPresValue: this.withPredefinedValue,
+          c_id,
+          valueLeft,
+          valueTop,
+          symbolNumber: this.symbolNumber
+        });
 
         this.circuit.components.push(c);
         this.symbolNumber = this.symbolNumber + 1;
@@ -593,9 +603,20 @@ export default {
         this.fromComponentPin !== nr
       ) {
         // you are on same comp BUT not same pin
-        const newValLeft = this.fromComponent.x - 50;
+        let newValLeft;
+        if (this.fromComponent.x - 50 > 0) {
+          newValLeft = this.fromComponent.x - 10;
+        } else {
+          newValLeft = this.fromComponent.x + 80;
+        }
         const newValTop = this.fromComponent.y + 50;
-        const kn = dropComp('Knoten', newValLeft, newValTop, 'temp');
+        console.log('newValLeft', newValLeft);
+        const kn = dropComp({
+          c_id: 'Knoten',
+          valueLeft: newValLeft,
+          valueTop: newValTop,
+          symbolNumber: 'temp'
+        });
         this.circuit.components.push(kn);
         //connect 2 pins from this.fromComponent with kn pin
         const createWire = (fC, fCpin, tC, tCpin) => {

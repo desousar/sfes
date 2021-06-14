@@ -173,12 +173,12 @@ export default class MultipleRinSerie {
     circuit.components.push(newR);
 
     if (this.circuitAsLoop) {
-      let kn = dropComp(
-        'Knoten',
-        selectedComp_array[1].x,
-        selectedComp_array[1].y,
-        '-1'
-      );
+      let kn = dropComp({
+        c_id: 'Knoten',
+        valueLeft: selectedComp_array[1].x,
+        valueTop: selectedComp_array[1].y,
+        symbolNumber: '-1'
+      });
       circuit.components.push(kn);
       this.create1Wire(circuit, newR, 0, kn, 0);
       this.create1Wire(circuit, newR, 1, kn, 0);

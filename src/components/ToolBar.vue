@@ -103,11 +103,23 @@
       </button>
       <button @click="redo" :disabled="!canRedo">Redo</button>
     </div>
+    <div class="third">
+      {{ presVal[getCurrentLanguage] }}
+      <input
+        type="checkbox"
+        id="defValue"
+        @change="predefinedValues"
+        v-model="withPredValue"
+      />
+      (R=1000Ω; I=1A; U=10V)
+    </div>
   </div>
 </template>
 
 <script>
 import toolStates from '../states.js';
+import EventBus from './jsFolder/event-bus.js';
+
 export default {
   //name: 'TitleBanner',
   props: {
@@ -131,8 +143,10 @@ export default {
       movement: { en: 'Move', de: 'Bewegen' },
       select: { en: 'Select', de: 'Wählen' },
       mouse: { en: 'Reset', de: 'Reset' },
+      presVal: { en: 'predefined values', de: 'vordefinierte Werte' },
 
-      toolState: toolStates
+      toolState: toolStates,
+      withPredValue: false
     };
   },
   computed: {
@@ -182,6 +196,10 @@ export default {
         this.undoRedoData.position
       ].project();
       this.$emit('set-circuit', deepcopy);
+    },
+    predefinedValues() {
+      console.log('OK', this.withPredValue);
+      EventBus.$emit('TBpredVal', this.withPredValue);
     }
   }
 };

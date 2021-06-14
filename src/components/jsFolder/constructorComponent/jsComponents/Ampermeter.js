@@ -1,33 +1,33 @@
-import Component from "../Component.js";
+import Component from '../Component.js';
 
 export default class Ampermeter extends Component {
   constructor({
     symbol,
-    valueU = 0,
     directionU = Component.PIN1_TO_PIN0,
     directionI = Component.PIN0_TO_PIN1,
     valueLeft = 0,
     valueTop = 0,
     pins = [
       { x: 0, y: 0 },
-      { x: 0, y: 0 },
+      { x: 0, y: 0 }
     ],
+    valU = 0
   }) {
-    super(
-      "Ampermeter",
+    super({
+      name: 'Ampermeter',
       symbol,
       pins,
       valueLeft,
       valueTop,
       directionU,
-      directionI
-    );
-    this.valueU = valueU;
+      directionI,
+      valU
+    });
   }
 
   assertMainValue() {
     if (this.valueU == undefined) {
-      throw new Error("missing voltage value on " + this.symbol);
+      throw new Error('missing voltage value on ' + this.symbol);
     }
   }
 
@@ -47,25 +47,25 @@ export default class Ampermeter extends Component {
 
   getString() {
     let txt =
-      "I_" +
+      'I_' +
       this.symbol +
-      " = " +
+      ' = ' +
       this.valueI +
-      " A<br>U_" +
+      ' A<br>U_' +
       this.symbol +
-      " = " +
+      ' = ' +
       this.valueU +
-      " V";
+      ' V';
     return txt;
   }
 
   getPopupResultRow(table) {
-    let tr = document.createElement("tr");
+    let tr = document.createElement('tr');
     /**
      * left column
      */
-    var tdg = document.createElement("td");
-    tdg.className = "td";
+    var tdg = document.createElement('td');
+    tdg.className = 'td';
     tdg.rowSpan = 1;
     var textg = document.createTextNode(this.symbol);
     tdg.appendChild(textg);

@@ -6,7 +6,7 @@
       left: component.x,
       top: component.y,
       position: 'absolute',
-      border: component.selected ? '1px solid red' : '',
+      border: component.selected ? '1px solid red' : ''
     }"
     xmlns:dc="http://purl.org/dc/elements/1.1/"
     xmlns:cc="http://creativecommons.org/ns#"
@@ -326,7 +326,6 @@
         <circle
           v-if="component.showPin1"
           class="pin"
-          @click="(ev) => $emit('pin', 0)"
           r="2.3447022"
           cy="287"
           cx="17.299999"
@@ -344,9 +343,18 @@
           "
         />
         <circle
+          v-if="component.showPin1"
+          class="pin"
+          @click="ev => $emit('pin', 0)"
+          r="5"
+          cy="287"
+          cx="17.299999"
+          id="pin1EasyToClick"
+          style="opacity: 0;"
+        />
+        <circle
           v-if="component.showPin2"
           class="pin"
-          @click="(ev) => $emit('pin', 1)"
           r="2.3447022"
           style="
             opacity: 1;
@@ -360,6 +368,16 @@
             stroke-opacity: 1;
           "
           id="pin2"
+          cx="103.7"
+          cy="287"
+        />
+        <circle
+          v-if="component.showPin2"
+          class="pin"
+          @click="ev => $emit('pin', 1)"
+          r="5"
+          style="opacity: 0;"
+          id="pin2EasyToClick"
           cx="103.7"
           cy="287"
         />
@@ -402,12 +420,11 @@
       </g>
     </g>
   </svg>
-</template> 
+</template>
 
 <script>
-import BaseComp from "../MixinKompo/Base2PinsKompo";
+import BaseComp from '../MixinKompo/Base2PinsKompo';
 export default {
-  mixins: [BaseComp],
+  mixins: [BaseComp]
 };
-</script> 
-
+</script>

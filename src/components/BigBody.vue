@@ -189,6 +189,9 @@
         >
           multiple R in Parallel
         </li>
+        <li v-if="theveninToNorton_data" @click="theveninToNorton_function">
+          Thevenin to Norton
+        </li>
       </ul>
     </div>
   </div>
@@ -220,6 +223,7 @@ import Circuit from './jsFolder/constructorComponent/Circuit';
 
 import MultipleRinSerie from './Conversion/implementations/MultipleRinSerie.js';
 import MultipleRinParallel from './Conversion/implementations/MultipleRinParallel.js';
+import TheveninToNorton from './Conversion/implementations/TheveninToNorton.js';
 
 function srcPath(file) {
   return './image/components/' + file;
@@ -320,7 +324,8 @@ export default {
       top: '0px',
       left: '0px',
       multipleRinSerie_data: false,
-      multipleRinParallel_data: false
+      multipleRinParallel_data: false,
+      theveninToNorton_data: false
     };
   },
   methods: {
@@ -389,10 +394,12 @@ export default {
       const selectedComp = this.circuit.getSelectedComponents();
       this.multipleRinSerie_openMenu(selectedComp);
       this.multipleRinParallel_openMenu(selectedComp);
+      this.theveninToNorton_openMenu(selectedComp);
     },
     multipleRinSerie_openMenu: function(selectedComp) {
       let multiRinSerie = new MultipleRinSerie();
       this.multipleRinSerie_data = multiRinSerie.isPossible(
+        false,
         selectedComp,
         this.circuit
       );
@@ -404,10 +411,18 @@ export default {
         this.circuit
       );
     },
+    theveninToNorton_openMenu(selectedComp) {
+      let theveninToNorton = new TheveninToNorton();
+      this.theveninToNorton_data = theveninToNorton.isPossible(
+        selectedComp,
+        this.circuit
+      );
+    },
 
     multipleRinSerie_function: function() {
       let multiRinSerie = new MultipleRinSerie();
       multiRinSerie.isPossible(
+        true,
         this.circuit.getSelectedComponents(),
         this.circuit
       );
@@ -426,7 +441,13 @@ export default {
       this.closeMenu();
       this.save();
     },
-
+    theveninToNorton_function() {
+      let theveninToNorton = new TheveninToNorton();
+      theveninToNorton.conversion(this.circuit);
+      this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
+      this.closeMenu();
+      this.save();
+    },
     openClosePopupComp: function() {
       // situation: click on close button from pop up windows
       if (this.isPopupCompVisible) {

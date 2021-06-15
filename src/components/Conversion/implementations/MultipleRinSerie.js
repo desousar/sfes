@@ -27,7 +27,7 @@ export default class MultipleRinSerie {
    * -isAllSameInstance()
    * -isInSerie()
    */
-  isPossible(selectedComp_array, circuit) {
+  isPossible(onReal, selectedComp_array, circuit) {
     console.log('---------Serie---------');
     let isAllSameInstance_bool = false;
     let isInSerie_bool = false;
@@ -39,7 +39,7 @@ export default class MultipleRinSerie {
           comp.assertMainValue();
         });
         isAllSameInstance_bool = this.isAllSameInstance(selectedComp_array);
-        isInSerie_bool = this.isInSerie(selectedComp_array, circuit);
+        isInSerie_bool = this.isInSerie(onReal, selectedComp_array, circuit);
       } catch (e) {
         alert(e.message);
       }
@@ -51,7 +51,7 @@ export default class MultipleRinSerie {
     return selectedComp_array.every(comp => comp instanceof ResistorJS);
   }
 
-  isInSerie(selectedComp_array, circuit) {
+  isInSerie(onReal, selectedComp_array, circuit) {
     this.extremity1_comp = undefined;
     this.extremity2_comp = undefined;
     circuit.components.map(comp => (comp.flagConversion = false));
@@ -80,6 +80,9 @@ export default class MultipleRinSerie {
     //   circuit.components.every(comp => comp.flagConversion)
     // );
     circuit.components.map(comp => (comp.flagConversion = false));
+    if (!onReal) {
+      circuit.components.map(comp => (comp.visited = false));
+    }
     console.log('extremity', this.extremity1_comp, this.extremity2_comp);
     return result;
   }
@@ -116,6 +119,10 @@ export default class MultipleRinSerie {
     ) {
       comp.flagConversion = true;
       console.log(comp.symbol, 'flagConversion = true');
+      if (comp instanceof KnotenJS) {
+        console.log('comp is Knoteand visited', comp.symbol);
+        comp.visited = true;
+      }
       this.getNextCompWith(circuit, comp);
     } else {
       var pinID = undefined;
@@ -147,6 +154,14 @@ export default class MultipleRinSerie {
     selectedComp_array.forEach(comp => {
       sumR += comp.valueR;
     });
+
+    for (var i = circuit.components.length - 1; i >= 0; i--) {
+      let kn = circuit.components[i];
+      if (kn.visited) {
+        console.log(kn.symbol);
+        circuit.deleteOneComponent(kn);
+      }
+    }
 
     circuit.getSelectedComponents().forEach(component => {
       circuit.deleteOneComponent(component);

@@ -1,7 +1,11 @@
 # Simulation tool for electronic circuits
+
 #### _(Simulationstool Für Elektronische Schaltungen)_
 
+Want to run this app locally ? check the file helpDevFolder/GitHubOrderCloneCommit.txt
+
 ## Table of Contents
+
 - [Creation of a circuit](#creation-of-a-circuit)
 - [Administration of the circuit](#administration-of-the-circuit)
 - [Fill in values](#fill-in-values)
@@ -9,15 +13,18 @@
 - [Solve the circuit](#solve-the-circuit)
 - [Calculate equivalent sources](#calculate-equivalent-sources)
 - [Advanced solving, how does it work](#advanced-solving-how-does-it-work)
-***
-Available as a GitHub Page: https://desousar.github.io/sfes/
 
-This web-application allows to solve electronic circuits. 
+---
+
+Available online as a GitHub Page: https://desousar.github.io/sfes/
+
+This web-application allows to solve electronic circuits.
 Currently only Direct Current (DC) circuits are supported.
 
 ### Creation of a circuit
 
 You have the electronic components present in DC (same order as on the picture):
+
 - of course Wires to link these components
 - Nodes
 - Terminal
@@ -69,11 +76,11 @@ Without going into too much detail, I divided this analysis into 3 phases of equ
 
 1. there are the node equations (Knotengleichungen). These are used to record all the currents entering and leaving the nodes.
 2. then there are the component equations (Bauteilgleichungen). In this phase, each equation of the components is noted. For a component like the resistor, it is the URI equation. For a current or voltage source, only the characteristic value is noted. And for a line, if it is considered a component, only its voltage is noted.
-3. then, as for the component equations, consider the same components and find the potential difference to obtain the potential equations (Potenzialgleichungen). 
+3. then, as for the component equations, consider the same components and find the potential difference to obtain the potential equations (Potenzialgleichungen).
 
 ![Nodal analysis](./screenREADME/kpv.png)
 
-All these equations are then assembled to form a matrix of the form A*x=b.
+All these equations are then assembled to form a matrix of the form A\*x=b.
 By solving this matrix, all unknown values are solved.
 
 BUT before being able to execute the Nodal analysis, it is necessary to control the circuit to know if it does not have errors, which would prevent the execution of the Nodal analysis.

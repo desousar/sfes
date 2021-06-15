@@ -1,0 +1,21 @@
+How to run this app locally
+
+First step: download Node.js and git
+
+Folder structur = .../myFolder
+IMPORT GitHub Repo
+	myFolder$ git init
+	git clone ...
+
+Folder structur .../myFolder/sfes
+
+Open a terminal, go to the sfes folder and write the following order:
+	npm run serve
+
+PUSH new code
+	sfes (main)$ npm run build  (for me the first time fails every time and the second time works)
+	git add .
+	git status      (to be sure)
+	git commit -am "your commentar"
+	git branch -M main      (only if sfes(master)is written instead of sfes(main) !!)
+	git push -u origin main

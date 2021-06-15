@@ -82,8 +82,8 @@ export default {
     setPosition(val) {
       this.undoRedoData.position += val;
     },
-    setCircuit(val) {
-      this.circuit = val;
+    setCircuit(deepCopy) {
+      this.circuit = deepCopy;
     },
     shiftHistory() {
       this.undoRedoData.history.shift();

@@ -186,6 +186,9 @@ export default {
       let deepcopy = this.undoRedoData.history[
         this.undoRedoData.position
       ].project();
+      deepcopy.components.forEach(element => {
+        element.recalculatePins();
+      });
       this.$emit('set-circuit', deepcopy);
     },
     redo() {
@@ -195,6 +198,9 @@ export default {
       let deepcopy = this.undoRedoData.history[
         this.undoRedoData.position
       ].project();
+      deepcopy.components.forEach(element => {
+        element.recalculatePins();
+      });
       this.$emit('set-circuit', deepcopy);
     },
     predefinedValues() {

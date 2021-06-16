@@ -191,8 +191,8 @@ export default class TheveninToNorton {
       const destination = this.getNextCompWith(circuit, origin, comp);
       if (destination) {
         console.log('destination', destination.symbol);
+        destination.flagConversion = true;
       }
-      destination.flagConversion = true;
       circuit.components.forEach(kn => {
         if (kn.tempVisited === true) {
           console.log('is visited', kn.symbol);

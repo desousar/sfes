@@ -60,7 +60,6 @@ export default class MultipleRinParallel {
     if (!bool_data1) {
       return false;
     }
-    console.log('FIRST TEST OK');
     // Then visit all Knoten that are directs neighbors with firstComp
     // and flag twice comps that are neighbors to this visited Knoten and in selArray
     // FUSION
@@ -104,7 +103,6 @@ export default class MultipleRinParallel {
   }
 
   is2MultiPinNeighbors(circuit, selArray) {
-    console.log(selArray);
     for (let comp of selArray) {
       comp.find = [];
       console.log('comp under test', comp.symbol);
@@ -169,14 +167,13 @@ export default class MultipleRinParallel {
     let result = selArray.every(comp => comp.flagConversion);
     console.log('***', result);
     if (!result) {
-      console.log('return false');
       return false;
     }
 
     circuit.components.forEach(k => {
       if (k.visited) {
         const count = this.getCountConnectionAsGroup(circuit, k);
-        console.log('VISITED2', k.symbol, count);
+        console.log('VISITED', k.symbol, count);
         if (count > 1) {
           localKnoten.push(k);
         }
@@ -191,7 +188,6 @@ export default class MultipleRinParallel {
     console.log(localKnoten);
     if (compStorage !== undefined) {
       var index = localKnoten.indexOf(compStorage);
-      console.log('index', index);
     }
     let [keepAlive] =
       compStorage !== undefined
@@ -243,7 +239,7 @@ export default class MultipleRinParallel {
         compStorageID === 0
           ? (compStorage = this.ext1 = comp)
           : (compStorage = this.ext2 = comp);
-        console.log('HEY', compStorage.symbol);
+        console.log('compStorage', compStorage.symbol);
       } else {
         console.log('ERROR');
         return false;
@@ -298,10 +294,9 @@ export default class MultipleRinParallel {
     // this.isInParallel(circuit, onRealCircuit);
     let sum = 0;
     selectedComp_array.forEach(comp => {
-      console.log('value:', 1 / comp.valueR);
       sum += 1 / comp.valueR;
     });
-    console.log('result', sum);
+    console.log('result', 1 / sum);
 
     let [keepAlive] = selectedComp_array.splice(0, 1);
     keepAlive.symbol += 'SUM';

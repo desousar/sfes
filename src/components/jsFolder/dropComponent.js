@@ -22,124 +22,43 @@ import VoltageSourceJS from './constructorComponent/jsComponents/VoltageSource.j
 import AmpermeterJS from './constructorComponent/jsComponents/Ampermeter.js';
 import VoltmeterJS from './constructorComponent/jsComponents/Voltmeter.js';
 
-const dropComp = ({
-  withPresValue,
-  c_id,
-  valueLeft,
-  valueTop,
-  symbolNumber
-}) => {
-  const compID = c_id;
-  switch (compID) {
-    case 'Knoten':
-      return new KnotenJS({
-        symbol: 'kn' + symbolNumber,
-        valueLeft: valueLeft,
-        valueTop: valueTop,
-        pins: [
-          {
-            x: valueLeft + valueLeftPinKnoten,
-            y: valueTop + valueTopPinKnoten
-          }
-        ]
-      });
-    case 'Klemme':
-      return new KlemmeJS({
-        symbol: 'kl' + symbolNumber,
-        valueLeft: valueLeft,
-        valueTop: valueTop,
-        pins: [
-          {
-            x: valueLeft + valueTopLeftPinKlemme,
-            y: valueTop + valueTopLeftPinKlemme
-          }
-        ]
-      });
-    case 'Resistor':
-      return new ResistorJS({
-        symbol: 'R' + symbolNumber,
-        valueLeft: valueLeft,
-        valueTop: valueTop,
-        pins: [
-          {
-            x: valueLeft + valueLeftPin0KompRot0,
-            y: valueTop + valueTopPin0KompRot0
-          },
-          {
-            x: valueLeft + valueLeftPin1KompRot0,
-            y: valueTop + valueTopPin1KompRot0
-          }
-        ],
-        valR: withPresValue ? 1000 : undefined
-      });
-    case 'VoltageSource':
-      return new VoltageSourceJS({
-        symbol: 'U' + symbolNumber,
-        valueLeft: valueLeft,
-        valueTop: valueTop,
-        pins: [
-          {
-            x: valueLeft + valueLeftPin0KompRot0,
-            y: valueTop + valueTopPin0KompRot0
-          },
-          {
-            x: valueLeft + valueLeftPin1KompRot0,
-            y: valueTop + valueTopPin1KompRot0
-          }
-        ],
-        valU: withPresValue ? 10 : undefined
-      });
-    case 'CurrentSource':
-      return new CurrentSourceJS({
-        symbol: 'I' + symbolNumber,
-        valueLeft: valueLeft,
-        valueTop: valueTop,
-        pins: [
-          {
-            x: valueLeft + valueLeftPin0KompRot0,
-            y: valueTop + valueTopPin0KompRot0
-          },
-          {
-            x: valueLeft + valueLeftPin1KompRot0,
-            y: valueTop + valueTopPin1KompRot0
-          }
-        ],
-        valI: withPresValue ? 1 : undefined
-      });
-    case 'Ampermeter':
-      return new AmpermeterJS({
-        symbol: 'A' + symbolNumber,
-        valueLeft: valueLeft,
-        valueTop: valueTop,
-        pins: [
-          {
-            x: valueLeft + valueLeftPin0KompRot0,
-            y: valueTop + valueTopPin0KompRot0
-          },
-          {
-            x: valueLeft + valueLeftPin1KompRot0,
-            y: valueTop + valueTopPin1KompRot0
-          }
-        ]
-      });
-    case 'Voltmeter':
-      return new VoltmeterJS({
-        symbol: 'V' + symbolNumber,
-        valueLeft: valueLeft,
-        valueTop: valueTop,
-        pins: [
-          {
-            x: valueLeft + valueLeftPin0KompRot0,
-            y: valueTop + valueTopPin0KompRot0
-          },
-          {
-            x: valueLeft + valueLeftPin1KompRot0,
-            y: valueTop + valueTopPin1KompRot0
-          }
-        ]
-      });
-    default:
-      return new ComponentJS(c_id, symbolNumber, valueLeft, valueTop, [
+let nb = 0;
+
+const dropComp = ({ withPresValue, c_id, valueLeft, valueTop }) => {
+  if (c_id === 'Knoten') {
+    const comp = new KnotenJS({
+      symbol: 'kn' + nb,
+      valueLeft: valueLeft,
+      valueTop: valueTop,
+      pins: [
+        {
+          x: valueLeft + valueLeftPinKnoten,
+          y: valueTop + valueTopPinKnoten
+        }
+      ]
+    });
+    nb = nb + 1;
+    return comp;
+  } else if (c_id === 'Klemme') {
+    const comp = new KlemmeJS({
+      symbol: 'kl' + nb,
+      valueLeft: valueLeft,
+      valueTop: valueTop,
+      pins: [
+        {
+          x: valueLeft + valueTopLeftPinKlemme,
+          y: valueTop + valueTopLeftPinKlemme
+        }
+      ]
+    });
+    nb = nb + 1;
+    return comp;
+  } else if (c_id === 'Resistor') {
+    const comp = new ResistorJS({
+      symbol: 'R' + nb,
+      valueLeft: valueLeft,
+      valueTop: valueTop,
+      pins: [
         {
           x: valueLeft + valueLeftPin0KompRot0,
           y: valueTop + valueTopPin0KompRot0
@@ -148,6 +67,97 @@ const dropComp = ({
           x: valueLeft + valueLeftPin1KompRot0,
           y: valueTop + valueTopPin1KompRot0
         }
-      ]);
+      ],
+      valR: withPresValue ? 1000 : undefined
+    });
+    nb = nb + 1;
+    return comp;
+  } else if (c_id === 'VoltageSource') {
+    const comp = new VoltageSourceJS({
+      symbol: 'U' + nb,
+      valueLeft: valueLeft,
+      valueTop: valueTop,
+      pins: [
+        {
+          x: valueLeft + valueLeftPin0KompRot0,
+          y: valueTop + valueTopPin0KompRot0
+        },
+        {
+          x: valueLeft + valueLeftPin1KompRot0,
+          y: valueTop + valueTopPin1KompRot0
+        }
+      ],
+      valU: withPresValue ? 10 : undefined
+    });
+    nb = nb + 1;
+    return comp;
+  } else if (c_id === 'CurrentSource') {
+    const comp = new CurrentSourceJS({
+      symbol: 'I' + nb,
+      valueLeft: valueLeft,
+      valueTop: valueTop,
+      pins: [
+        {
+          x: valueLeft + valueLeftPin0KompRot0,
+          y: valueTop + valueTopPin0KompRot0
+        },
+        {
+          x: valueLeft + valueLeftPin1KompRot0,
+          y: valueTop + valueTopPin1KompRot0
+        }
+      ],
+      valI: withPresValue ? 1 : undefined
+    });
+    nb = nb + 1;
+    return comp;
+  } else if (c_id === 'Ampermeter') {
+    const comp = new AmpermeterJS({
+      symbol: 'A' + nb,
+      valueLeft: valueLeft,
+      valueTop: valueTop,
+      pins: [
+        {
+          x: valueLeft + valueLeftPin0KompRot0,
+          y: valueTop + valueTopPin0KompRot0
+        },
+        {
+          x: valueLeft + valueLeftPin1KompRot0,
+          y: valueTop + valueTopPin1KompRot0
+        }
+      ]
+    });
+    nb = nb + 1;
+    return comp;
+  } else if (c_id === 'Voltmeter') {
+    const comp = new VoltmeterJS({
+      symbol: 'V' + nb,
+      valueLeft: valueLeft,
+      valueTop: valueTop,
+      pins: [
+        {
+          x: valueLeft + valueLeftPin0KompRot0,
+          y: valueTop + valueTopPin0KompRot0
+        },
+        {
+          x: valueLeft + valueLeftPin1KompRot0,
+          y: valueTop + valueTopPin1KompRot0
+        }
+      ]
+    });
+    nb = nb + 1;
+    return comp;
+  } else {
+    const comp = new ComponentJS(c_id, nb, valueLeft, valueTop, [
+      {
+        x: valueLeft + valueLeftPin0KompRot0,
+        y: valueTop + valueTopPin0KompRot0
+      },
+      {
+        x: valueLeft + valueLeftPin1KompRot0,
+        y: valueTop + valueTopPin1KompRot0
+      }
+    ]);
+    nb = nb + 1;
+    return comp;
   }
 };

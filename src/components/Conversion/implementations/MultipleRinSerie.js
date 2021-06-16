@@ -55,10 +55,9 @@ export default class MultipleRinSerie {
     this.extremity1_comp = undefined;
     this.extremity2_comp = undefined;
     circuit.components.map(comp => (comp.flagConversion = false));
-    console.log('reset');
     let firstComp = selectedComp_array[0];
     firstComp.flagConversion = true;
-    console.log(firstComp.symbol, 'flagConversion = true');
+    console.log(firstComp.symbol, 'fflagConversion = true');
     circuit.wires.forEach(w => {
       const fromComp = circuit.componentFromPin(w.from);
       const toComp = circuit.componentFromPin(w.to);
@@ -71,14 +70,9 @@ export default class MultipleRinSerie {
         this.nextNeighbor(circuit, toComp, fromComp);
       }
     });
-    console.log('FINISH');
     const result = selectedComp_array.every(
       comp => comp.flagConversion === true
     );
-    // console.log(
-    //   'boucle:',
-    //   circuit.components.every(comp => comp.flagConversion)
-    // );
     circuit.components.map(comp => (comp.flagConversion = false));
     if (!onReal) {
       circuit.components.map(comp => (comp.visited = false));
@@ -191,8 +185,7 @@ export default class MultipleRinSerie {
       let kn = dropComp({
         c_id: 'Knoten',
         valueLeft: selectedComp_array[1].x,
-        valueTop: selectedComp_array[1].y,
-        symbolNumber: '-1'
+        valueTop: selectedComp_array[1].y
       });
       circuit.components.push(kn);
       this.create1Wire(circuit, newR, 0, kn, 0);

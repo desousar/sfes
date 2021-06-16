@@ -309,7 +309,6 @@ export default {
       fromComponent: null,
       toComponentPin: null,
       toComponent: null,
-      symbolNumber: 0,
       isPopupCompVisible: false,
       CompoToPass: null,
       isPopupResultVisible: false,
@@ -414,6 +413,7 @@ export default {
     theveninToNorton_openMenu(selectedComp) {
       let theveninToNorton = new TheveninToNorton();
       this.theveninToNorton_data = theveninToNorton.isPossible(
+        false,
         selectedComp,
         this.circuit
       );
@@ -443,6 +443,11 @@ export default {
     },
     theveninToNorton_function() {
       let theveninToNorton = new TheveninToNorton();
+      theveninToNorton.isPossible(
+        true,
+        this.circuit.getSelectedComponents(),
+        this.circuit
+      );
       theveninToNorton.conversion(this.circuit);
       this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
       this.closeMenu();
@@ -503,12 +508,10 @@ export default {
           withPresValue: this.withPredefinedValue,
           c_id,
           valueLeft,
-          valueTop,
-          symbolNumber: this.symbolNumber
+          valueTop
         });
 
         this.circuit.components.push(c);
-        this.symbolNumber = this.symbolNumber + 1;
         this.save();
       }
     },
@@ -635,8 +638,7 @@ export default {
         const kn = dropComp({
           c_id: 'Knoten',
           valueLeft: newValLeft,
-          valueTop: newValTop,
-          symbolNumber: 'temp'
+          valueTop: newValTop
         });
         this.circuit.components.push(kn);
         //connect 2 pins from this.fromComponent with kn pin
@@ -672,47 +674,11 @@ export default {
         this.circuit.wires.forEach((wire, index) => {
           console.log(line);
           if (line === wire) {
-            this.deleteOneWire(wire, index);
+            this.circuit.deleteOneWire(wire, index);
             this.save();
           }
         });
       }
-    },
-    deleteOneWire(wireToDelete, index) {
-      for (
-        let compIndex = this.circuit.components.length - 1;
-        compIndex >= 0;
-        compIndex -= 1
-      ) {
-        let compUnderTest = this.circuit.components[compIndex];
-        const fromComp = this.circuit.componentFromPin(wireToDelete.from);
-        const fromPinNB = this.circuit.pinIndexFromComponent(
-          fromComp,
-          wireToDelete.from
-        );
-        const toComp = this.circuit.componentFromPin(wireToDelete.to);
-        const toPinNB = this.circuit.pinIndexFromComponent(
-          toComp,
-          wireToDelete.to
-        );
-        if (fromComp === compUnderTest) {
-          if (compUnderTest.isMultiPin === false) {
-            fromPinNB === 0
-              ? (compUnderTest.showPin1 = true)
-              : (compUnderTest.showPin2 = true);
-          }
-        } else if (toComp === compUnderTest) {
-          if (compUnderTest.isMultiPin === false) {
-            toPinNB === 0
-              ? (compUnderTest.showPin1 = true)
-              : (compUnderTest.showPin2 = true);
-          }
-        }
-      }
-      this.circuit.wires.splice(index, 1); //delete line graphical
-      this.circuit.components.forEach(comp => {
-        comp.resetCalculatedValues();
-      });
     },
     drawWire: function() {
       let wire = new WireJS({

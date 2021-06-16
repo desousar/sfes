@@ -1,8 +1,8 @@
-import InconsistentMatrixError from "../../../CustomError/inconsistentMatrixError.js";
-import ConsistentMatrixInfiniteError from "../../../CustomError/consistentMatrixInfiniteError.js";
-import Ampermeter from "./jsComponents/Ampermeter.js";
-import Wire from "./Wire.js";
-import Voltmeter from "./jsComponents/Voltmeter.js";
+import InconsistentMatrixError from '../../../CustomError/inconsistentMatrixError.js';
+import ConsistentMatrixInfiniteError from '../../../CustomError/consistentMatrixInfiniteError.js';
+import Ampermeter from './jsComponents/Ampermeter.js';
+import Wire from './Wire.js';
+import Voltmeter from './jsComponents/Voltmeter.js';
 
 class CircuitSolver {
   constructor() {}
@@ -16,7 +16,7 @@ class CircuitSolver {
     try {
       projection.attributionToOriginal(circuit);
     } catch (e) {
-      throw new Error("ERROR by Attribution: " + e.message);
+      throw new Error('ERROR by Attribution: ' + e.message);
     }
   }
 
@@ -31,15 +31,15 @@ class CircuitSolver {
     const projection = circuit.project();
 
     //ADD an Ampermeter
-    let ampermeter = new Ampermeter({ symbol: "Iqe" });
+    let ampermeter = new Ampermeter({ symbol: 'Iqe' });
     projection.components.push(ampermeter);
     const w1 = new Wire({
       from: fromKlemme.pins[0],
-      to: ampermeter.pins[0],
+      to: ampermeter.pins[0]
     });
     const w2 = new Wire({
       from: ampermeter.pins[1],
-      to: toKlemme.pins[0],
+      to: toKlemme.pins[0]
     });
     projection.wires.push(w1, w2);
 
@@ -54,15 +54,15 @@ class CircuitSolver {
     const projection = circuit.project();
 
     //ADD an Voltmeter
-    let voltmeter = new Voltmeter({ symbol: "Uqe" });
+    let voltmeter = new Voltmeter({ symbol: 'Uqe' });
     projection.components.push(voltmeter);
     const w1 = new Wire({
       from: fromKlemme.pins[0],
-      to: voltmeter.pins[0],
+      to: voltmeter.pins[0]
     });
     const w2 = new Wire({
       from: voltmeter.pins[1],
-      to: toKlemme.pins[0],
+      to: toKlemme.pins[0]
     });
     projection.wires.push(w1, w2);
 
@@ -74,40 +74,40 @@ class CircuitSolver {
 
   checkAndSolveCircuit(projection) {
     //STEP 1
-    console.log("STEP 1 started");
+    console.log('STEP 1 started');
     try {
       projection.assertMainValues();
     } catch (e) {
-      throw new Error("ERROR by STEP 1: " + e.message);
+      throw new Error('ERROR by STEP 1: ' + e.message);
     }
-    console.log("STEP 1 finished");
+    console.log('STEP 1 finished');
 
     //STEP 2
-    console.log("STEP 2 started");
+    console.log('STEP 2 started');
     projection.verifyOneKnotenBetweenTwo2PinsKomp();
-    console.log("STEP 2 finished");
+    console.log('STEP 2 finished');
 
     //STEP 3
-    console.log("STEP 3 started");
+    console.log('STEP 3 started');
     projection.getSubCircuit(projection.components[0]);
     console.log(
-      "Number of Subcircuit(s) :",
+      'Number of Subcircuit(s) :',
       projection.listOfSubCircuit.length
     ); //projection.components is now empty !!!
-    console.log("STEP 3 finished");
+    console.log('STEP 3 finished');
 
     //STEP 4
-    console.log("STEP 4 started");
+    console.log('STEP 4 started');
     projection.verifyPotential();
-    console.log("STEP 4 finished");
+    console.log('STEP 4 finished');
 
     //STEP 5
-    console.log("STEP 5 started");
+    console.log('STEP 5 started');
     projection.addOneWireBetweenTwoMultiPinKomp();
-    console.log("STEP 5 finished");
+    console.log('STEP 5 finished');
 
     //Knotenpotentialverfahren
-    console.log("---!!!---Ready for Knotenpotentialverfahren---!!!---");
+    console.log('---!!!---Ready for Knotenpotentialverfahren---!!!---');
     try {
       projection.createAndSolveMatrix();
     } catch (e) {
@@ -115,16 +115,16 @@ class CircuitSolver {
 
       if (e instanceof InconsistentMatrixError) {
         throw new InconsistentMatrixError(
-          "ERROR by Knotenpotentialverfahren: " + e.message
+          'ERROR by Knotenpotentialverfahren: ' + e.message
         );
       }
       if (e instanceof ConsistentMatrixInfiniteError) {
         throw new ConsistentMatrixInfiniteError(
-          "ERROR by Knotenpotentialverfahren: " + e.message
+          'ERROR by Knotenpotentialverfahren: ' + e.message
         );
       }
     }
-    console.log("SOLVED");
+    console.log('SOLVED');
   }
 }
 

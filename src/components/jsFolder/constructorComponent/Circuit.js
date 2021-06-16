@@ -111,6 +111,37 @@ export default class Circuit {
     });
   }
 
+  deleteOneWire(wireToDelete, index) {
+    for (
+      let compIndex = this.components.length - 1;
+      compIndex >= 0;
+      compIndex -= 1
+    ) {
+      let compUnderTest = this.components[compIndex];
+      const fromComp = this.componentFromPin(wireToDelete.from);
+      const fromPinNB = this.pinIndexFromComponent(fromComp, wireToDelete.from);
+      const toComp = this.componentFromPin(wireToDelete.to);
+      const toPinNB = this.pinIndexFromComponent(toComp, wireToDelete.to);
+      if (fromComp === compUnderTest) {
+        if (compUnderTest.isMultiPin === false) {
+          fromPinNB === 0
+            ? (compUnderTest.showPin1 = true)
+            : (compUnderTest.showPin2 = true);
+        }
+      } else if (toComp === compUnderTest) {
+        if (compUnderTest.isMultiPin === false) {
+          toPinNB === 0
+            ? (compUnderTest.showPin1 = true)
+            : (compUnderTest.showPin2 = true);
+        }
+      }
+    }
+    this.wires.splice(index, 1); //delete line graphical
+    this.components.forEach(comp => {
+      comp.resetCalculatedValues();
+    });
+  }
+
   /**
    * @returns a deep project on which we can work (add/remove comp) without to change original circuit
    */
@@ -136,9 +167,9 @@ export default class Circuit {
         comp.assertMainValue();
       }
       /* if you run test-circuit in command line comment following if-statement */
-      /*if (comp.showPin1 === true || comp.showPin2 === true) {
-        throw new Error("circuit is open on " + comp.symbol);
-      }*/
+      // if (comp.showPin1 === true || comp.showPin2 === true) {
+      //   throw new Error('circuit is open on ' + comp.symbol);
+      // }
     });
   }
 

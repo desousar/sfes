@@ -19,18 +19,20 @@ https://medium.com/fbbd/intro-to-writing-undo-redo-systems-in-javascript-af17148
       :selectedTool="tool"
       @tool-state-changed="onToolStateChanged"
       :circuit="circuit"
+      @set-circuit="setCircuit"
       :undoRedoData="undoRedoData"
       @set-position="setPosition"
-      @set-circuit="setCircuit"
     />
     <BigBody
       :currentLanguage="currentLanguage"
       :selectedTool="tool"
       @tool-state-changed="onToolStateChanged"
       :circuit="circuit"
+      @set-circuit="setCircuit"
       :undoRedoData="undoRedoData"
       @set-position="setPosition"
       @shift-history="shiftHistory"
+      @slice-history="sliceHistory"
       @push-history="pushHistory"
     />
   </div>
@@ -82,11 +84,20 @@ export default {
     setPosition(val) {
       this.undoRedoData.position += val;
     },
-    setCircuit(deepCopy) {
-      this.circuit = deepCopy;
+    setCircuit(newCir) {
+      if (newCir) {
+        console.log('full');
+        this.circuit = newCir;
+      } else {
+        console.log('empty');
+        this.circuit = new Circuit([], []);
+      }
     },
     shiftHistory() {
       this.undoRedoData.history.shift();
+    },
+    sliceHistory(pos) {
+      this.undoRedoData.history = this.undoRedoData.history.slice(0, pos);
     },
     pushHistory(val) {
       this.undoRedoData.history.push(val);

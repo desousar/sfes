@@ -139,7 +139,7 @@
       <popupComp
         v-show="isPopupCompVisible"
         @close="openClosePopupComp"
-        :compoToPass="CompoToPass"
+        :compoToPass.sync="CompoToPass"
         :arrayComponents="circuit.components"
         :currentLanguage="currentLanguage"
       />
@@ -219,7 +219,6 @@ import Ampermeter from './elements/Ampermeter.vue';
 import Voltmeter from './elements/Voltmeter.vue';
 
 import WireJS from './jsFolder/constructorComponent/Wire.js';
-import Circuit from './jsFolder/constructorComponent/Circuit';
 
 import MultipleRinSerie from './Conversion/implementations/MultipleRinSerie.js';
 import MultipleRinParallel from './Conversion/implementations/MultipleRinParallel.js';
@@ -716,10 +715,7 @@ export default {
      */
     setValue(value) {
       if (this.undoRedoData.position < this.undoRedoData.history.length - 1) {
-        this.undoRedoData.history = this.undoRedoData.history.slice(
-          0,
-          this.undoRedoData.position + 1
-        );
+        this.$emit('slice-history', this.undoRedoData.position + 1);
       }
       if (
         this.undoRedoData.position ===
@@ -803,7 +799,7 @@ export default {
       newLink.click();
     },
     MBgetEmptyCircuit() {
-      this.circuit = new Circuit([], []);
+      this.$emit('set-circuit');
       this.save();
     },
     MBaboutUs() {

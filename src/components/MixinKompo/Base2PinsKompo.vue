@@ -1,18 +1,18 @@
 <script>
 export default {
   props: {
-    component: Object,
+    component: Object
   },
   methods: {
-    horizontalOrVerticalClass: function () {
+    horizontalOrVerticalClass: function() {
       return {
         componentDeg0: this.component.rotation === 0,
         componentDeg90: this.component.rotation === 90,
         componentDeg180: this.component.rotation === 180,
-        componentDeg270: this.component.rotation === 270,
+        componentDeg270: this.component.rotation === 270
       };
-    },
-  },
+    }
+  }
 };
 </script>
 
@@ -23,7 +23,7 @@ export default {
 
 /*size of a 2 pins component*/
 .component {
-  height: /*37.8px;*/ auto;
+  height: /*63.33px;*/ auto;
   width: 100px;
 }
 .cursorPointer {

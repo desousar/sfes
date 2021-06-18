@@ -1,5 +1,4 @@
-import MultiPinComponent from "../MultiPinComponent";
-export { valueTopLeftPinKlemme };
+import MultiPinComponent from '../MultiPinComponent';
 
 /*
 to obtain following value:
@@ -18,9 +17,15 @@ export default class Klemme extends MultiPinComponent {
     symbol,
     valueLeft = 0,
     valueTop = 0,
-    pins = [{ x: 0, y: 0 }],
+    pins = [{ x: 0, y: 0 }]
   }) {
-    super("Klemme", symbol, pins, valueLeft, valueTop);
+    super(
+      'Klemme',
+      symbol,
+      pins,
+      valueLeft - valueTopLeftPinKlemme, //center
+      valueTop - valueTopLeftPinKlemme //center
+    );
   }
   recalculatePins() {
     let [pinx, piny] = this.pins;
@@ -36,7 +41,6 @@ export default class Klemme extends MultiPinComponent {
   }
 
   getString() {
-    let txt = this.symbol;
-    return txt;
+    return this.symbol;
   }
 }

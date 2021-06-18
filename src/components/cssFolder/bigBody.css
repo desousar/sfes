@@ -41,7 +41,7 @@
   border-width: 1px;
   background-color: gray;
   height: 99.2%;
-  width: 116px; /* 16(scroll default) + 80(img.width) + 2*5(bBcontent_img.margin) + 10 (security) */
+  width: 106px; /* 16(scroll default) + 80(img.width) + 2*5(bBcontent_img.margin) */
   overflow: auto;
 }
 #targetDiv {
@@ -49,7 +49,7 @@
   border-width: 1px;
   height: 99.2%;
   width: calc(
-    100% - 122px
+    100% - 112px
   ); /* .list width + 2px .list border width + 2px targetDiv border width + 2px marginRight*/
   overflow: auto;
   position: relative;
@@ -73,8 +73,8 @@ img {
 }
 
 .limitA4Paper {
-  width: 21cm;
-  height: 26.7cm;
+  width: 20.9cm;
+  height: 29.6cm;
   border-right: 0.1px dotted black;
   border-bottom: 0.1px dotted black;
 }

@@ -47,19 +47,9 @@ export default class CurrentSource extends Component {
 
   getString() {
     return `
-    ${this.symbol} = ${this.valueI} A
-U_${this.symbol} = ${this.valueU} V
+    ${this.symbol} = ${this.valueI} A<br>
+    U_${this.symbol} = ${this.valueU} V
     `;
-    /*let txt =
-      this.symbol +
-      " = " +
-      this.valueI +
-      " A<br>U_" +
-      this.symbol +
-      " = " +
-      this.valueU +
-      " V";
-    return txt;*/
   }
 
   getPopupResultRow(table) {

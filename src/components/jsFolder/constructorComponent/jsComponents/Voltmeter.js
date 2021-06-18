@@ -46,17 +46,10 @@ export default class Voltmeter extends Component {
   }
 
   getString() {
-    let txt =
-      'I_' +
-      this.symbol +
-      ' = ' +
-      this.valueI +
-      ' A<br>U_' +
-      this.symbol +
-      ' = ' +
-      this.valueU +
-      ' V';
-    return txt;
+    return `
+    U_${this.symbol} = ${this.valueU} V<br>
+    I_${this.symbol} = ${this.valueI} A
+    `;
   }
 
   getPopupResultRow(table) {

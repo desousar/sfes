@@ -57,7 +57,12 @@
         />
         <div>{{ select[getCurrentLanguage] }}</div>
       </div>
-      <div class="content_img">
+      <div
+        class="content_img"
+        v-bind:class="{
+          greenClass: selectedTool === toolState.STATE_IDLE
+        }"
+      >
         <img
           alt="Mouse"
           src="@/assets/toolBar/mouse.svg"
@@ -109,7 +114,7 @@ export default {
       rotate: { en: 'Rotate', de: 'Drehen' },
       movement: { en: 'Move', de: 'Bewegen' },
       select: { en: 'Select', de: 'Wählen' },
-      mouse: { en: 'Reset', de: 'Reset' },
+      mouse: { en: 'Edit', de: 'Bearbeiten' },
       undo_data: { en: 'Undo', de: 'Undo' },
       redo_data: { en: 'Redo', de: 'Redo' },
 

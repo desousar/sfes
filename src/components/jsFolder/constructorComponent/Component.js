@@ -7,12 +7,14 @@ export {
   valueLeftPin0KompRot90,
   valueTopPin0KompRot90,
   valueLeftPin1KompRot90,
-  valueTopPin1KompRot90
+  valueTopPin1KompRot90,
+  centerX2PinsComp,
+  centerY2PinsComp
 };
 
 /*
 to obtain following value:
-STEP1: in GUI create the comp and press ctrl + i
+STEP1: in GUI create the comp and press ctrl + shift + i
 STEP2: put mouse over comp with selected inspect tool and read dimensions (in px)
 condition for 2-Pins-Komp:
 width comp = total width (pin touches horizontal boundaries)
@@ -20,24 +22,27 @@ comp vertically in the middle of the total height
 => comp centered AND all 2-Pins-Komp have same dimension !
 */
 
-const dimensionLeft2PinsKomp = 100;
-const dimensionTop2PinsKomp = 63.31;
+const dimensionLeft2PinsKomp = 100; //width
+const dimensionTop2PinsKomp = 63.33; //height
 const dimensionPin2PinsKomp = 5.07;
 //calculate with previous base value
-const valueLeftPin0KompRot0 = dimensionPin2PinsKomp; //5.07
-const valueTopPin0KompRot0 = dimensionTop2PinsKomp / 2; //18.945
-const valueLeftPin1KompRot0 = dimensionLeft2PinsKomp - dimensionPin2PinsKomp; //94.93
-const valueTopPin1KompRot0 = dimensionTop2PinsKomp / 2; //18.945
-const valueLeftPin0KompRot90 = dimensionLeft2PinsKomp / 2; //50
+const centerX2PinsComp = dimensionLeft2PinsKomp / 2;
+const centerY2PinsComp = dimensionTop2PinsKomp / 2;
+
+const valueLeftPin0KompRot0 = dimensionPin2PinsKomp;
+const valueTopPin0KompRot0 = dimensionTop2PinsKomp / 2;
+const valueLeftPin1KompRot0 = dimensionLeft2PinsKomp - dimensionPin2PinsKomp;
+const valueTopPin1KompRot0 = dimensionTop2PinsKomp / 2;
+const valueLeftPin0KompRot90 = dimensionLeft2PinsKomp / 2;
 const valueTopPin0KompRot90 = -(
   (dimensionLeft2PinsKomp - dimensionTop2PinsKomp) / 2 -
   dimensionPin2PinsKomp
-); //-25.985
-const valueLeftPin1KompRot90 = dimensionLeft2PinsKomp / 2; //50
+);
+const valueLeftPin1KompRot90 = dimensionLeft2PinsKomp / 2;
 const valueTopPin1KompRot90 =
   dimensionTop2PinsKomp +
   (dimensionLeft2PinsKomp - dimensionTop2PinsKomp) / 2 -
-  dimensionPin2PinsKomp; //63.875
+  dimensionPin2PinsKomp;
 
 export default class Component extends BaseComponent {
   static PIN0_TO_PIN1 = 0;
@@ -55,7 +60,12 @@ export default class Component extends BaseComponent {
     valU,
     valI
   }) {
-    super(name, symbol, valueLeft, valueTop);
+    super(
+      name,
+      symbol,
+      valueLeft - centerX2PinsComp,
+      valueTop - centerY2PinsComp
+    );
     this.pins = pins;
     this.rotation = 0;
     this.selected = false;
@@ -111,6 +121,13 @@ export default class Component extends BaseComponent {
       pin2y = this.y + valueTopPin0KompRot90;
     }
 
+    if (this.selected) {
+      pin1x += 1;
+      pin1y += 1;
+      pin2x += 1;
+      pin2y += 1;
+    }
+
     this.pins[0].x = pin1x;
     this.pins[0].y = pin1y;
     this.pins[1].x = pin2x;
@@ -129,7 +146,7 @@ export default class Component extends BaseComponent {
   createElementTDvalueR() {
     let td = document.createElement('td');
     td.className = 'td';
-    td.innerHTML = 'valueR ' + this.valueR + ' Ohm';
+    td.innerHTML = 'valueR ' + this.valueR + ' &#8486;';
     return td;
   }
   createElementTDvalueI() {

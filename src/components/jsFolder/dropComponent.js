@@ -4,13 +4,10 @@ import {
   valueLeftPin0KompRot0,
   valueTopPin0KompRot0,
   valueLeftPin1KompRot0,
-  valueTopPin1KompRot0
+  valueTopPin1KompRot0,
+  centerX2PinsComp,
+  centerY2PinsComp
 } from './constructorComponent/Component.js';
-import { valueTopLeftPinKlemme } from './constructorComponent/jsComponents/Klemme.js';
-import {
-  valueTopPinKnoten,
-  valueLeftPinKnoten
-} from './constructorComponent/jsComponents/Knoten.js';
 
 import ComponentJS from './constructorComponent/Component.js';
 
@@ -23,6 +20,10 @@ import AmpermeterJS from './constructorComponent/jsComponents/Ampermeter.js';
 import VoltmeterJS from './constructorComponent/jsComponents/Voltmeter.js';
 
 let nb = 0;
+const valLeftPin0KompRot0 = valueLeftPin0KompRot0 - centerX2PinsComp;
+const valTopPin0KompRot0 = valueTopPin0KompRot0 - centerY2PinsComp;
+const valLeftPin1KompRot0 = valueLeftPin1KompRot0 - centerX2PinsComp;
+const valTopPin1KompRot0 = valueTopPin1KompRot0 - centerY2PinsComp;
 
 const dropComp = ({ withPresValue, c_id, valueLeft, valueTop }) => {
   if (c_id === 'Knoten') {
@@ -32,8 +33,8 @@ const dropComp = ({ withPresValue, c_id, valueLeft, valueTop }) => {
       valueTop: valueTop,
       pins: [
         {
-          x: valueLeft + valueLeftPinKnoten,
-          y: valueTop + valueTopPinKnoten
+          x: valueLeft,
+          y: valueTop
         }
       ]
     });
@@ -46,8 +47,8 @@ const dropComp = ({ withPresValue, c_id, valueLeft, valueTop }) => {
       valueTop: valueTop,
       pins: [
         {
-          x: valueLeft + valueTopLeftPinKlemme,
-          y: valueTop + valueTopLeftPinKlemme
+          x: valueLeft,
+          y: valueTop
         }
       ]
     });
@@ -60,12 +61,12 @@ const dropComp = ({ withPresValue, c_id, valueLeft, valueTop }) => {
       valueTop: valueTop,
       pins: [
         {
-          x: valueLeft + valueLeftPin0KompRot0,
-          y: valueTop + valueTopPin0KompRot0
+          x: valueLeft + valLeftPin0KompRot0,
+          y: valueTop + valTopPin0KompRot0
         },
         {
-          x: valueLeft + valueLeftPin1KompRot0,
-          y: valueTop + valueTopPin1KompRot0
+          x: valueLeft + valLeftPin1KompRot0,
+          y: valueTop + valTopPin1KompRot0
         }
       ],
       valR: withPresValue ? 1000 : undefined
@@ -79,12 +80,12 @@ const dropComp = ({ withPresValue, c_id, valueLeft, valueTop }) => {
       valueTop: valueTop,
       pins: [
         {
-          x: valueLeft + valueLeftPin0KompRot0,
-          y: valueTop + valueTopPin0KompRot0
+          x: valueLeft + valLeftPin0KompRot0,
+          y: valueTop + valTopPin0KompRot0
         },
         {
-          x: valueLeft + valueLeftPin1KompRot0,
-          y: valueTop + valueTopPin1KompRot0
+          x: valueLeft + valLeftPin1KompRot0,
+          y: valueTop + valTopPin1KompRot0
         }
       ],
       valU: withPresValue ? 10 : undefined
@@ -98,12 +99,12 @@ const dropComp = ({ withPresValue, c_id, valueLeft, valueTop }) => {
       valueTop: valueTop,
       pins: [
         {
-          x: valueLeft + valueLeftPin0KompRot0,
-          y: valueTop + valueTopPin0KompRot0
+          x: valueLeft + valLeftPin0KompRot0,
+          y: valueTop + valTopPin0KompRot0
         },
         {
-          x: valueLeft + valueLeftPin1KompRot0,
-          y: valueTop + valueTopPin1KompRot0
+          x: valueLeft + valLeftPin1KompRot0,
+          y: valueTop + valTopPin1KompRot0
         }
       ],
       valI: withPresValue ? 1 : undefined
@@ -117,12 +118,12 @@ const dropComp = ({ withPresValue, c_id, valueLeft, valueTop }) => {
       valueTop: valueTop,
       pins: [
         {
-          x: valueLeft + valueLeftPin0KompRot0,
-          y: valueTop + valueTopPin0KompRot0
+          x: valueLeft + valLeftPin0KompRot0,
+          y: valueTop + valTopPin0KompRot0
         },
         {
-          x: valueLeft + valueLeftPin1KompRot0,
-          y: valueTop + valueTopPin1KompRot0
+          x: valueLeft + valLeftPin1KompRot0,
+          y: valueTop + valTopPin1KompRot0
         }
       ]
     });
@@ -135,12 +136,12 @@ const dropComp = ({ withPresValue, c_id, valueLeft, valueTop }) => {
       valueTop: valueTop,
       pins: [
         {
-          x: valueLeft + valueLeftPin0KompRot0,
-          y: valueTop + valueTopPin0KompRot0
+          x: valueLeft + valLeftPin0KompRot0,
+          y: valueTop + valTopPin0KompRot0
         },
         {
-          x: valueLeft + valueLeftPin1KompRot0,
-          y: valueTop + valueTopPin1KompRot0
+          x: valueLeft + valLeftPin1KompRot0,
+          y: valueTop + valTopPin1KompRot0
         }
       ]
     });
@@ -149,12 +150,12 @@ const dropComp = ({ withPresValue, c_id, valueLeft, valueTop }) => {
   } else {
     const comp = new ComponentJS(c_id, nb, valueLeft, valueTop, [
       {
-        x: valueLeft + valueLeftPin0KompRot0,
-        y: valueTop + valueTopPin0KompRot0
+        x: valueLeft + valLeftPin0KompRot0,
+        y: valueTop + valTopPin0KompRot0
       },
       {
-        x: valueLeft + valueLeftPin1KompRot0,
-        y: valueTop + valueTopPin1KompRot0
+        x: valueLeft + valLeftPin1KompRot0,
+        y: valueTop + valTopPin1KompRot0
       }
     ]);
     nb = nb + 1;

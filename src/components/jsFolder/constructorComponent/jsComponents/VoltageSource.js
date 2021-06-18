@@ -46,16 +46,10 @@ export default class VoltageSource extends Component {
   }
 
   getString() {
-    let txt =
-      this.symbol +
-      ' = ' +
-      this.valueU +
-      ' V<br>I_' +
-      this.symbol +
-      ' = ' +
-      this.valueI +
-      ' A';
-    return txt;
+    return `
+    ${this.symbol} = ${this.valueU} V<br>
+    I_${this.symbol} = ${this.valueI} A
+    `;
   }
 
   getPopupResultRow(table) {

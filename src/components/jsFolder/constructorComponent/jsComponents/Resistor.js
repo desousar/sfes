@@ -68,24 +68,10 @@ export default class Resistor extends Component {
   //Tooltip
   getString() {
     return `
-    ${this.symbol} = ${this.valueR} &#8486 <br>
-I_${this.symbol} = ${this.valueI} A <br>
-U_${this.symbol} = ${this.valueU} V
+    ${this.symbol} = ${this.valueR} &#8486<br>
+    U_${this.symbol} = ${this.valueU} V<br>
+    I_${this.symbol} = ${this.valueI} A
     `;
-    /*let txt =
-      this.symbol +
-      " = " +
-      this.valueR +
-      " &#8486;<br>I_" +
-      this.symbol +
-      " = " +
-      this.valueI +
-      " A<br>U_" +
-      this.symbol +
-      " = " +
-      this.valueU +
-      " V";
-    return txt;*/
   }
 
   //Pop Up Result

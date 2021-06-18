@@ -107,7 +107,7 @@
         ></div>
       </template>
 
-      <!--A4 = width="20cm" height="26.7cm"-->
+      <!--A4 = width="20cm" height="29.7cm"-->
       <svg
         :width="dynamicWidth()"
         :height="dynamicHeight()"
@@ -364,6 +364,12 @@ export default {
     dynamicWidth: function() {
       let targetDiv = this.$refs.targetDiv;
       if (targetDiv !== undefined) {
+        if (this.inA4Format) {
+          targetDiv.style.maxWidth = '21cm';
+        } else {
+          targetDiv.style.maxWidth = 'none';
+          targetDiv.style.width = 'calc(100% - 112px)';
+        }
         let width = targetDiv.scrollWidth;
         return width + 'px';
       }
@@ -371,8 +377,13 @@ export default {
     dynamicHeight: function() {
       let targetDiv = this.$refs.targetDiv;
       if (targetDiv !== undefined) {
+        if (this.inA4Format) {
+          targetDiv.style.maxHeight = '29.7cm';
+        } else {
+          targetDiv.style.maxHeight = 'none';
+          targetDiv.style.height = '99.2%';
+        }
         let height = targetDiv.scrollHeight - 4;
-
         return height + 'px';
       }
     },
@@ -505,6 +516,12 @@ export default {
       this.resetbyfalseCreationWire(false);
       this.resetCompFromWire();
 
+      // src: https://stackoverflow.com/questions/7680285/how-do-you-turn-off-setdragimage
+      var img = document.createElement('img');
+      img.src =
+        'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; //blank img
+      e.dataTransfer.setDragImage(img, 0, 0);
+
       const target = e.target;
       e.dataTransfer.setData('c_id', target.alt); // target.alt is the correct name of the component
     },
@@ -597,6 +614,7 @@ export default {
         component.isMultiPin === false
       ) {
         component.selected = !component.selected;
+        component.recalculatePins();
       } else if (this.selectedTool === this.toolState.TOOL_DELETE) {
         this.circuit.deleteOneComponent(component); //call the function delete
         this.save();
@@ -757,7 +775,10 @@ export default {
     /**
      * #region MenuBar function
      */
-    MBcapture: function() {
+    MBcapture() {
+      console.log('print');
+      let targetDiv = document.getElementById('targetDiv');
+      targetDiv.scrollTo(0, 0);
       print();
     },
 
@@ -836,6 +857,10 @@ export default {
 <style>
 @import './cssFolder/bigBody.css';
 
+@page {
+  size: A4;
+  margin: 0;
+}
 @media print {
   body * {
     visibility: hidden;
@@ -847,20 +872,19 @@ export default {
   }
   #targetDiv {
     position: absolute;
+    overflow: hidden;
     left: 0;
     top: 0;
     width: 21cm;
-    height: 26.7cm;
-    overflow: hidden;
-    transform-origin: top left;
+    height: 29.7cm;
   }
 
-  .z-50 {
+  /* .z-50 {
     transform: scale(0.5);
   }
 
   .z-75 {
     transform: scale(0.75);
-  }
+  } */
 }
 </style>

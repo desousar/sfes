@@ -46,17 +46,10 @@ export default class Ampermeter extends Component {
   }
 
   getString() {
-    let txt =
-      'I_' +
-      this.symbol +
-      ' = ' +
-      this.valueI +
-      ' A<br>U_' +
-      this.symbol +
-      ' = ' +
-      this.valueU +
-      ' V';
-    return txt;
+    return `
+    I_${this.symbol} = ${this.valueI} A<br>
+    U_${this.symbol} = ${this.valueU} V
+    `;
   }
 
   getPopupResultRow(table) {

@@ -14,13 +14,13 @@
         </header>
         <section class="popupComp-body-gridContainer" id="popupCompDescription">
           <slot>
-            <div>Symbol is</div>
+            <div>Symbol =</div>
             <input type="text" id="newID" :value="compoToPass.symbol" />
             <div></div>
           </slot>
 
           <slot v-if="isResistor()">
-            <div>Resistor {{ be3pers[getCurrentLanguage] }}</div>
+            <div>R =</div>
             <input
               type="number"
               id="newValueR"
@@ -29,7 +29,7 @@
                   ? undefined
                   : compoToPass.valueR
               "
-              :placeholder="compoToPass.valueR === undefined ? 'undefined' : ''"
+              placeholder="undefined"
             />
             <div>&#8486;</div>
           </slot>
@@ -37,7 +37,7 @@
           <slot v-if="isKnoten()">
             <div>
               Potential {{ source_data[getCurrentLanguage] }}
-              {{ be3pers[getCurrentLanguage] }}
+              =
             </div>
             <input
               type="number"
@@ -47,18 +47,14 @@
                   ? undefined
                   : compoToPass.valuePotentialSource
               "
-              :placeholder="
-                compoToPass.valuePotentialSource === undefined
-                  ? 'undefined'
-                  : ''
-              "
+              placeholder="undefined"
             />
             <div>V</div>
           </slot>
 
           <!--disabled input-->
           <slot v-if="isKnoten() || isKlemme()">
-            <div>Potential {{ be3pers[getCurrentLanguage] }}</div>
+            <div>Potential =</div>
             <input
               disabled
               type="number"
@@ -68,6 +64,7 @@
                   ? undefined
                   : compoToPass.valuePhi
               "
+              placeholder="not yet available"
             />
             <div>V</div>
           </slot>
@@ -82,8 +79,7 @@
             "
           >
             <div>
-              {{ current_data[getCurrentLanguage] }}
-              {{ be3pers[getCurrentLanguage] }}
+              I =
             </div>
             <input
               disabled
@@ -94,14 +90,14 @@
                   ? undefined
                   : compoToPass.valueI
               "
+              placeholder="not yet available"
             />
             <div>A</div>
           </slot>
 
           <slot v-if="isCurrentSource()">
             <div>
-              {{ current_data[getCurrentLanguage] }}
-              {{ be3pers[getCurrentLanguage] }}
+              I =
             </div>
             <input
               type="number"
@@ -111,7 +107,7 @@
                   ? undefined
                   : compoToPass.valueI
               "
-              :placeholder="compoToPass.valueI === undefined ? 'undefined' : ''"
+              placeholder="undefined"
             />
             <div>A</div>
           </slot>
@@ -119,8 +115,7 @@
           <!--disabled input-->
           <slot v-if="isResistor() || isCurrentSource() || isVoltmeter()">
             <div>
-              {{ voltage_data[getCurrentLanguage] }}
-              {{ be3pers[getCurrentLanguage] }}
+              U =
             </div>
             <input
               disabled
@@ -131,14 +126,14 @@
                   ? undefined
                   : compoToPass.valueU
               "
+              placeholder="not yet available"
             />
             <div>V</div>
           </slot>
 
           <slot v-if="isVoltageSource()">
             <div>
-              {{ voltage_data[getCurrentLanguage] }}
-              {{ be3pers[getCurrentLanguage] }}
+              U =
             </div>
             <input
               type="number"
@@ -148,7 +143,7 @@
                   ? undefined
                   : compoToPass.valueU
               "
-              :placeholder="compoToPass.valueU === undefined ? 'undefined' : ''"
+              placeholder="undefined"
             />
             <div>V</div>
           </slot>
@@ -162,26 +157,15 @@
         <!--possibility to "play" with current and voltage only if component isn't MultiPin-->
         <section v-if="!compoToPass.isMultiPin">
           <section class="oneLine">
-            <button class="btn-width40pct" @click="flipdirI()">
-              flip {{ current_data[getCurrentLanguage] }} arrow
-            </button>
             <button class="btn-width40pct" @click="flipdirU()">
               flip {{ voltage_data[getCurrentLanguage] }} arrow
+            </button>
+            <button class="btn-width40pct" @click="flipdirI()">
+              flip {{ current_data[getCurrentLanguage] }} arrow
             </button>
           </section>
           <section class="checkboxArrow">
             <div>{{ checkboxArrow_data[getCurrentLanguage] }}</div>
-            <div>
-              <input
-                type="checkbox"
-                id="displayDirI"
-                @click="DirIisChecked()"
-                :checked="controlDirI()"
-              />
-              <label
-                >display {{ current_data[getCurrentLanguage] }} arrow</label
-              >
-            </div>
             <div>
               <input
                 type="checkbox"
@@ -191,6 +175,17 @@
               />
               <label
                 >display {{ voltage_data[getCurrentLanguage] }} arrow</label
+              >
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                id="displayDirI"
+                @click="DirIisChecked()"
+                :checked="controlDirI()"
+              />
+              <label
+                >display {{ current_data[getCurrentLanguage] }} arrow</label
               >
             </div>
           </section>
@@ -253,13 +248,12 @@ export default {
         en: 'You have selected a component',
         de: 'Sie haben eine Komponente ausgewählt'
       },
-      be3pers: { en: 'is', de: 'ist' },
       source_data: { en: 'Source', de: 'Quelle' },
-      current_data: { en: 'Current', de: 'Strom' },
-      voltage_data: { en: 'Voltage', de: 'Spannung' },
+      current_data: { en: 'current', de: 'strom' },
+      voltage_data: { en: 'voltage', de: 'spannung' },
       checkboxArrow_data: {
-        en: 'check if you want to display arrows:',
-        de: 'Anhaken, wenn Sie die Pfeile anzeigen möchten:'
+        en: 'Check which elements should be displayed:',
+        de: 'Anhaken welche Elemente angezeigt werden sollen:'
       },
       close_data: { en: 'Close', de: 'Schliessen' }
     };
@@ -324,7 +318,9 @@ export default {
       this.assertAttribution();
 
       //input field modification
-      this.compoToPass.valueI = this.compoToPass.valueI * -1;
+      if (this.compoToPass.valueI) {
+        this.compoToPass.valueI = this.compoToPass.valueI * -1;
+      }
 
       //graphical aspect
       if (this.compoToPass.directionI === 0) {
@@ -372,7 +368,9 @@ export default {
       this.assertAttribution();
 
       //input field modification
-      this.compoToPass.valueU = this.compoToPass.valueU * -1;
+      if (this.compoToPass.valueU) {
+        this.compoToPass.valueU = this.compoToPass.valueU * -1;
+      }
 
       //graphical aspect
       if (this.compoToPass.directionU === 0) {

@@ -1,5 +1,4 @@
-import MultiPinComponent from "../MultiPinComponent";
-export { valueLeftPinKnoten, valueTopPinKnoten };
+import MultiPinComponent from '../MultiPinComponent';
 
 /*
 to obtain following value:
@@ -19,14 +18,25 @@ const valueLeftPinKnoten = dimensionLeftKnoten / 2; //12.5
 export default class Knoten extends MultiPinComponent {
   static KNOTEN_TO_POTENTIAL = 0;
 
+  /*
+    WARNING: valuePhi and valuePotentialSource is the same value
+    valuePhi is used when Knoten doesn't have a valuePotentialSource
+  */
+
   constructor({
     symbol,
     valuePotentialSource,
     valueLeft = 0,
     valueTop = 0,
-    pins = [{ x: 0, y: 0 }],
+    pins = [{ x: 0, y: 0 }]
   }) {
-    super("Knoten", symbol, pins, valueLeft, valueTop);
+    super(
+      'Knoten',
+      symbol,
+      pins,
+      valueLeft - valueLeftPinKnoten, //center
+      valueTop - valueTopPinKnoten //center
+    );
 
     this.valuePotentialSource = valuePotentialSource;
 
@@ -59,24 +69,13 @@ export default class Knoten extends MultiPinComponent {
   }
 
   getString() {
-    let txt = this.symbol + "<br>Potential_" + this.symbol;
     if (this.valuePotentialSource !== undefined) {
-      txt +=
-        " = " +
-        this.valuePotentialSource +
-        " V<br>I_" +
-        this.symbol +
-        " = " +
-        +this.valueI +
-        " A<br>U_" +
-        this.symbol +
-        " =" +
-        +this.valueU +
-        " V";
-      //après le += faire un template
+      return `
+    Potential_${this.symbol} = ${this.valuePotentialSource} V<br>
+    I_${this.symbol} = ${this.valueI} A
+    `;
     } else {
-      txt += " = " + this.valuePhi + "V";
+      return `Potential_${this.symbol} = ${this.valuePhi} V`;
     }
-    return txt;
   }
 }

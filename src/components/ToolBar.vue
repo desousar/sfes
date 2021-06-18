@@ -1,35 +1,5 @@
 <template>
   <div class="toolBar">
-    <!--<div class="first">
-      <div class="content_img">
-        <img alt="New" src="@/assets/toolBar/new.svg" draggable="false" />
-        <div>{{ neu[getCurrentLanguage] }}</div>
-      </div>
-      <div class="content_img">
-        <img alt="Open" src="@/assets/toolBar/open.svg" draggable="false" />
-        <div>{{ open[getCurrentLanguage] }}</div>
-      </div>
-      <div class="content_img">
-        <img alt="Save As" src="@/assets/toolBar/save.svg" draggable="false" />
-        <div>{{ saveAs[getCurrentLanguage] }}</div>
-      </div>
-    </div>-->
-
-    <!--<div class="second">
-      <div class="content_img">
-        <img alt="Cut" src="@/assets/toolBar/cut.svg" draggable="false" />
-        <div>{{ cut[getCurrentLanguage] }}</div>
-      </div>
-      <div class="content_img">
-        <img alt="Copy" src="@/assets/toolBar/copy.svg" draggable="false" />
-        <div>{{ copy[getCurrentLanguage] }}</div>
-      </div>
-      <div class="content_img">
-        <img alt="Paste" src="@/assets/toolBar/paste.svg" draggable="false" />
-        <div>{{ paste[getCurrentLanguage] }}</div>
-      </div>
-    </div>-->
-
     <div class="third">
       <div
         class="content_img"
@@ -98,27 +68,24 @@
       </div>
     </div>
     <div class="third">
-      <button @click="undo" :disabled="!canUndo" style="margin-right:10px">
-        Undo
-      </button>
-      <button @click="redo" :disabled="!canRedo">Redo</button>
-    </div>
-    <div class="third">
-      {{ presVal[getCurrentLanguage] }}
-      <input
-        type="checkbox"
-        id="defValue"
-        @change="predefinedValues"
-        v-model="withPredValue"
-      />
-      (R=1000Ω; I=1A; U=10V)
+      <div class="content_img">
+        <button @click="undo" :disabled="!canUndo">
+          <span class="mdi mdi-undo mdi-24px"></span>
+        </button>
+        <div>{{ undo_data[getCurrentLanguage] }}</div>
+      </div>
+      <div class="content_img">
+        <button @click="redo" :disabled="!canRedo">
+          <span class="mdi mdi-redo mdi-24px"></span>
+        </button>
+        <div>{{ redo_data[getCurrentLanguage] }}</div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import toolStates from '../states.js';
-import EventBus from './jsFolder/event-bus.js';
 
 export default {
   //name: 'TitleBanner',
@@ -143,10 +110,10 @@ export default {
       movement: { en: 'Move', de: 'Bewegen' },
       select: { en: 'Select', de: 'Wählen' },
       mouse: { en: 'Reset', de: 'Reset' },
-      presVal: { en: 'predefined values', de: 'vordefinierte Werte' },
+      undo_data: { en: 'Undo', de: 'Undo' },
+      redo_data: { en: 'Redo', de: 'Redo' },
 
-      toolState: toolStates,
-      withPredValue: false
+      toolState: toolStates
     };
   },
   computed: {
@@ -202,10 +169,6 @@ export default {
         element.recalculatePins();
       });
       this.$emit('set-circuit', deepcopy);
-    },
-    predefinedValues() {
-      console.log('OK', this.withPredValue);
-      EventBus.$emit('TBpredVal', this.withPredValue);
     }
   }
 };
@@ -213,16 +176,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-img {
-  width: auto;
-  height: 50px;
-  margin: 0px 7px 0px 0px;
-  background-color: white;
-}
-.greenClass img {
-  background-color: green;
-}
-
 .toolBar {
   display: flex;
   background-color: #f2f2f2;
@@ -263,5 +216,16 @@ img {
 }
 .content_img img {
   width: 50px;
+  height: 100%;
+  margin: 0px 7px 0px 0px;
+  background-color: white;
+}
+.content_img button {
+  height: 100%;
+  margin: 0px 7px 0px 0px;
+}
+
+.greenClass img {
+  background-color: green;
 }
 </style>

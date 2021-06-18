@@ -1,6 +1,6 @@
 <template>
-  <div class="menuBar">
-    <div class="dropdown" id="file">
+  <div class="globalBar">
+    <div class="dropdown" id="marginL2px">
       <button class="dropbtn">{{ file[getCurrentLanguage] }}</button>
       <div class="dropdown-content">
         <button class="custom-btn" @click="getEmptyCircuit()">
@@ -19,17 +19,7 @@
         </button>
       </div>
     </div>
-    <!--
-    <div class="dropdown" id="file">
-      <button class="dropbtn">{{ edit[getCurrentLanguage] }}</button>
-      <div class="dropdown-content">
-        <a href="#">{{ copy[getCurrentLanguage] }}</a>
-        <a href="#">{{ cut[getCurrentLanguage] }}</a>
-        <a href="#">{{ paste[getCurrentLanguage] }}</a>
-      </div>
-    </div>
-    -->
-    <div class="dropdown" id="file">
+    <div class="dropdown" id="marginL2px">
       <button class="dropbtn">{{ view_data[getCurrentLanguage] }}</button>
       <div class="dropdown-content">
         <button class="custom-btn" @click="a4Format()">
@@ -38,18 +28,26 @@
         </button>
       </div>
     </div>
-    <div class="dropdown" id="file">
-      <button class="dropbtn" @click="solve()">
-        {{ solve_data[getCurrentLanguage] }}
-      </button>
+
+    <div class="dropdown" id="marginL2px">
+      <button class="dropbtn">{{ resolve_data[getCurrentLanguage] }}</button>
+      <div class="dropdown-content">
+        <button class="custom-btn" @click="solve()">
+          {{ solve_data[getCurrentLanguage] }}
+        </button>
+        <button class="custom-btn" @click="equivalentSource()">
+          {{ equivalent[getCurrentLanguage] }}
+        </button>
+      </div>
     </div>
-    <div class="dropdown" id="file">
-      <button class="dropbtn" @click="equivalentSource()">
-        {{ equivalent[getCurrentLanguage] }}
+
+    <div class="dropdown" id="marginL2px">
+      <button class="dropbtn" @click="settings()">
+        {{ setting_data[getCurrentLanguage] }}
       </button>
     </div>
 
-    <div class="dropdown" id="file">
+    <div class="dropdown" id="marginL2px">
       <button class="dropbtn">{{ help_data[getCurrentLanguage] }}</button>
       <div class="dropdown-content">
         <button class="custom-btn" @click="help()">
@@ -60,95 +58,116 @@
         </button>
       </div>
     </div>
+
+    <div class="title">
+      <p id="titlename">
+        <strong>BeNetz</strong>
+      </p>
+      <p id="titledescription">{{ titledescription[getCurrentLanguage] }}</p>
+    </div>
   </div>
 </template>
 
 <script>
-import EventBus from "./jsFolder/event-bus.js";
+import EventBus from './jsFolder/event-bus.js';
 
 export default {
   props: {
     //variable, who I obtain from App.vue (one stage up of this stage)
     //I need to give the type, after that I can us it into html part like {{...}}
-    currentLanguage: String,
+    currentLanguage: String
   },
   data() {
     return {
-      file: { en: "File", de: "Datei" },
-      neu: { en: "New", de: "Neu" },
-      open: { en: "Open", de: "Öffnen" },
-      saveAs: { en: "Save As", de: "Speichern als" },
-      edit: { en: "Edit", de: "Bearbeiten" },
-      copy: { en: "Copy", de: "Kopieren" },
-      cut: { en: "Cut", de: "Schneiden" },
-      paste: { en: "Paste", de: "Einfügen" },
-      exportToPDF_data: { en: "Export to PDF", de: "Export to PDF" },
-      view_data: { en: "View", de: "Ansicht" },
+      file: { en: 'File', de: 'Datei' },
+      neu: { en: 'New', de: 'Neu' },
+      open: { en: 'Open', de: 'Öffnen' },
+      saveAs: { en: 'Save As', de: 'Speichern als' },
+      edit: { en: 'Edit', de: 'Bearbeiten' },
+      copy: { en: 'Copy', de: 'Kopieren' },
+      cut: { en: 'Cut', de: 'Schneiden' },
+      paste: { en: 'Paste', de: 'Einfügen' },
+      exportToPDF_data: { en: 'Export to PDF', de: 'Export to PDF' },
+      view_data: { en: 'View', de: 'Ansicht' },
       a4Format_data: {
-        en: "Show Page Limit (A4)",
-        de: "Seitengrenze anzeigen (A4)",
+        en: 'Show Page Limit (A4)',
+        de: 'Seitengrenze anzeigen (A4)'
       },
-      solve_data: { en: "Solve", de: "Berechnen" },
-      equivalent: { en: "Equivalent source", de: "Ersatzquelle" },
-      help_data: { en: "Help", de: "Hilfe" },
-      aboutUs_data: { en: "About us", de: "Über uns" },
+      resolve_data: { en: 'Resolve', de: 'Lösen' },
+      solve_data: { en: 'Solve circuit', de: 'Schaltung berechnen' },
+      equivalent: { en: 'Equivalent source', de: 'Ersatzquelle' },
+      setting_data: { en: 'Settings', de: 'Einstellungen' },
+      help_data: { en: 'Help', de: 'Hilfe' },
+      aboutUs_data: { en: 'About us', de: 'Über uns' },
+      titledescription: {
+        en: 'Simulation tool for electronic circuits',
+        de: 'Simulationstool für elektronische Schaltungen'
+      },
 
-      a4FormatBool_data: false,
+      a4FormatBool_data: false
     };
   },
   computed: {
-    getCurrentLanguage: function () {
+    getCurrentLanguage() {
       return this.currentLanguage;
-    },
+    }
   },
   methods: {
-    capture: function () {
-      EventBus.$emit("MBcapture");
+    capture() {
+      EventBus.$emit('MBcapture');
     },
-    a4Format: function () {
+    a4Format() {
       this.a4FormatBool_data = !this.a4FormatBool_data;
-      EventBus.$emit("MBa4Format", this.a4FormatBool_data);
+      EventBus.$emit('MBa4Format', this.a4FormatBool_data);
     },
-    solve: function () {
-      EventBus.$emit("MBsolve");
+    solve() {
+      EventBus.$emit('MBsolve');
     },
 
-    openFile: function () {
-      EventBus.$emit("MBopenFile");
+    openFile() {
+      EventBus.$emit('MBopenFile');
     },
-    saveFile: function () {
-      EventBus.$emit("MBsaveFile");
+    saveFile() {
+      EventBus.$emit('MBsaveFile');
     },
-    equivalentSource: function () {
-      EventBus.$emit("MBequivalentSource");
+    equivalentSource() {
+      EventBus.$emit('MBequivalentSource');
     },
-    getEmptyCircuit: function () {
-      EventBus.$emit("MBgetEmptyCircuit");
+    getEmptyCircuit() {
+      EventBus.$emit('MBgetEmptyCircuit');
     },
-    help: function () {
-      EventBus.$emit("MBhelp");
+    settings() {
+      EventBus.$emit('MBsettings');
     },
-    aboutUs: function () {
-      EventBus.$emit("MBaboutUs");
+    help() {
+      EventBus.$emit('MBhelp');
     },
-  },
+    aboutUs() {
+      EventBus.$emit('MBaboutUs');
+    }
+  }
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-#file {
-  margin-right: 2px;
+.globalBar {
+  height: 40.8px;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
 }
-#aboutUs {
-  float: right;
+
+#marginL2px {
+  margin-left: 2px;
 }
 
 .dropbtn {
   color: black;
-  padding: 16px 24px;
-  font-size: 16px;
+  padding: 12px 12px;
+  font-size: 14px;
   border: none;
+  white-space: nowrap;
 }
 
 .dropdown {
@@ -167,7 +186,7 @@ export default {
 
 .dropdown-content a {
   color: black;
-  padding: 12px 16px;
+  padding: 12px 12px;
   text-decoration: none;
   display: block;
 }
@@ -185,34 +204,58 @@ export default {
 }
 
 /*v open button*/
-input[type="file"] {
+input[type='file'] {
   display: none;
 }
 .custom-labelInput {
   color: black;
-  padding: 12px 16px;
+  padding: 12px 12px;
+  font-size: 14px;
   text-decoration: none;
   display: block;
 }
 .custom-labelInput:hover {
   background-color: #ddd;
 }
-input[type="button"] {
+input[type='button'] {
   display: none;
 }
 /*^ open button*/
 
 .custom-btn {
   color: black;
-  padding: 12px 16px;
+  padding: 12px 12px;
   display: block;
   border: none;
-  font-size: 16px;
+  font-size: 14px;
   width: 100%;
   text-align: left;
-  font-family: "Times New Roman", Helvetica, Arial, serif;
+  font-family: 'Times New Roman', Helvetica, Arial, serif;
 }
 .custom-btn:hover {
   background-color: #ddd;
+}
+
+#languages {
+  margin: 0px 5px;
+}
+
+/* TitleBanner */
+.title {
+  background: linear-gradient(to bottom right, rgb(50, 50, 255), white);
+  border-radius: 5px;
+  padding: 0px 10px;
+  margin-left: auto;
+  margin-right: 5px;
+  text-align: center;
+  white-space: nowrap;
+}
+#titlename {
+  font-size: 25px;
+  display: inline;
+  margin-right: 5px;
+}
+#titledescription {
+  display: inline;
 }
 </style>

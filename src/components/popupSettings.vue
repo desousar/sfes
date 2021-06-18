@@ -1,0 +1,157 @@
+<!-- src : https://www.digitalocean.com/community/tutorials/vuejs-vue-modal-component -->
+<template>
+  <transition name="modalSettings-fade">
+    <div class="modalSettings-backdrop">
+      <div
+        class="modalSettings"
+        role="dialog"
+        aria-labelledby="modalSettingsTitle"
+        aria-describedby="modalSettingsDescription"
+      >
+        <header class="modalSettings-header" id="modalSettingsTitle">
+          <slot name="header"> {{ setting_data[getCurrentLanguage] }} </slot>
+          <button
+            style="float:right"
+            type="button"
+            class="btn-green"
+            @click="close"
+            aria-label="Close modalSettings"
+          >
+            X
+          </button>
+        </header>
+        <section class="modalSettings-body" id="modalSettingsDescription">
+          <p>
+            {{ language_data[getCurrentLanguage] }}
+            <select
+              v-model="curLanguage"
+              id="languages"
+              @click="changeLanguage"
+            >
+              <option
+                v-for="locale in locales"
+                :key="locale.id"
+                :value="locale.id"
+              >
+                {{ locale.name }}
+              </option>
+            </select>
+          </p>
+          <p>
+            <input
+              type="checkbox"
+              id="defValue"
+              @change="predefinedValues"
+              v-model="withPredVal"
+            />
+            {{ predVal_data[getCurrentLanguage] }} (R=1000Ω; I=1A; U=10V)
+          </p>
+        </section>
+        <footer class="modalSettings-footer">
+          <slot name="footer">
+            <button
+              type="button"
+              class="btn-green"
+              @click="close"
+              aria-label="Close modalSettings"
+            >
+              {{ close_data[getCurrentLanguage] }}
+            </button>
+          </slot>
+        </footer>
+      </div>
+    </div>
+  </transition>
+</template>
+
+<script>
+import EventBus from './jsFolder/event-bus.js';
+
+export default {
+  props: {
+    currentLanguage: String,
+    locales: Array,
+    withPredefinedValue: Boolean
+  },
+  data() {
+    return {
+      curLanguage: this.currentLanguage,
+      withPredVal: this.withPredefinedValue,
+      setting_data: { en: 'Settings', de: 'Einstellungen' },
+      language_data: { en: 'Language selection', de: 'Sprachauswahl' },
+      predVal_data: { en: 'Predefined values', de: 'Vordefinierte Werte' },
+      close_data: { en: 'Close', de: 'Schliessen' }
+    };
+  },
+  computed: {
+    getCurrentLanguage: function() {
+      return this.curLanguage;
+    }
+  },
+  methods: {
+    changeLanguage() {
+      EventBus.$emit('PUSchangeLanguage', this.getCurrentLanguage);
+    },
+    predefinedValues() {
+      EventBus.$emit('PUSpredVal', this.withPredVal);
+    },
+    close() {
+      this.$emit('close');
+    }
+  }
+};
+</script>
+
+<style>
+.modalSettings-backdrop {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modalSettings {
+  background: #ffffff;
+  box-shadow: 2px 2px 20px 1px;
+  overflow-x: auto;
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+  max-width: 60vw;
+  min-width: 40vw;
+}
+
+.modalSettings-header,
+.modalSettings-footer {
+  padding: 15px;
+  display: flex;
+}
+
+.modalSettings-header {
+  border-bottom: 1px solid #eeeeee;
+  color: #4aae9b;
+  justify-content: space-between;
+}
+
+.modalSettings-footer {
+  border-top: 1px solid #eeeeee;
+  justify-content: flex-end;
+}
+
+.modalSettings-body {
+  position: relative;
+  padding: 10px 10px;
+}
+
+.btn-green {
+  color: white;
+  background: #4aae9b;
+  border: 1px solid #4aae9b;
+  border-radius: 2px;
+}
+</style>

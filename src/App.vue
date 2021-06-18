@@ -7,12 +7,6 @@ https://medium.com/fbbd/intro-to-writing-undo-redo-systems-in-javascript-af17148
   <div id="app">
     <!--<img alt="Vue logo" src="./assets/logo.png"> => explain how to import a picture-->
     <!-- v-bind:abc <=> :abc AND v-on:abc <=> @abc -->
-    <TitleBanner
-      titlename="BeNetz"
-      :currentLanguage="currentLanguage"
-      :locales="locales"
-      @changeLanguage="updateLanguage($event)"
-    />
     <MenuBar :currentLanguage="currentLanguage" />
     <ToolBar
       :currentLanguage="currentLanguage"
@@ -26,6 +20,7 @@ https://medium.com/fbbd/intro-to-writing-undo-redo-systems-in-javascript-af17148
     <BigBody
       :currentLanguage="currentLanguage"
       :selectedTool="tool"
+      :locales="locales"
       @tool-state-changed="onToolStateChanged"
       :circuit="circuit"
       @set-circuit="setCircuit"
@@ -39,22 +34,26 @@ https://medium.com/fbbd/intro-to-writing-undo-redo-systems-in-javascript-af17148
 </template>
 
 <script>
-import TitleBanner from './components/TitleBanner.vue';
 import MenuBar from './components/MenuBar.vue';
 import ToolBar from './components/ToolBar.vue';
 import BigBody from './components/BigBody.vue';
 
 import toolStates from './states.js';
+import EventBus from './components/jsFolder/event-bus';
 
 import Circuit from './components/jsFolder/constructorComponent/Circuit.js';
 
 export default {
   name: 'App',
   components: {
-    TitleBanner,
     MenuBar,
     ToolBar,
     BigBody
+  },
+  mounted: function() {
+    EventBus.$on('PUSchangeLanguage', newL => {
+      this.updateLanguage(newL);
+    });
   },
   data() {
     return {
@@ -86,10 +85,8 @@ export default {
     },
     setCircuit(newCir) {
       if (newCir) {
-        console.log('full');
         this.circuit = newCir;
       } else {
-        console.log('empty');
         this.circuit = new Circuit([], []);
       }
     },

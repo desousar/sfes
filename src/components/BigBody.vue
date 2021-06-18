@@ -164,6 +164,14 @@
         :currentLanguage="currentLanguage"
       />
 
+      <popupSettings
+        v-show="isPopupSettingsVisible"
+        @close="openClosePopupSettings"
+        :currentLanguage="currentLanguage"
+        :locales="locales"
+        :withPredefinedValue="withPredefinedValue"
+      />
+
       <popupHelp
         v-show="isPopupHelpVisible"
         @close="openClosePopupHelp"
@@ -207,6 +215,7 @@ import popupComp from './popupComp.vue';
 import popupResult from './popupResult.vue';
 import popupEquivalentSrc from './popupEquivalentSrc.vue';
 import popupAboutUs from './popupAboutUs.vue';
+import popupSettings from './popupSettings.vue';
 import popupHelp from './popupHelp.vue';
 import Knoten from './elements/Knoten.vue';
 import Klemme from './elements/Klemme.vue';
@@ -246,6 +255,7 @@ export default {
     popupResult,
     popupEquivalentSrc,
     popupAboutUs,
+    popupSettings,
     popupHelp,
     Knoten,
     Klemme,
@@ -259,6 +269,7 @@ export default {
   },
   props: {
     currentLanguage: String,
+    locales: Array,
     selectedTool: Number,
     circuit: Object, //circuit with components and wires array
     undoRedoData: Object
@@ -288,10 +299,13 @@ export default {
     EventBus.$on('MBaboutUs', () => {
       this.MBaboutUs();
     });
+    EventBus.$on('MBsettings', () => {
+      this.MBsettings();
+    });
     EventBus.$on('MBhelp', () => {
       this.MBhelp();
     });
-    EventBus.$on('TBpredVal', predValue => {
+    EventBus.$on('PUSpredVal', predValue => {
       this.withPredefinedValue = predValue;
     });
   },
@@ -313,6 +327,7 @@ export default {
       isPopupResultVisible: false,
       isPopupEquivalentSrcVisible: false,
       isPopupAboutUsVisible: false,
+      isPopupSettingsVisible: false,
       isPopupHelpVisible: false,
 
       toolState: toolStates,
@@ -467,6 +482,9 @@ export default {
     },
     openClosePopupAboutUs: function() {
       this.isPopupAboutUsVisible = !this.isPopupAboutUsVisible;
+    },
+    openClosePopupSettings() {
+      this.isPopupSettingsVisible = !this.isPopupSettingsVisible;
     },
     openClosePopupHelp: function() {
       this.isPopupHelpVisible = !this.isPopupHelpVisible;
@@ -804,6 +822,9 @@ export default {
     },
     MBaboutUs() {
       this.openClosePopupAboutUs();
+    },
+    MBsettings() {
+      this.openClosePopupSettings();
     },
     MBhelp() {
       this.openClosePopupHelp();

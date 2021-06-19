@@ -157,39 +157,29 @@ export default class MultipleRinSerie {
       }
     }
 
-    circuit.getSelectedComponents().forEach(component => {
+    let [keepRAlive] = selectedComp_array.splice(0, 1);
+    selectedComp_array.forEach(component => {
       circuit.deleteOneComponent(component);
     });
-
-    let newR = new ResistorJS({
-      symbol: selectedComp_array[0].symbol + 'SUM',
-      valueLeft: selectedComp_array[0].x,
-      valueTop: selectedComp_array[0].y,
-      pins: [
-        {
-          x: selectedComp_array[0].pins[0].x,
-          y: selectedComp_array[0].pins[0].y
-        },
-        {
-          x: selectedComp_array[0].pins[1].x,
-          y: selectedComp_array[0].pins[1].y
-        }
-      ]
+    circuit.wires.forEach((wire, index) => {
+      const compFrom = circuit.componentFromPin(wire.from);
+      const compTo = circuit.componentFromPin(wire.to);
+      if (keepRAlive === compFrom || keepRAlive === compTo) {
+        circuit.deleteOneWire(wire, index);
+      }
     });
-    newR.valueR = sumR;
-    newR.showSymbol = true;
-    newR.rotation = selectedComp_array[0].rotation;
-    circuit.components.push(newR);
+    keepRAlive.valueR = sumR;
+    keepRAlive.showSymbol = true;
 
     if (this.circuitAsLoop) {
       let kn = dropComp({
         c_id: 'Knoten',
-        valueLeft: selectedComp_array[1].x,
-        valueTop: selectedComp_array[1].y
+        valueLeft: selectedComp_array[0].x,
+        valueTop: selectedComp_array[0].y
       });
       circuit.components.push(kn);
-      this.create1Wire(circuit, newR, 0, kn, 0);
-      this.create1Wire(circuit, newR, 1, kn, 0);
+      this.create1Wire(circuit, keepRAlive, 0, kn, 0);
+      this.create1Wire(circuit, keepRAlive, 1, kn, 0);
     }
     // check coord x and y for graphical attribution
     else if (
@@ -198,11 +188,11 @@ export default class MultipleRinSerie {
     ) {
       const pin0 = distanceBtw2Points(
         this.extremity1_comp.pins[this.extremity1_pinID],
-        newR.pins[0]
+        keepRAlive.pins[0]
       );
       const pin1 = distanceBtw2Points(
         this.extremity1_comp.pins[this.extremity1_pinID],
-        newR.pins[1]
+        keepRAlive.pins[1]
       );
       if (pin0 <= pin1) {
         //connect extremity1_comp with pin0 and extremity2_comp with pin1
@@ -210,14 +200,14 @@ export default class MultipleRinSerie {
           circuit,
           this.extremity1_comp,
           this.extremity1_pinID,
-          newR,
+          keepRAlive,
           0
         );
         this.create1Wire(
           circuit,
           this.extremity2_comp,
           this.extremity2_pinID,
-          newR,
+          keepRAlive,
           1
         );
       } else {
@@ -226,14 +216,14 @@ export default class MultipleRinSerie {
           circuit,
           this.extremity1_comp,
           this.extremity1_pinID,
-          newR,
+          keepRAlive,
           1
         );
         this.create1Wire(
           circuit,
           this.extremity2_comp,
           this.extremity2_pinID,
-          newR,
+          keepRAlive,
           0
         );
       }
@@ -241,11 +231,11 @@ export default class MultipleRinSerie {
       if (this.extremity1_comp !== undefined) {
         const pin0 = distanceBtw2Points(
           this.extremity1_comp.pins[this.extremity1_pinID],
-          newR.pins[0]
+          keepRAlive.pins[0]
         );
         const pin1 = distanceBtw2Points(
           this.extremity1_comp.pins[this.extremity1_pinID],
-          newR.pins[1]
+          keepRAlive.pins[1]
         );
         if (pin0 <= pin1) {
           //connect extremity1_comp with pin0
@@ -253,7 +243,7 @@ export default class MultipleRinSerie {
             circuit,
             this.extremity1_comp,
             this.extremity1_pinID,
-            newR,
+            keepRAlive,
             0
           );
         } else {
@@ -262,7 +252,7 @@ export default class MultipleRinSerie {
             circuit,
             this.extremity1_comp,
             this.extremity1_pinID,
-            newR,
+            keepRAlive,
             1
           );
         }
@@ -270,11 +260,11 @@ export default class MultipleRinSerie {
       if (this.extremity2_comp !== undefined) {
         const pin0 = distanceBtw2Points(
           this.extremity2_comp.pins[this.extremity2_pinID],
-          newR.pins[0]
+          keepRAlive.pins[0]
         );
         const pin1 = distanceBtw2Points(
           this.extremity2_comp.pins[this.extremity2_pinID],
-          newR.pins[1]
+          keepRAlive.pins[1]
         );
         if (pin0 <= pin1) {
           //connect extremity2_comp with pin0
@@ -282,7 +272,7 @@ export default class MultipleRinSerie {
             circuit,
             this.extremity2_comp,
             this.extremity2_pinID,
-            newR,
+            keepRAlive,
             0
           );
         } else {
@@ -291,7 +281,7 @@ export default class MultipleRinSerie {
             circuit,
             this.extremity2_comp,
             this.extremity2_pinID,
-            newR,
+            keepRAlive,
             1
           );
         }
@@ -299,10 +289,10 @@ export default class MultipleRinSerie {
     }
   }
 
-  create1Wire(circuit, extremity, extPinId, newR, newRPinId) {
+  create1Wire(circuit, extremity, extPinId, keepRAlive, keepRAlivePinId) {
     const wire = new WireJS({
       from: extremity.pins[extPinId],
-      to: newR.pins[newRPinId]
+      to: keepRAlive.pins[keepRAlivePinId]
     });
     if (extremity.isMultiPin === false) {
       if (extPinId === 0) {
@@ -311,10 +301,10 @@ export default class MultipleRinSerie {
         extremity.showPin2 = false;
       }
     }
-    if (newRPinId === 0) {
-      newR.showPin1 = false;
-    } else if (newRPinId === 1) {
-      newR.showPin2 = false;
+    if (keepRAlivePinId === 0) {
+      keepRAlive.showPin1 = false;
+    } else if (keepRAlivePinId === 1) {
+      keepRAlive.showPin2 = false;
     }
     circuit.wires.push(wire);
   }

@@ -1,15 +1,8 @@
-// eslint-disable-next-line no-unused-vars
 import KnotenJS from '../../jsFolder/constructorComponent/jsComponents/Knoten';
-// eslint-disable-next-line no-unused-vars
 import ResistorJS from '../../jsFolder/constructorComponent/jsComponents/Resistor';
-// eslint-disable-next-line no-unused-vars
 import VoltageSrcJS from '../../jsFolder/constructorComponent/jsComponents/VoltageSource';
-// eslint-disable-next-line no-unused-vars
-import CurrentSrcJS from '../../jsFolder/constructorComponent/jsComponents/CurrentSource';
-// eslint-disable-next-line no-unused-vars
 import WireJS from '../../jsFolder/constructorComponent/Wire.js';
 
-// eslint-disable-next-line no-unused-vars
 import { dropComp } from '../../jsFolder/dropComponent';
 
 export default class TheveninToNorton {
@@ -53,22 +46,11 @@ export default class TheveninToNorton {
     console.log('---------TheveninToNorton---------');
     let isInstanceCorrect_bool = false;
     let isInSerie_bool = false;
-    if (selectedComp_array.length !== 2) {
+    isInstanceCorrect_bool = this.isInstanceCorrect(selectedComp_array);
+    if (!isInstanceCorrect_bool) {
       return false;
-    } else {
-      try {
-        selectedComp_array.forEach(comp => {
-          comp.assertMainValue();
-        });
-        isInstanceCorrect_bool = this.isInstanceCorrect(selectedComp_array);
-        if (!isInstanceCorrect_bool) {
-          return false;
-        }
-        isInSerie_bool = this.isInSerie(onReal, selectedComp_array, circuit);
-      } catch (e) {
-        alert(e.message);
-      }
     }
+    isInSerie_bool = this.isInSerie(onReal, selectedComp_array, circuit);
     return isInstanceCorrect_bool && isInSerie_bool;
   }
 

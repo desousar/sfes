@@ -41,7 +41,6 @@
       @mouseup="moveEnd"
       @mousemove.prevent="moveMotion($event)"
       @contextmenu="openMenu"
-      :class="{ 'z-50': false, 'z-75': true }"
     >
       <template v-for="(component, idx) in circuit.components">
         <span :key="'complabel-' + idx" v-if="component.showSymbol">
@@ -49,8 +48,8 @@
             v-if="!component.isMultiPin"
             :key="'label-' + idx"
             :style="{
-              left: component.x + 5 + 'px',
-              top: component.y - 30 + 'px',
+              left: component.x + 'px',
+              top: component.y - 20 + 'px',
               position: 'absolute'
             }"
           >
@@ -229,6 +228,7 @@ import Voltmeter from './elements/Voltmeter.vue';
 
 import WireJS from './jsFolder/constructorComponent/Wire.js';
 
+import { hasMainVal } from './Conversion/util/hasMainValue';
 import MultipleRinSerie from './Conversion/implementations/MultipleRinSerie.js';
 import MultipleRinParallel from './Conversion/implementations/MultipleRinParallel.js';
 import TheveninToNorton from './Conversion/implementations/TheveninToNorton.js';
@@ -416,9 +416,11 @@ export default {
       e.preventDefault();
       console.log('open menu');
       const selectedComp = this.circuit.getSelectedComponents();
-      this.multipleRinSerie_openMenu(selectedComp);
-      this.multipleRinParallel_openMenu(selectedComp);
-      this.theveninToNorton_openMenu(selectedComp);
+      if (hasMainVal(selectedComp)) {
+        this.multipleRinSerie_openMenu(selectedComp);
+        this.multipleRinParallel_openMenu(selectedComp);
+        this.theveninToNorton_openMenu(selectedComp);
+      }
     },
     multipleRinSerie_openMenu: function(selectedComp) {
       let multiRinSerie = new MultipleRinSerie();
@@ -502,6 +504,14 @@ export default {
     },
 
     doubleClick: function(component) {
+      // clear if some text is selected by double click
+      if (document.selection && document.selection.empty) {
+        document.selection.empty();
+      } else if (window.getSelection) {
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+      }
+
       if (this.selectedTool === this.toolState.STATE_IDLE) {
         this.CompoToPass = component;
         this.openClosePopupComp();
@@ -878,13 +888,5 @@ export default {
     width: 21cm;
     height: 29.7cm;
   }
-
-  /* .z-50 {
-    transform: scale(0.5);
-  }
-
-  .z-75 {
-    transform: scale(0.75);
-  } */
 }
 </style>

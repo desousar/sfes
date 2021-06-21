@@ -31,19 +31,8 @@ export default class MultipleRinSerie {
     console.log('---------Serie---------');
     let isAllSameInstance_bool = false;
     let isInSerie_bool = false;
-    if (selectedComp_array.length < 2) {
-      return false;
-    } else {
-      try {
-        selectedComp_array.forEach(comp => {
-          comp.assertMainValue();
-        });
-        isAllSameInstance_bool = this.isAllSameInstance(selectedComp_array);
-        isInSerie_bool = this.isInSerie(onReal, selectedComp_array, circuit);
-      } catch (e) {
-        alert(e.message);
-      }
-    }
+    isAllSameInstance_bool = this.isAllSameInstance(selectedComp_array);
+    isInSerie_bool = this.isInSerie(onReal, selectedComp_array, circuit);
     return isAllSameInstance_bool && isInSerie_bool;
   }
 

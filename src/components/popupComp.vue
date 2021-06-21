@@ -69,6 +69,23 @@
             <div>V</div>
           </slot>
 
+          <slot v-if="isVoltageSource()">
+            <div>
+              U =
+            </div>
+            <input
+              type="number"
+              id="newValueU"
+              :value="
+                compoToPass.valueU === undefined
+                  ? undefined
+                  : compoToPass.valueU
+              "
+              placeholder="undefined"
+            />
+            <div>V</div>
+          </slot>
+
           <!--disabled input-->
           <slot
             v-if="
@@ -127,23 +144,6 @@
                   : compoToPass.valueU
               "
               placeholder="not yet available"
-            />
-            <div>V</div>
-          </slot>
-
-          <slot v-if="isVoltageSource()">
-            <div>
-              U =
-            </div>
-            <input
-              type="number"
-              id="newValueU"
-              :value="
-                compoToPass.valueU === undefined
-                  ? undefined
-                  : compoToPass.valueU
-              "
-              placeholder="undefined"
             />
             <div>V</div>
           </slot>

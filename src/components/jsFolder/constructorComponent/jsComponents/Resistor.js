@@ -31,6 +31,14 @@ export default class Resistor extends Component {
     }
   }
 
+  assertMainValueStr() {
+    if (this.valueR == undefined) {
+      return 'missing resistance value on ' + this.symbol;
+    } else {
+      return undefined;
+    }
+  }
+
   /**
    * @param {matrix} A
    * @param {vector} b

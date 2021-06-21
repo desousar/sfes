@@ -24,20 +24,9 @@ export default class MultipleRinParallel {
     console.log('---------Parallel---------');
     let isAllSameInstance_bool = false;
     let isInParallel_bool = false;
-    if (selectedComp_array.length < 2) {
-      return false;
-    } else {
-      try {
-        selectedComp_array.forEach(comp => {
-          comp.assertMainValue();
-        });
-        isAllSameInstance_bool = this.isAllSameInstance(selectedComp_array);
-        let onRealCircuit = false;
-        isInParallel_bool = this.isInParallel(circuit, onRealCircuit);
-      } catch (e) {
-        alert(e.message);
-      }
-    }
+    isAllSameInstance_bool = this.isAllSameInstance(selectedComp_array);
+    let onRealCircuit = false;
+    isInParallel_bool = this.isInParallel(circuit, onRealCircuit);
     return isAllSameInstance_bool && isInParallel_bool;
   }
 

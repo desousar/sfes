@@ -31,6 +31,14 @@ export default class Voltmeter extends Component {
     }
   }
 
+  assertMainValueStr() {
+    if (this.valueI == undefined) {
+      return 'missing current value on ' + this.symbol;
+    } else {
+      return undefined;
+    }
+  }
+
   bauteilEqu(A, b, listModel, nb, rowCounter) {
     //1*I=value of src
     let indexI = this.addValueIinListModelANDgetIndex(listModel, nb);

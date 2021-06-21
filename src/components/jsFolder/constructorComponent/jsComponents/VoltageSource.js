@@ -31,6 +31,14 @@ export default class VoltageSource extends Component {
     }
   }
 
+  assertMainValueStr() {
+    if (this.valueU == undefined) {
+      return 'missing voltage value on ' + this.symbol;
+    } else {
+      return undefined;
+    }
+  }
+
   bauteilEqu(A, b, listModel, nb, rowCounter) {
     //1*U=value of src
     let indexU = this.addValueUinListModelANDgetIndex(listModel, nb);

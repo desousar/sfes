@@ -12,7 +12,16 @@
           <slot name="header">
             Result <br />
             {{ success_data[getCurrentLanguage] }}
-            <button @click="showResult()">show result</button>
+            <button @click="exportResult()">export result</button>
+            <button
+              style="float:right"
+              type="button"
+              class="btn-green"
+              @click="close()"
+              aria-label="Close modalSettings"
+            >
+              X
+            </button>
           </slot>
         </header>
         <section class="modalRes-body" id="modalResDescription">
@@ -41,56 +50,82 @@
 </template>
 
 <script>
-import "@mdi/font/css/materialdesignicons.css";
+import '@mdi/font/css/materialdesignicons.css';
 
 export default {
   props: {
     arrayComponents: Array,
     currentLanguage: String,
+    isPopupResultVisible: Boolean
   },
   data() {
     return {
       isResultVisible: false,
 
       success_data: {
-        en: "calculation was successful",
-        de: "die Berechnung war erfolgreich",
+        en: 'calculation was successful',
+        de: 'die Berechnung war erfolgreich'
       },
-      close_data: { en: "Close", de: "Schliessen" },
+      close_data: { en: 'Close', de: 'Schliessen' }
     };
   },
+  watch: {
+    isPopupResultVisible: function(newVal) {
+      if (newVal) {
+        this.printResult();
+      }
+    }
+  },
   computed: {
-    getCurrentLanguage: function () {
+    getCurrentLanguage: function() {
       return this.currentLanguage;
-    },
+    }
   },
   methods: {
-    showResult() {
-      this.isResultVisible = !this.isResultVisible;
-      if (this.isResultVisible) {
-        this.printResult();
+    exportResult() {
+      console.log('export');
+      let data = '';
+      this.arrayComponents.forEach(comp => {
+        /*each component has its own function to display a row in the table*/
+        data += comp.getExportString();
+        data += '\n';
+      });
+      // Convert the text to BLOB.
+      const textToBLOB = new Blob([data], {
+        type: 'text/plain;charset=utf-8'
+      });
+      const sFileName = 'SfeS-result.txt'; // The file to save the data.
+      let newLink = document.createElement('a');
+      newLink.download = sFileName;
+
+      if (window.webkitURL != null) {
+        newLink.href = window.webkitURL.createObjectURL(textToBLOB);
       } else {
-        document.getElementById("dvTable").innerHTML = "";
+        newLink.href = window.URL.createObjectURL(textToBLOB);
       }
+      newLink.style.display = 'none';
+      document.body.appendChild(newLink);
+      newLink.click();
+      document.body.removeChild(newLink);
     },
     printResult() {
-      var table = document.createElement("table");
-      table.className = "table";
+      var table = document.createElement('table');
+      table.className = 'table';
 
-      this.arrayComponents.forEach((comp) => {
+      this.arrayComponents.forEach(comp => {
         if (!comp.isMultiPin) {
           /*each component has its own function to display a row in the table*/
           comp.getPopupResultRow(table);
         }
       });
-      document.getElementById("dvTable").appendChild(table);
+      document.getElementById('dvTable').appendChild(table);
     },
 
     close() {
-      document.getElementById("dvTable").innerHTML = "";
-      this.$emit("close");
-    },
-  },
+      document.getElementById('dvTable').innerHTML = '';
+      this.$emit('close');
+    }
+  }
 };
 </script>
 

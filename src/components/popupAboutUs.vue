@@ -10,6 +10,15 @@
       >
         <header class="modalAbout-header" id="modalAboutTitle">
           <slot name="header"> {{ aboutUs[getCurrentLanguage] }} </slot>
+          <button
+            style="float:right"
+            type="button"
+            class="btn-green"
+            @click="close"
+            aria-label="Close modalSettings"
+          >
+            X
+          </button>
         </header>
         <section class="modalAbout-body" id="modalAboutDescription">
           {{ content_data1[getCurrentLanguage] }}<br />
@@ -42,55 +51,55 @@
 <script>
 export default {
   props: {
-    currentLanguage: String,
+    currentLanguage: String
   },
   data() {
     return {
-      aboutUs: { en: "About us", de: "Über uns" },
+      aboutUs: { en: 'About us', de: 'Über uns' },
       content_data1: {
-        en: "Hello, my name is Benoît DS and this is my thesis project.",
-        de: "Hallo, mein Name ist Benoît DS und dies ist mein Thesis-Projekt.",
+        en: 'Hello, my name is Benoît DS and this is my thesis project.',
+        de: 'Hallo, mein Name ist Benoît DS und dies ist mein Thesis-Projekt.'
       },
       content_data2: {
-        en: "I started developing this web application in 2020.",
+        en: 'I started developing this web application in 2020.',
         de:
-          "Ich habe im Jahr 2020 mit der Entwicklung dieser Webanwendung begonnen.",
+          'Ich habe im Jahr 2020 mit der Entwicklung dieser Webanwendung begonnen.'
       },
       content_data3: {
-        en: "This application is open source under the GPLv3 license.",
-        de: "Diese Webanwendung ist Open Source unter der GPLv3-Lizenz.",
+        en: 'This application is open source under the GPLv3 license.',
+        de: 'Diese Webanwendung ist Open Source unter der GPLv3-Lizenz.'
       },
       content_data4: {
         en:
-          "You can access its source code from the following GitHub directory: ",
+          'You can access its source code from the following GitHub directory: ',
         de:
-          "Sie können auf den Quellcode über das folgende GitHub-Verzeichnis zugreifen: ",
+          'Sie können auf den Quellcode über das folgende GitHub-Verzeichnis zugreifen: '
       },
       content_data5: {
         en:
-          "This web application is an educational application mainly addressed to students.",
+          'This web application is an educational application mainly addressed to students.',
         de:
-          "Diese Webanwendung ist eine Bildungsanwendung, die sich hauptsächlich an Studenten richtet.",
+          'Diese Webanwendung ist eine Bildungsanwendung, die sich hauptsächlich an Studenten richtet.'
       },
       content_data6: {
         en:
-          "It allows, from an electronic circuit based on direct current, to calculate any current and voltage flowing through a component but also to calculate the equivalent sources of a circuit.",
+          'It allows, from an electronic circuit based on direct current, to calculate any current and voltage flowing through a component but also to calculate the equivalent sources of a circuit.',
         de:
-          "Es erlaubt, aus einer elektronischen Schaltung, die auf Gleichstrom basiert, jeden Strom und jede Spannung zu berechnen, die durch ein Bauteil / Komponente fließen, aber auch die Ersatzquellen einer Schaltung zu berechnen.",
+          'Es erlaubt, aus einer elektronischen Schaltung, die auf Gleichstrom basiert, jeden Strom und jede Spannung zu berechnen, die durch ein Bauteil / Komponente fließen, aber auch die Ersatzquellen einer Schaltung zu berechnen.'
       },
-      close_data: { en: "Close", de: "Schliessen" },
+      close_data: { en: 'Close', de: 'Schliessen' }
     };
   },
   computed: {
-    getCurrentLanguage: function () {
+    getCurrentLanguage: function() {
       return this.currentLanguage;
-    },
+    }
   },
   methods: {
     close() {
-      this.$emit("close");
-    },
-  },
+      this.$emit('close');
+    }
+  }
 };
 </script>
 

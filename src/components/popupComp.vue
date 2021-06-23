@@ -11,6 +11,15 @@
       >
         <header class="popupComp-header" id="popupCompTitle">
           <slot name="header"> {{ select_data[getCurrentLanguage] }} </slot>
+          <button
+            style="float:right"
+            type="button"
+            class="btn-green"
+            @click="close()"
+            aria-label="Close modalSettings"
+          >
+            X
+          </button>
         </header>
         <section class="popupComp-body-gridContainer" id="popupCompDescription">
           <slot>
@@ -211,7 +220,7 @@
             <button
               type="button"
               class="btn-green"
-              @click="closePopUp()"
+              @click="close()"
               aria-label="Close popupComp"
             >
               {{ close_data[getCurrentLanguage] }}
@@ -531,7 +540,7 @@ export default {
     /**
      * function when Pop-Up is closed for attribution
      */
-    closePopUp() {
+    close() {
       /**
        * control if attribution of value to component is conform
        */

@@ -147,28 +147,50 @@ export default class Component extends BaseComponent {
     let td = document.createElement('td');
     td.className = 'td';
     td.innerHTML = 'valueR ' + this.valueR + ' &#8486;';
+    td.style.backgroundColor = '#ffffff';
     return td;
   }
-  createElementTDvalueI() {
+  createElementTDvalueI(calculated) {
     let td = document.createElement('td');
     td.className = 'td';
     td.innerHTML = 'valueI ' + this.valueI + ' A';
+    if (calculated) {
+      td.style.backgroundColor = '#ddd';
+    } else {
+      td.style.backgroundColor = '#ffffff';
+    }
     return td;
   }
-  createElementTDvalueU() {
+  createElementTDvalueU(calculated) {
     let td = document.createElement('td');
     td.className = 'td';
     td.innerHTML = 'valueU ' + this.valueU + ' V';
+    if (calculated) {
+      td.style.backgroundColor = '#ddd';
+    } else {
+      td.style.backgroundColor = '#ffffff';
+    }
     return td;
   }
   createElementTDvaluePotentials() {
+    // check this.directionU 0:right 1:left
     let td = document.createElement('td');
     td.className = 'td';
-    td.innerHTML =
-      'Potential ' +
-      this.potentialPin0 +
-      " <span class='mdi mdi-arrow-right'></span> " +
-      this.potentialPin1;
+    if (this.directionU === 0) {
+      td.innerHTML =
+        'Potential ' +
+        this.potentialPin0 +
+        " <span class='mdi mdi-arrow-right'></span> " +
+        this.potentialPin1;
+    }
+    if (this.directionU === 1) {
+      td.innerHTML =
+        'Potential ' +
+        this.potentialPin0 +
+        " <span class='mdi mdi-arrow-left'></span> " +
+        this.potentialPin1;
+    }
+    td.style.backgroundColor = '#ddd';
     return td;
   }
 }

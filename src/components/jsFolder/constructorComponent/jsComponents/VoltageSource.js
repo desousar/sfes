@@ -60,28 +60,46 @@ export default class VoltageSource extends Component {
     `;
   }
 
+  getExportString() {
+    let data =
+      this.symbol +
+      '(' +
+      this.name +
+      ')\n\tvoltage: ' +
+      this.valueU +
+      ' V\n\tcurrent: ' +
+      this.valueI +
+      ' A';
+    return data;
+  }
+
   getPopupResultRow(table) {
     let tr = document.createElement('tr');
     /**
      * left column
      */
     var tdg = document.createElement('td');
+    tdg.style.backgroundColor = '#ffffff';
     tdg.className = 'td';
     tdg.rowSpan = 3;
     var textg = document.createTextNode(this.symbol);
+    const breakLine = document.createElement('br');
+    const type = document.createTextNode('VoltageSource');
     tdg.appendChild(textg);
+    tdg.appendChild(breakLine);
+    tdg.appendChild(type);
     tr.appendChild(tdg);
     /**
      * right column
      */
     /*first line*/
-    let tdvalueU = this.createElementTDvalueU();
+    let tdvalueU = this.createElementTDvalueU(false);
     tr.appendChild(tdvalueU);
     table.appendChild(tr);
 
     /*other line valueI*/
     let tr2 = document.createElement('tr');
-    let tdvalueI = this.createElementTDvalueI();
+    let tdvalueI = this.createElementTDvalueI(true);
     tr2.appendChild(tdvalueI);
     table.appendChild(tr2);
 

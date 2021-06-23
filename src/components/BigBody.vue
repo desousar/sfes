@@ -148,6 +148,7 @@
         @close="openClosePopupResult"
         :arrayComponents="circuit.components"
         :currentLanguage="currentLanguage"
+        :isPopupResultVisible="isPopupResultVisible"
       />
 
       <popupEquivalentSrc
@@ -842,10 +843,11 @@ export default {
         newLink.href = window.webkitURL.createObjectURL(textToBLOB);
       } else {
         newLink.href = window.URL.createObjectURL(textToBLOB);
-        newLink.style.display = 'none';
-        document.body.appendChild(newLink);
       }
+      newLink.style.display = 'none';
+      document.body.appendChild(newLink);
       newLink.click();
+      document.body.removeChild(newLink);
     },
     MBgetEmptyCircuit() {
       this.$emit('set-circuit');

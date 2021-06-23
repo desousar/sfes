@@ -60,28 +60,46 @@ export default class CurrentSource extends Component {
     `;
   }
 
+  getExportString() {
+    let data =
+      this.symbol +
+      '(' +
+      this.name +
+      ')\n\tcurrent: ' +
+      this.valueI +
+      ' A\n\tvoltage: ' +
+      this.valueU +
+      ' V';
+    return data;
+  }
+
   getPopupResultRow(table) {
     let tr = document.createElement('tr');
     /**
      * left column
      */
     var tdg = document.createElement('td');
+    tdg.style.backgroundColor = '#ffffff';
     tdg.className = 'td';
     tdg.rowSpan = 3;
     var textg = document.createTextNode(this.symbol);
+    const breakLine = document.createElement('br');
+    const type = document.createTextNode('CurrentSource');
     tdg.appendChild(textg);
+    tdg.appendChild(breakLine);
+    tdg.appendChild(type);
     tr.appendChild(tdg);
     /**
      * right column
      */
     /*first line*/
-    let tdvalueI = this.createElementTDvalueI();
+    let tdvalueI = this.createElementTDvalueI(false);
     tr.appendChild(tdvalueI);
     table.appendChild(tr);
 
     /*other line valueU*/
     let tr3 = document.createElement('tr');
-    let tdvalueU = this.createElementTDvalueU();
+    let tdvalueU = this.createElementTDvalueU(true);
     tr3.appendChild(tdvalueU);
     table.appendChild(tr3);
 

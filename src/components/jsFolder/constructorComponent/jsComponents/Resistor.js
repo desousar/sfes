@@ -82,17 +82,37 @@ export default class Resistor extends Component {
     `;
   }
 
+  getExportString() {
+    let data =
+      this.symbol +
+      '(' +
+      this.name +
+      ')\n\tresistor: ' +
+      this.valueR +
+      ' Ω\n\tvoltage: ' +
+      this.valueU +
+      ' V\n\tcurrent: ' +
+      this.valueI +
+      ' A';
+    return data;
+  }
+
   //Pop Up Result
   getPopupResultRow(table) {
     let tr = document.createElement('tr');
     /**
      * left column
      */
-    var tdg = document.createElement('td');
+    const tdg = document.createElement('td');
+    tdg.style.backgroundColor = '#ffffff';
     tdg.className = 'td';
     tdg.rowSpan = 4;
-    var textg = document.createTextNode(this.symbol);
+    const textg = document.createTextNode(this.symbol);
+    const breakLine = document.createElement('br');
+    const type = document.createTextNode('Resistor');
     tdg.appendChild(textg);
+    tdg.appendChild(breakLine);
+    tdg.appendChild(type);
     tr.appendChild(tdg);
     /**
      * right column
@@ -102,16 +122,16 @@ export default class Resistor extends Component {
     tr.appendChild(tdvalueR);
     table.appendChild(tr);
 
-    /*other line valueI*/
+    /*other line valueU*/
     let tr2 = document.createElement('tr');
-    let tdvalueI = this.createElementTDvalueI();
-    tr2.appendChild(tdvalueI);
+    let tdvalueU = this.createElementTDvalueU(true);
+    tr2.appendChild(tdvalueU);
     table.appendChild(tr2);
 
-    /*other line valueU*/
+    /*other line valueI*/
     let tr3 = document.createElement('tr');
-    let tdvalueU = this.createElementTDvalueU();
-    tr3.appendChild(tdvalueU);
+    let tdvalueI = this.createElementTDvalueI(true);
+    tr3.appendChild(tdvalueI);
     table.appendChild(tr3);
 
     /*other line valuePotentials*/

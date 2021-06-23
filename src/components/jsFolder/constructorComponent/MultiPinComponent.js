@@ -16,4 +16,10 @@ export default class MultiPinComponent extends BaseComponent {
       return listModel[nb].indexOf('valuePhi'.concat(this.uniqueID));
     }
   }
+
+  getExportString() {
+    let data =
+      this.symbol + '(' + this.name + ')\n\tvaluePhi: ' + this.valuePhi + ' V';
+    return data;
+  }
 }

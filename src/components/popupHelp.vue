@@ -10,6 +10,15 @@
       >
         <header class="modalHelp-header" id="modalHelpTitle">
           <slot name="header"> {{ help_data[getCurrentLanguage] }} </slot>
+          <button
+            style="float:right"
+            type="button"
+            class="btn-green"
+            @click="close"
+            aria-label="Close modalSettings"
+          >
+            X
+          </button>
         </header>
         <section class="modalHelp-body" id="modalHelpDescription">
           <h3>What is "matrix inconsistent" ?</h3>

@@ -1,6 +1,5 @@
 <!-- src : https://www.digitalocean.com/community/tutorials/vuejs-vue-modal-component -->
 
-
 <template>
   <transition name="modalEquSrc-fade">
     <div class="modalEquSrc-backdrop">
@@ -12,6 +11,15 @@
       >
         <header class="modalEquSrc-header" id="modalEquSrcTitle">
           <slot name="header"> {{ equSrc[getCurrentLanguage] }} </slot>
+          <button
+            style="float:right"
+            type="button"
+            class="btn-green"
+            @click="close"
+            aria-label="Close modalSettings"
+          >
+            X
+          </button>
         </header>
         <section class="modalEquSrc-body" id="modalEquSrcDescription">
           <section name="body">
@@ -75,26 +83,25 @@
   </transition>
 </template>
 
-
 <script>
-import { isKlemme } from "./instanceofFunction.js";
-import CircuitSolver from "./jsFolder/constructorComponent/CircuitSolver.js";
+import { isKlemme } from './instanceofFunction.js';
+import CircuitSolver from './jsFolder/constructorComponent/CircuitSolver.js';
 
-import InconsistentMatrixError from "../CustomError/inconsistentMatrixError.js";
-import ConsistentMatrixInfiniteError from "../CustomError/consistentMatrixInfiniteError.js";
-import Ampermeter from "./jsFolder/constructorComponent/jsComponents/Ampermeter.js";
-import Voltmeter from "./jsFolder/constructorComponent/jsComponents/Voltmeter.js";
+import InconsistentMatrixError from '../CustomError/inconsistentMatrixError.js';
+import ConsistentMatrixInfiniteError from '../CustomError/consistentMatrixInfiniteError.js';
+import Ampermeter from './jsFolder/constructorComponent/jsComponents/Ampermeter.js';
+import Voltmeter from './jsFolder/constructorComponent/jsComponents/Voltmeter.js';
 
 export default {
   props: {
     circuitcomplet: Object,
-    currentLanguage: String,
+    currentLanguage: String
   },
   data() {
     return {
-      warning_data: "",
+      warning_data: '',
       warningBool_data: false,
-      result_data: "",
+      result_data: '',
       resultBool_data: false,
 
       firstKlemme: undefined,
@@ -103,38 +110,38 @@ export default {
       solveIqe: undefined,
       solveUqe: undefined,
 
-      equSrc: { en: "Equivalent Sources", de: "Ersatzquellen" },
+      equSrc: { en: 'Equivalent Sources', de: 'Ersatzquellen' },
       instruction: {
         en:
-          "In order to calculate the equivalent sources, please select 2 different terminals (Klemmen)",
+          'In order to calculate the equivalent sources, please select 2 different terminals (Klemmen)',
         de:
-          "Um die Ersatzquellen zu berechnen, wählen Sie bitte 2 verschiedene Klemmen",
+          'Um die Ersatzquellen zu berechnen, wählen Sie bitte 2 verschiedene Klemmen'
       },
-      solve: { en: "Solve", de: "Berechnen" },
-      close_data: { en: "Close", de: "Schliessen" },
+      solve: { en: 'Solve', de: 'Berechnen' },
+      close_data: { en: 'Close', de: 'Schliessen' }
     };
   },
   computed: {
-    getCurrentLanguage: function () {
+    getCurrentLanguage: function() {
       return this.currentLanguage;
-    },
+    }
   },
   methods: {
     getKlemmeArray() {
-      let klemmeArray = this.circuitcomplet.components.filter((comp) =>
+      let klemmeArray = this.circuitcomplet.components.filter(comp =>
         isKlemme(comp)
       );
       return klemmeArray;
     },
     selectKlemme1() {
       if (this.firstKlemme !== undefined) {
-        console.log("first OK", this.firstKlemme.symbol);
+        console.log('first OK', this.firstKlemme.symbol);
         this.assert2DifferentsKlemmen();
       }
     },
     selectKlemme2() {
       if (this.secondKlemme !== undefined) {
-        console.log("second OK", this.secondKlemme.symbol);
+        console.log('second OK', this.secondKlemme.symbol);
         this.assert2DifferentsKlemmen();
       }
     },
@@ -143,7 +150,7 @@ export default {
       if (this.firstKlemme === this.secondKlemme) {
         this.warningBool_data = true;
         this.warning_data =
-          "Warning: the 2 selected terminals must be different";
+          'Warning: the 2 selected terminals must be different';
       } else {
         this.warningBool_data = false;
       }
@@ -157,22 +164,22 @@ export default {
           this.circuitcomplet.components.length > 0 &&
           this.circuitcomplet.wires.length > 0
         ) {
-          console.log("calcule");
+          console.log('calcule');
           let solver = new CircuitSolver();
           try {
             solver.solve(this.circuitcomplet);
           } catch (e) {
             this.solveSimple = e;
             console.log(
-              "CHECK solve InconsistentMatrixError",
+              'CHECK solve InconsistentMatrixError',
               this.solveSimple instanceof InconsistentMatrixError
             );
             console.log(
-              "CHECK solve ConsistentMatrixInfiniteError",
+              'CHECK solve ConsistentMatrixInfiniteError',
               this.solveSimple instanceof ConsistentMatrixInfiniteError
             );
           }
-          console.log("#############");
+          console.log('#############');
           let solverI = new CircuitSolver();
           try {
             this.solveIqe = solverI.solveIqe(
@@ -183,15 +190,15 @@ export default {
           } catch (e) {
             this.solveIqe = e;
             console.log(
-              "CHECK solveIqe InconsistentMatrixError",
+              'CHECK solveIqe InconsistentMatrixError',
               this.solveIqe instanceof InconsistentMatrixError
             );
             console.log(
-              "CHECK solveIqe ConsistentMatrixInfiniteError",
+              'CHECK solveIqe ConsistentMatrixInfiniteError',
               this.solveIqe instanceof ConsistentMatrixInfiniteError
             );
           }
-          console.log("#############");
+          console.log('#############');
           let solverU = new CircuitSolver();
           try {
             this.solveUqe = solverU.solveUqe(
@@ -202,11 +209,11 @@ export default {
           } catch (e) {
             this.solveUqe = e;
             console.log(
-              "CHECK solveUqe InconsistentMatrixError",
+              'CHECK solveUqe InconsistentMatrixError',
               this.solveUqe instanceof InconsistentMatrixError
             );
             console.log(
-              "CHECK solveUqe ConsistentMatrixInfiniteError",
+              'CHECK solveUqe ConsistentMatrixInfiniteError',
               this.solveUqe instanceof ConsistentMatrixInfiniteError
             );
           }
@@ -215,7 +222,7 @@ export default {
             this.resultBool_data = false;
             this.warningBool_data = true;
             this.warning_data =
-              "Warning: Consistent Matrix with Infinite Soution";
+              'Warning: Consistent Matrix with Infinite Soution';
           } else if (this.solveSimple instanceof InconsistentMatrixError) {
             if (
               this.solveIqe instanceof InconsistentMatrixError &&
@@ -224,7 +231,7 @@ export default {
               this.resultBool_data = false;
               this.warningBool_data = true;
               this.warning_data =
-                "Warning: matrix inconsistent (z.B. zwei Spannungsquellen parallel mit unterschiedlichem Wert)";
+                'Warning: matrix inconsistent (z.B. zwei Spannungsquellen parallel mit unterschiedlichem Wert)';
             } else if (
               this.solveIqe instanceof Ampermeter &&
               this.solveUqe instanceof InconsistentMatrixError
@@ -261,7 +268,7 @@ export default {
             } else {
               this.resultBool_data = false;
               this.warningBool_data = true;
-              this.warning_data = "Warning: there is an error in your circuit";
+              this.warning_data = 'Warning: there is an error in your circuit';
             }
           }
         }
@@ -278,9 +285,9 @@ export default {
       this.solveUqe = undefined;
       this.warningBool_data = false;
       this.resultBool_data = false;
-      this.$emit("close");
-    },
-  },
+      this.$emit('close');
+    }
+  }
 };
 </script>
 

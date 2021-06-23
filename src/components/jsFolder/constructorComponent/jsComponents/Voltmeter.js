@@ -60,22 +60,40 @@ export default class Voltmeter extends Component {
     `;
   }
 
+  getExportString() {
+    let data =
+      this.symbol +
+      '(' +
+      this.name +
+      ')\n\tvoltage: ' +
+      this.valueU +
+      ' V\n\tcurrent: ' +
+      this.valueI +
+      ' A';
+    return data;
+  }
+
   getPopupResultRow(table) {
     let tr = document.createElement('tr');
     /**
      * left column
      */
     var tdg = document.createElement('td');
+    tdg.style.backgroundColor = '#ffffff';
     tdg.className = 'td';
     tdg.rowSpan = 1;
     var textg = document.createTextNode(this.symbol);
+    const breakLine = document.createElement('br');
+    const type = document.createTextNode('Voltmeter');
     tdg.appendChild(textg);
+    tdg.appendChild(breakLine);
+    tdg.appendChild(type);
     tr.appendChild(tdg);
     /**
      * right column
      */
     /*first line*/
-    let tdvalueU = this.createElementTDvalueU();
+    let tdvalueU = this.createElementTDvalueU(true);
     tr.appendChild(tdvalueU);
     table.appendChild(tr);
   }

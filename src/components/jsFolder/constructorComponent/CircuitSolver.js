@@ -77,6 +77,8 @@ class CircuitSolver {
     console.log('STEP 1 started');
     try {
       projection.assertMainValues();
+      /* if you run test-circuit in command line comment following function call */
+      projection.isCircuitOpen();
     } catch (e) {
       throw new Error('ERROR by STEP 1: ' + e.message);
     }

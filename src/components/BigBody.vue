@@ -110,7 +110,11 @@
       <svg
         :width="dynamicWidth()"
         :height="dynamicHeight()"
-        :class="{ limitA4Paper: inA4Format }"
+        :class="{
+          limitA4Paper: inA4Format,
+          gridPoint: setGridPoint,
+          gridLine: setGridLine
+        }"
       >
         <template v-for="(wire, idx) in circuit.wires">
           <line
@@ -282,6 +286,14 @@ export default {
     EventBus.$on('MBa4Format', newA4Bool => {
       this.inA4Format = newA4Bool;
     });
+    EventBus.$on('MBsetGridPoint', bool => {
+      console.log('this.setGridPoint =', bool);
+      this.setGridPoint = bool;
+    });
+    EventBus.$on('MBsetGridLine', bool => {
+      console.log('this.setGridLine =', bool);
+      this.setGridLine = bool;
+    });
     EventBus.$on('MBsolve', () => {
       this.MBsolve();
     });
@@ -313,6 +325,8 @@ export default {
 
   data() {
     return {
+      setGridPoint: false,
+      setGridLine: false,
       inA4Format: false,
       componentsItem: componentsItem,
       wireItem: wireItem,
@@ -794,7 +808,9 @@ export default {
     },
 
     MBsolve() {
-      if (this.circuit.components.length > 0 && this.circuit.wires.length > 0) {
+      if (
+        this.circuit.components.length > 0 /*&& this.circuit.wires.length > 0*/
+      ) {
         let solver = new CircuitSolver();
         try {
           solver.solveWithAttribution(this.circuit);

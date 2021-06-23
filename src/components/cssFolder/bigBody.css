@@ -78,7 +78,17 @@ img {
   border-right: 0.1px dotted black;
   border-bottom: 0.1px dotted black;
 }
-
+.gridPoint {
+  /*src https://stackoverflow.com/a/32861765/12305715*/
+  background-size: 40px 40px;
+  background-image: radial-gradient(circle, #000000 1px, rgba(0, 0, 0, 0) 1px);
+}
+.gridLine {
+  /*src https://stackoverflow.com/a/32861765/12305715*/
+  background-size: 40px 40px;
+  background-image: linear-gradient(to right, grey 1px, transparent 1px),
+    linear-gradient(to bottom, grey 1px, transparent 1px);
+}
 /*v tooltip*/
 #tooltip {
   background: cornsilk;

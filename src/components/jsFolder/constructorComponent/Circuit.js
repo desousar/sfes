@@ -10,6 +10,7 @@ import WireAsComp from './jsComponents/WireAsComp.js';
 import Wire from './Wire.js';
 
 import Matrix from './../Matrix.js';
+import { dropComp } from './../dropComponent';
 
 import ConsistentMatrixInfiniteError from '../../../CustomError/consistentMatrixInfiniteError.js';
 import InconsistentMatrixError from '../../../CustomError/inconsistentMatrixError.js';
@@ -166,10 +167,44 @@ export default class Circuit {
       if (!comp.isMultiPin) {
         comp.assertMainValue();
       }
-      /* if you run test-circuit in command line comment following if-statement */
-      // if (comp.showPin1 === true || comp.showPin2 === true) {
-      //   throw new Error('circuit is open on ' + comp.symbol);
-      // }
+    });
+  }
+  isCircuitOpen() {
+    this.components.forEach(comp => {
+      if (comp.isMultiPin) {
+        if (this.getCountConnection(comp) === 0) {
+          const kn1 = dropComp({
+            c_id: 'Knoten'
+          });
+          this.components.push(kn1);
+          const w1 = new Wire({
+            from: comp.pins[0],
+            to: kn1.pins[0]
+          });
+          this.wires.push(w1);
+        }
+      } else {
+        if (comp.showPin1 === true && comp.showPin2 === true) {
+          const kn1 = dropComp({
+            c_id: 'Knoten'
+          });
+          this.components.push(kn1);
+          const w1 = new Wire({
+            from: comp.pins[0],
+            to: kn1.pins[0]
+          });
+          this.wires.push(w1);
+          if (!comp.isMultiPin) {
+            const w2 = new Wire({
+              from: comp.pins[1],
+              to: kn1.pins[0]
+            });
+            this.wires.push(w2);
+          }
+        } else if (comp.showPin1 === true || comp.showPin2 === true) {
+          throw new Error('circuit is open on ' + comp.symbol);
+        }
+      }
     });
   }
 

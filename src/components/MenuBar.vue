@@ -26,6 +26,14 @@
           <span v-if="a4FormatBool_data" class="mdi mdi-check-bold"></span>
           {{ a4Format_data[getCurrentLanguage] }}
         </button>
+        <button class="custom-btn" @click="gridPoint()">
+          <span v-if="gridPointBool_data" class="mdi mdi-check-bold"></span>
+          {{ gridPoint_data[getCurrentLanguage] }}
+        </button>
+        <button class="custom-btn" @click="gridLine()">
+          <span v-if="gridLineBool_data" class="mdi mdi-check-bold"></span>
+          {{ gridLine_data[getCurrentLanguage] }}
+        </button>
       </div>
     </div>
 
@@ -93,6 +101,14 @@ export default {
         en: 'Show Page Limit (A4)',
         de: 'Seitengrenze anzeigen (A4)'
       },
+      gridPoint_data: {
+        en: 'Show Grid Point',
+        de: 'Rasterpunkte anzeigen'
+      },
+      gridLine_data: {
+        en: 'Show Grid Line',
+        de: 'Rasterlinien anzeigen'
+      },
       resolve_data: { en: 'Resolve', de: 'Lösen' },
       solve_data: { en: 'Solve circuit', de: 'Schaltung berechnen' },
       equivalent: { en: 'Equivalent source', de: 'Ersatzquelle' },
@@ -104,7 +120,9 @@ export default {
         de: 'Simulationstool für elektronische Schaltungen'
       },
 
-      a4FormatBool_data: false
+      a4FormatBool_data: false,
+      gridPointBool_data: false,
+      gridLineBool_data: false
     };
   },
   computed: {
@@ -119,6 +137,22 @@ export default {
     a4Format() {
       this.a4FormatBool_data = !this.a4FormatBool_data;
       EventBus.$emit('MBa4Format', this.a4FormatBool_data);
+    },
+    gridPoint() {
+      this.gridPointBool_data = !this.gridPointBool_data;
+      EventBus.$emit('MBsetGridPoint', this.gridPointBool_data);
+      if (this.gridLineBool_data) {
+        this.gridLineBool_data = !this.gridLineBool_data;
+        EventBus.$emit('MBsetGridLine', this.gridLineBool_data);
+      }
+    },
+    gridLine() {
+      this.gridLineBool_data = !this.gridLineBool_data;
+      EventBus.$emit('MBsetGridLine', this.gridLineBool_data);
+      if (this.gridPointBool_data) {
+        this.gridPointBool_data = !this.gridPointBool_data;
+        EventBus.$emit('MBsetGridPoint', this.gridPointBool_data);
+      }
     },
     solve() {
       EventBus.$emit('MBsolve');

@@ -459,9 +459,16 @@ export default {
         if (tempValuePotential.length === 0) {
           tempValuePotential = undefined;
           this.compoToPass.showPotential = false;
+          this.compoToPass.showGround = false;
         } else {
           tempValuePotential = parseFloat(tempValuePotential);
-          this.compoToPass.showPotential = true;
+          if (tempValuePotential === 0) {
+            this.compoToPass.showGround = true;
+            this.compoToPass.showPotential = false;
+          } else {
+            this.compoToPass.showPotential = true;
+            this.compoToPass.showGround = false;
+          }
           if (tempValuePotential < 0) {
             document.getElementById('alertHint').style.color = 'red';
             document.getElementById('alertHint').innerText =

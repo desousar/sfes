@@ -45,6 +45,7 @@ export default class Knoten extends MultiPinComponent {
     this.valueU = 0;
     this.directionU = this.directionI;
     this.showPotential = false;
+    this.showGround = false;
   }
   recalculatePins() {
     let [pinx, piny] = this.pins;

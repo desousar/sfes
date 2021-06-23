@@ -4,7 +4,7 @@
     :style="{
       left: component.x,
       top: component.y,
-      position: 'absolute',
+      position: 'absolute'
     }"
     xmlns:dc="http://purl.org/dc/elements/1.1/"
     xmlns:cc="http://creativecommons.org/ns#"
@@ -14,12 +14,12 @@
     xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
     xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
     width="38.21994mm"
-    height="63.906109mm"
-    viewBox="0 0 38.21994 63.906108"
+    height="105.28967mm"
+    viewBox="0 0 38.21994 105.28967"
     version="1.1"
     id="svg8"
     inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-    sodipodi:docname="KnotenPotential.svg"
+    sodipodi:docname="Knoten_Potential-Erde.svg"
   >
     <defs id="defs2" />
     <sodipodi:namedview
@@ -29,11 +29,11 @@
       borderopacity="1.0"
       inkscape:pageopacity="0.0"
       inkscape:pageshadow="2"
-      inkscape:zoom="2"
-      inkscape:cx="39.693764"
-      inkscape:cy="155.02612"
+      inkscape:zoom="1"
+      inkscape:cx="-128.80841"
+      inkscape:cy="129.07838"
       inkscape:document-units="mm"
-      inkscape:current-layer="layer2"
+      inkscape:current-layer="layer3"
       showgrid="false"
       inkscape:window-width="1920"
       inkscape:window-height="1001"
@@ -85,7 +85,7 @@
         "
         r="8"
         class="pin"
-        @click="(ev) => $emit('pin', 0)"
+        @click="ev => $emit('pin', 0)"
       />
     </g>
     <g
@@ -173,14 +173,35 @@
         inkscape:transform-center-y="-1.6536374"
       />
     </g>
+    <g
+      v-if="component.showGround"
+      inkscape:groupmode="layer"
+      id="layer3"
+      inkscape:label="Calque 3"
+      transform="translate(-81.276361,-45.462418)"
+    >
+      <path
+        style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.65945935;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+        d="m 97.385628,108.75209 h 6.000002 v 42 h -6.000002 z"
+        id="rect3732-0"
+        inkscape:connector-curvature="0"
+      />
+      <path
+        transform="rotate(90)"
+        style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.58302212;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+        d="m 144.75209,-119.49631 h 6 v 38.219943 h -6 z"
+        id="rect3732-0-5"
+        inkscape:connector-curvature="0"
+      />
+    </g>
   </svg>
-</template> 
+</template>
 
 <script>
 export default {
   props: {
-    component: Object,
-  },
+    component: Object
+  }
 };
 </script>
 

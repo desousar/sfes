@@ -56,7 +56,11 @@
             {{ component.symbol }}
           </span>
           <span
-            v-if="component.name === 'Knoten' && !component.showPotential"
+            v-if="
+              component.name === 'Knoten' &&
+                !component.showPotential &&
+                !component.showGround
+            "
             :key="'label-' + idx"
             :style="{
               left: component.x + 'px',
@@ -69,7 +73,11 @@
           <span
             v-if="
               component.isMultiPin &&
-                !(component.name === 'Knoten' && !component.showPotential)
+                !(
+                  component.name === 'Knoten' &&
+                  !component.showPotential &&
+                  !component.showGround
+                )
             "
             :key="'label-' + idx"
             :style="{

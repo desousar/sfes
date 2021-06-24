@@ -85,7 +85,8 @@
         "
         r="8"
         class="pin"
-        @click="ev => $emit('pin', 0)"
+        @mousedown="ev => $emit('pin', 0)"
+        @mouseup="ev => $emit('pinMouseUp', 0)"
       />
     </g>
     <g

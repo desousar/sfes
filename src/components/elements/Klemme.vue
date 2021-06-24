@@ -4,7 +4,7 @@
     :style="{
       left: component.x,
       top: component.y,
-      position: 'absolute',
+      position: 'absolute'
     }"
     xmlns:dc="http://purl.org/dc/elements/1.1/"
     xmlns:cc="http://creativecommons.org/ns#"
@@ -84,17 +84,18 @@
         cx="60.500099"
         cy="287.05344"
         class="pin"
-        @click="(ev) => $emit('pin', 0)"
+        @mousedown="ev => $emit('pin', 0)"
+        @mouseup="ev => $emit('pinMouseUp', 0)"
       />
     </g>
   </svg>
-</template> 
+</template>
 
 <script>
 export default {
   props: {
-    component: Object,
-  },
+    component: Object
+  }
 };
 </script>
 

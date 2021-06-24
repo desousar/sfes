@@ -102,6 +102,7 @@
           @simpleClick="simpleClick(component)"
           @doubleClick="doubleClick(component)"
           @pin="nr => pinClicked(component, nr)"
+          @pinMouseUp="nr => pinMoveEnd(component, nr)"
           @mousedown="moveStart($event, component)"
           @mousemove="showTooltip($event, component)"
           @mouseout="hideTooltip()"
@@ -116,6 +117,7 @@
 
       <!--A4 = width="20cm" height="29.7cm"-->
       <svg
+        id="svgArea"
         :width="dynamicWidth()"
         :height="dynamicHeight()"
         :class="{
@@ -295,11 +297,9 @@ export default {
       this.inA4Format = newA4Bool;
     });
     EventBus.$on('MBsetGridPoint', bool => {
-      console.log('this.setGridPoint =', bool);
       this.setGridPoint = bool;
     });
     EventBus.$on('MBsetGridLine', bool => {
-      console.log('this.setGridLine =', bool);
       this.setGridLine = bool;
     });
     EventBus.$on('MBsolve', () => {
@@ -341,6 +341,7 @@ export default {
       selectedComponent: null,
       shiftX: null,
       shiftY: null,
+      onCreationWire: false,
       fromComponentPin: null,
       fromComponent: null,
       toComponentPin: null,
@@ -437,7 +438,6 @@ export default {
         }.bind(this)
       );
       e.preventDefault();
-      console.log('open menu');
       const selectedComp = this.circuit.getSelectedComponents();
       if (hasMainVal(selectedComp)) {
         this.multipleRinSerie_openMenu(selectedComp);
@@ -626,6 +626,18 @@ export default {
         this.selectedComponent.y = valueTop;
         this.selectedComponent.x = valueLeft;
       }
+      if (
+        this.selectedTool === this.toolState.TOOL_CREATE_WIRE &&
+        this.onCreationWire === true
+      ) {
+        let targetDiv = this.$refs.targetDiv;
+        let tgt = targetDiv.getBoundingClientRect();
+        const valTop = e.clientY - tgt.top + targetDiv.scrollTop;
+        const valLeft = e.clientX - tgt.left + targetDiv.scrollLeft;
+        const line = document.getElementById('tempLine');
+        line.setAttribute('x2', valLeft);
+        line.setAttribute('y2', valTop);
+      }
     },
     moveEnd: function(e) {
       if (
@@ -635,6 +647,64 @@ export default {
         this.moveMotion(e);
         this.selectedComponent = null;
         this.save();
+      }
+      if (
+        this.selectedTool === this.toolState.TOOL_CREATE_WIRE &&
+        this.onCreationWire === true
+      ) {
+        //move up not on a pin
+        this.onCreationWire = false;
+        this.resetCompFromWire();
+        document.getElementById('tempLine').remove();
+      }
+    },
+    pinMoveEnd(component, nr) {
+      if (
+        this.selectedTool === this.toolState.TOOL_CREATE_WIRE &&
+        this.onCreationWire === true
+      ) {
+        if (this.toComponent === null && this.fromComponent !== component) {
+          this.toComponentPin = nr;
+          this.toComponent = component;
+          this.drawWire();
+          this.save();
+        } else if (
+          this.fromComponent !== null &&
+          this.toComponent === null &&
+          this.fromComponentPin !== nr
+        ) {
+          // you are on same comp BUT not same pin
+          let newValLeft;
+          if (this.fromComponent.x - 50 > 0) {
+            newValLeft = this.fromComponent.x - 10;
+          } else {
+            newValLeft = this.fromComponent.x + 80;
+          }
+          const newValTop = this.fromComponent.y + 50;
+          const kn = dropComp({
+            c_id: 'Knoten',
+            valueLeft: newValLeft,
+            valueTop: newValTop
+          });
+          this.circuit.components.push(kn);
+          //connect 2 pins from this.fromComponent with kn pin
+          const createWire = (fC, fCpin, tC, tCpin) => {
+            let wire = new WireJS({
+              from: fC.pins[fCpin],
+              to: tC.pins[tCpin]
+            });
+            this.circuit.wires.push(wire);
+            this.pinOpacity0(wire);
+          };
+          createWire(this.fromComponent, 0, kn, 0);
+          createWire(this.fromComponent, 1, kn, 0);
+          this.save();
+        } else {
+          alert('You can choose same pin of the same component');
+        }
+        this.resetCompFromWire();
+        this.onCreationWire = false;
+        document.getElementById('tempLine').remove();
       }
     },
     /**
@@ -675,57 +745,21 @@ export default {
       if (this.selectedTool !== this.toolState.TOOL_CREATE_WIRE) {
         return;
       }
-      if (this.fromComponent === null && this.toComponent === null) {
-        this.fromComponentPin = nr;
-        this.fromComponent = component;
-      } else if (
-        this.fromComponent !== null &&
-        this.toComponent === null &&
-        this.fromComponent !== component
-      ) {
-        this.toComponentPin = nr;
-        this.toComponent = component;
-
-        this.drawWire();
-        this.resetCompFromWire();
-        this.save();
-      } else if (
-        this.fromComponent !== null &&
-        this.toComponent === null &&
-        this.fromComponentPin !== nr
-      ) {
-        // you are on same comp BUT not same pin
-        let newValLeft;
-        if (this.fromComponent.x - 50 > 0) {
-          newValLeft = this.fromComponent.x - 10;
-        } else {
-          newValLeft = this.fromComponent.x + 80;
-        }
-        const newValTop = this.fromComponent.y + 50;
-        console.log('newValLeft', newValLeft);
-        const kn = dropComp({
-          c_id: 'Knoten',
-          valueLeft: newValLeft,
-          valueTop: newValTop
-        });
-        this.circuit.components.push(kn);
-        //connect 2 pins from this.fromComponent with kn pin
-        const createWire = (fC, fCpin, tC, tCpin) => {
-          let wire = new WireJS({
-            from: fC.pins[fCpin],
-            to: tC.pins[tCpin]
-          });
-          this.circuit.wires.push(wire);
-          this.pinOpacity0(wire);
-        };
-        createWire(this.fromComponent, 0, kn, 0);
-        createWire(this.fromComponent, 1, kn, 0);
-        this.resetCompFromWire();
-        this.save();
-      } else {
-        alert('You can choose same pin of the same component');
-        this.resetCompFromWire();
-      }
+      this.onCreationWire = true;
+      this.fromComponentPin = nr;
+      this.fromComponent = component;
+      var newLine = document.createElementNS(
+        'http://www.w3.org/2000/svg',
+        'line'
+      );
+      newLine.style.stroke = 'black';
+      newLine.style.strokeWidth = '2';
+      newLine.setAttribute('id', 'tempLine');
+      newLine.setAttribute('x1', component.pins[nr].x);
+      newLine.setAttribute('y1', component.pins[nr].y);
+      newLine.setAttribute('x2', component.pins[nr].x);
+      newLine.setAttribute('y2', component.pins[nr].y);
+      document.getElementById('svgArea').append(newLine);
     },
     resetbyfalseCreationWire: function(bool) {
       if (bool === true) {
@@ -740,7 +774,6 @@ export default {
     selectedWire: function(line) {
       if (this.selectedTool === this.toolState.TOOL_DELETE) {
         this.circuit.wires.forEach((wire, index) => {
-          console.log(line);
           if (line === wire) {
             this.circuit.deleteOneWire(wire, index);
             this.save();
@@ -798,7 +831,6 @@ export default {
     },
     save() {
       const deepCopy = this.circuit.project();
-      console.log(deepCopy.components);
       this.setValue(deepCopy);
     },
     /**
@@ -809,7 +841,6 @@ export default {
      * #region MenuBar function
      */
     MBcapture() {
-      console.log('print');
       let targetDiv = document.getElementById('targetDiv');
       targetDiv.scrollTo(0, 0);
       print();

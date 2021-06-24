@@ -43,10 +43,10 @@
           <h3>How to connect 2 components / create a Wire ?</h3>
           <p>
             Click on the first component in the component palette (a horizontal
-            line). The background becomes green, either active, then click on
-            one pin, then on another. The wire is created directly. If the wire
-            component has a white background, then it is not possible to create
-            a wire.
+            line). The background becomes green, either active, then click on 
+            the first pin, then hold the mouse click and release the click over 
+            the other pin. The wire is created directly. If the wire component 
+            has a white background, then it is not possible to create a wire.
           </p>
 
           <h3>How to delete, rotate, move, select / activate an interaction ?</h3>

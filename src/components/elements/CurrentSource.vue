@@ -345,7 +345,8 @@
         <circle
           v-if="component.showPin1"
           class="pin"
-          @click="ev => $emit('pin', 0)"
+          @mousedown="ev => $emit('pin', 0)"
+          @mouseup="ev => $emit('pinMouseUp', 0)"
           r="5"
           cy="287"
           cx="17.299999"
@@ -374,7 +375,8 @@
         <circle
           v-if="component.showPin2"
           class="pin"
-          @click="ev => $emit('pin', 1)"
+          @mousedown="ev => $emit('pin', 1)"
+          @mouseup="ev => $emit('pinMouseUp', 1)"
           r="5"
           style="opacity: 0;"
           id="pin2EasyToClick"

@@ -37,7 +37,7 @@ You have the electronic components present in DC (same order as on the picture):
 ![Screen components](./screenREADME/listComponents2.png)
 
 You will then just have to click on the component, hold the click and release it at the desired place in the working area (area on the right).
-For the Wires, the system is a little different: click on the Wire (the background color turns green), then click on the 2 pins you want to link.
+For the Wires, the system is a little different: click on the Wire (the background color turns green), then click on the first pin, hold the mouse click and release the click over the other pin.
 
 ### Administration of the circuit
 

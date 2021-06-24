@@ -1,49 +1,55 @@
 <!-- src : https://www.digitalocean.com/community/tutorials/vuejs-vue-modal-component -->
 <template>
-  <transition name="modalAbout-fade">
-    <div class="modalAbout-backdrop">
-      <div
-        class="modalAbout"
-        role="dialog"
-        aria-labelledby="modalAboutTitle"
-        aria-describedby="modalAboutDescription"
+  <transition name="modal-fade">
+    <div
+      class="modalAbout"
+      id="modalAboutId"
+      role="dialog"
+      aria-labelledby="modalAboutTitle"
+      aria-describedby="modalAboutDescription"
+      @mousemove.prevent="moveMotion($event)"
+      @mouseup="moveEnd($event)"
+    >
+      <header
+        class="modalAbout-header"
+        id="modalAboutTitle"
+        @mousedown="moveStart($event)"
       >
-        <header class="modalAbout-header" id="modalAboutTitle">
-          <slot name="header"> {{ aboutUs[getCurrentLanguage] }} </slot>
+        <slot name="header"> {{ aboutUs[getCurrentLanguage] }} </slot>
+        <button
+          style="float:right"
+          type="button"
+          class="btn-green"
+          @click="close"
+          aria-label="Close modalSettings"
+          @mousedown.stop=""
+        >
+          X
+        </button>
+      </header>
+      <section class="modalAbout-body" id="modalAboutDescription">
+        {{ content_data1[getCurrentLanguage] }}<br />
+        {{ content_data2[getCurrentLanguage] }}<br />
+        {{ content_data3[getCurrentLanguage] }}<br />
+        {{ content_data4[getCurrentLanguage] }}
+        <a href="https://github.com/desousar/sfes"
+          >https://github.com/desousar/sfes</a
+        ><br />
+        {{ content_data5[getCurrentLanguage] }}<br />
+        {{ content_data6[getCurrentLanguage] }}
+      </section>
+      <footer class="modalAbout-footer">
+        <slot name="footer">
           <button
-            style="float:right"
             type="button"
             class="btn-green"
             @click="close"
-            aria-label="Close modalSettings"
+            aria-label="Close modalAbout"
           >
-            X
+            {{ close_data[getCurrentLanguage] }}
           </button>
-        </header>
-        <section class="modalAbout-body" id="modalAboutDescription">
-          {{ content_data1[getCurrentLanguage] }}<br />
-          {{ content_data2[getCurrentLanguage] }}<br />
-          {{ content_data3[getCurrentLanguage] }}<br />
-          {{ content_data4[getCurrentLanguage] }}
-          <a href="https://github.com/desousar/sfes"
-            >https://github.com/desousar/sfes</a
-          ><br />
-          {{ content_data5[getCurrentLanguage] }}<br />
-          {{ content_data6[getCurrentLanguage] }}
-        </section>
-        <footer class="modalAbout-footer">
-          <slot name="footer">
-            <button
-              type="button"
-              class="btn-green"
-              @click="close"
-              aria-label="Close modalAbout"
-            >
-              {{ close_data[getCurrentLanguage] }}
-            </button>
-          </slot>
-        </footer>
-      </div>
+        </slot>
+      </footer>
     </div>
   </transition>
 </template>
@@ -55,6 +61,9 @@ export default {
   },
   data() {
     return {
+      onDraggable: false,
+      shiftX: undefined,
+      shiftY: undefined,
       aboutUs: { en: 'About us', de: 'Über uns' },
       content_data1: {
         en: 'Hello, my name is Benoît DS and this is my thesis project.',
@@ -96,6 +105,24 @@ export default {
     }
   },
   methods: {
+    moveStart(e) {
+      this.onDraggable = true;
+      this.shiftX = e.offsetX; //where I click inside Component
+      this.shiftY = e.offsetY;
+    },
+    moveMotion(e) {
+      if (this.onDraggable) {
+        const modalDiv = document.getElementById('modalAboutId');
+        const valueLeft = e.clientX - this.shiftX;
+        const valueTop = e.clientY - this.shiftY;
+        modalDiv.style.left = valueLeft + 'px';
+        modalDiv.style.top = valueTop + 'px';
+      }
+    },
+    moveEnd(e) {
+      this.moveMotion(e);
+      this.onDraggable = false;
+    },
     close() {
       this.$emit('close');
     }
@@ -104,24 +131,29 @@ export default {
 </script>
 
 <style>
-.modalAbout-backdrop {
+.modal-fade-enter,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.modalAbout {
   position: fixed;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: rgba(0, 0, 0, 0.3);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modalAbout {
   background: #ffffff;
   box-shadow: 2px 2px 20px 1px;
   overflow-x: auto;
   display: flex;
   flex-direction: column;
+  height: 40vh;
+  width: 70vw;
 }
 
 .modalAbout-header,

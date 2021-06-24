@@ -32,6 +32,8 @@ class CircuitSolver {
 
     //ADD an Ampermeter
     let ampermeter = new Ampermeter({ symbol: 'Iqe' });
+    ampermeter.showPin1 = false;
+    ampermeter.showPin2 = false;
     projection.components.push(ampermeter);
     const w1 = new Wire({
       from: fromKlemme.pins[0],
@@ -55,6 +57,8 @@ class CircuitSolver {
 
     //ADD an Voltmeter
     let voltmeter = new Voltmeter({ symbol: 'Uqe' });
+    voltmeter.showPin1 = false;
+    voltmeter.showPin2 = false;
     projection.components.push(voltmeter);
     const w1 = new Wire({
       from: fromKlemme.pins[0],
@@ -78,17 +82,18 @@ class CircuitSolver {
     try {
       projection.assertMainValues();
       /* if you run test-circuit in command line comment following function call */
+      console.log(projection.components);
       projection.isCircuitOpen();
     } catch (e) {
       throw new Error('ERROR by STEP 1: ' + e.message);
     }
     console.log('STEP 1 finished');
-
+    console.log(projection.components);
     //STEP 2
     console.log('STEP 2 started');
     projection.verifyOneKnotenBetweenTwo2PinsKomp();
     console.log('STEP 2 finished');
-
+    console.log(projection.components);
     //STEP 3
     console.log('STEP 3 started');
     projection.getSubCircuit(projection.components[0]);

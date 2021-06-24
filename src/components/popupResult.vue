@@ -1,50 +1,56 @@
 <!-- src : https://www.digitalocean.com/community/tutorials/vuejs-vue-modal-component -->
 <template>
-  <transition name="modalRes-fade">
-    <div class="modalRes-backdrop">
-      <div
-        class="modalRes"
-        role="dialog"
-        aria-labelledby="modalResTitle"
-        aria-describedby="modalResDescription"
+  <transition name="modal-fade">
+    <div
+      class="modalRes"
+      id="modalResId"
+      role="dialog"
+      aria-labelledby="modalResTitle"
+      aria-describedby="modalResDescription"
+      @mousemove.prevent="moveMotion($event)"
+      @mouseup="moveEnd($event)"
+    >
+      <header
+        class="modalRes-header"
+        id="modalResTitle"
+        @mousedown="moveStart($event)"
       >
-        <header class="modalRes-header" id="modalResTitle">
-          <slot name="header">
-            Result <br />
-            {{ success_data[getCurrentLanguage] }}
-            <button @click="exportResult()">export result</button>
-            <button
-              style="float:right"
-              type="button"
-              class="btn-green"
-              @click="close()"
-              aria-label="Close modalSettings"
-            >
-              X
-            </button>
-          </slot>
-        </header>
-        <section class="modalRes-body" id="modalResDescription">
-          <slot name="body">
-            <div id="dvTable"></div>
-            <!-- <table>
+        <slot name="header">
+          Result <br />
+          {{ success_data[getCurrentLanguage] }}
+          <button @click="exportResult()">export result</button>
+          <button
+            style="float:right"
+            type="button"
+            class="btn-green"
+            @click="close()"
+            aria-label="Close modalSettings"
+            @mousedown.stop=""
+          >
+            X
+          </button>
+        </slot>
+      </header>
+      <section class="modalRes-body" id="modalResDescription">
+        <slot name="body">
+          <div id="dvTable"></div>
+          <!-- <table>
               <tr v-for=""></tr>
             </table> -->
-          </slot>
-        </section>
-        <footer class="modalRes-footer">
-          <slot name="footer">
-            <button
-              type="button"
-              class="btn-green"
-              @click="close()"
-              aria-label="Close modalRes"
-            >
-              {{ close_data[getCurrentLanguage] }}
-            </button>
-          </slot>
-        </footer>
-      </div>
+        </slot>
+      </section>
+      <footer class="modalRes-footer">
+        <slot name="footer">
+          <button
+            type="button"
+            class="btn-green"
+            @click="close()"
+            aria-label="Close modalRes"
+          >
+            {{ close_data[getCurrentLanguage] }}
+          </button>
+        </slot>
+      </footer>
     </div>
   </transition>
 </template>
@@ -60,6 +66,9 @@ export default {
   },
   data() {
     return {
+      onDraggable: false,
+      shiftX: undefined,
+      shiftY: undefined,
       isResultVisible: false,
 
       success_data: {
@@ -82,6 +91,24 @@ export default {
     }
   },
   methods: {
+    moveStart(e) {
+      this.onDraggable = true;
+      this.shiftX = e.offsetX; //where I click inside Component
+      this.shiftY = e.offsetY;
+    },
+    moveMotion(e) {
+      if (this.onDraggable) {
+        const modalDiv = document.getElementById('modalResId');
+        const valueLeft = e.clientX - this.shiftX;
+        const valueTop = e.clientY - this.shiftY;
+        modalDiv.style.left = valueLeft + 'px';
+        modalDiv.style.top = valueTop + 'px';
+      }
+    },
+    moveEnd(e) {
+      this.moveMotion(e);
+      this.onDraggable = false;
+    },
     exportResult() {
       console.log('export');
       let data = '';
@@ -130,25 +157,27 @@ export default {
 </script>
 
 <style>
-/*POPUP*/
-.modalRes-backdrop {
+.modal-fade-enter,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.modalRes {
   position: fixed;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: rgba(0, 0, 0, 0.3);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modalRes {
   background: #ffffff;
   box-shadow: 2px 2px 20px 1px;
   height: 90vh;
   min-width: 40vw;
-  max-width: 60vw;
+  max-width: 40vw;
   overflow-x: auto;
   overflow-y: auto;
   display: flex;

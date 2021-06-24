@@ -177,6 +177,7 @@ export default class Circuit {
             c_id: 'Knoten'
           });
           this.components.push(kn1);
+          console.log('ADD A KNOTEN', kn1.symbol);
           const w1 = new Wire({
             from: comp.pins[0],
             to: kn1.pins[0]
@@ -225,12 +226,14 @@ export default class Circuit {
             //add a Knoten
             let index = this.wires.indexOf(wire);
             this.wires.splice(index, 1);
-            const kSTEP2 = new Knoten({
-              symbol: 'kSTEP2'
+            let kSTEP2 = dropComp({
+              c_id: 'Knoten'
             });
             this.components.push(kSTEP2);
             console.log(
-              'add kSTEP2 btw',
+              'add kSTEP2',
+              kSTEP2.symbol,
+              'btw',
               compFrom.symbol,
               'and',
               compTo.symbol
@@ -251,12 +254,14 @@ export default class Circuit {
             //add a Knoten
             let index = this.wires.indexOf(wire);
             this.wires.splice(index, 1);
-            const kSTEP2 = new Knoten({
-              symbol: 'kSTEP2'
+            let kSTEP2 = dropComp({
+              c_id: 'Knoten'
             });
             this.components.push(kSTEP2);
             console.log(
-              'add kSTEP2 btw',
+              'add kSTEP2',
+              kSTEP2.symbol,
+              'btw',
               compFrom.symbol,
               'and',
               compTo.symbol
@@ -412,10 +417,10 @@ export default class Circuit {
       }
       const nextComp = this.getNextCompWith(pin);
       if (nextComp === undefined) {
-        const kSTEP3 = new Knoten({
-          symbol: 'kSTEP3',
-          visitedPin0: true
+        let kSTEP3 = dropComp({
+          c_id: 'Knoten'
         });
+        kSTEP3.visitedPin0;
         console.log('-------Warning: Circuit open, ADD', kSTEP3.symbol);
         this.components.push(kSTEP3);
         kSTEP3.visitedPin0 = true;

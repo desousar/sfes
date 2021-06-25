@@ -2,224 +2,242 @@
 
 <template>
   <transition name="modal-fade" v-if="compoToPass">
-    <div
-      class="popupComp"
-      id="popupCompId"
-      role="dialog"
-      aria-labelledby="popupCompTitle"
-      aria-describedby="popupCompDescription"
-      @mousemove.prevent="moveMotion($event)"
-      @mouseup="moveEnd($event)"
-    >
-      <header
-        class="popupComp-header"
-        id="popupCompTitle"
-        @mousedown="moveStart($event)"
+    <div class="modal-backdrop" @click="outsideClick">
+      <div
+        class="popupComp"
+        id="popupCompId"
+        role="dialog"
+        aria-labelledby="popupCompTitle"
+        aria-describedby="popupCompDescription"
+        @mousemove.prevent="moveMotion($event)"
+        @mouseup="moveEnd($event)"
+        @click.stop=""
       >
-        <slot name="header"> {{ select_data[getCurrentLanguage] }} </slot>
-        <button
-          style="float:right"
-          type="button"
-          class="btn-green"
-          @click="close()"
-          aria-label="Close modalSettings"
-          @mousedown.stop=""
+        <header
+          class="popupComp-header"
+          id="popupCompTitle"
+          @mousedown="moveStart($event)"
         >
-          X
-        </button>
-      </header>
-      <section class="popupComp-body-gridContainer" id="popupCompDescription">
-        <slot>
-          <div>Symbol =</div>
-          <input type="text" id="newID" :value="compoToPass.symbol" />
-          <div></div>
-        </slot>
-
-        <slot v-if="isResistor()">
-          <div>R =</div>
-          <input
-            type="number"
-            id="newValueR"
-            :value="
-              compoToPass.valueR === undefined ? undefined : compoToPass.valueR
-            "
-            placeholder="undefined"
-          />
-          <div>&#8486;</div>
-        </slot>
-
-        <slot v-if="isKnoten()">
-          <div>
-            Potential {{ source_data[getCurrentLanguage] }}
-            =
-          </div>
-          <input
-            type="number"
-            id="newValuePotential"
-            :value="
-              compoToPass.valuePotentialSource === undefined
-                ? undefined
-                : compoToPass.valuePotentialSource
-            "
-            placeholder="undefined"
-          />
-          <div>V</div>
-        </slot>
-
-        <!--disabled input-->
-        <slot v-if="isKnoten() || isKlemme()">
-          <div>Potential =</div>
-          <input
-            disabled
-            type="number"
-            id="newValuePhiDisabled"
-            :value="
-              compoToPass.valuePhi === undefined
-                ? undefined
-                : compoToPass.valuePhi
-            "
-            placeholder="not yet available"
-          />
-          <div>V</div>
-        </slot>
-
-        <slot v-if="isVoltageSource()">
-          <div>
-            U =
-          </div>
-          <input
-            type="number"
-            id="newValueU"
-            :value="
-              compoToPass.valueU === undefined ? undefined : compoToPass.valueU
-            "
-            placeholder="undefined"
-          />
-          <div>V</div>
-        </slot>
-
-        <!--disabled input-->
-        <slot
-          v-if="
-            isResistor() ||
-              isKnotenWithPotentialSrc() ||
-              isVoltageSource() ||
-              isAmpermeter()
-          "
-        >
-          <div>
-            I =
-          </div>
-          <input
-            disabled
-            type="number"
-            id="newValueIDisabled"
-            :value="
-              compoToPass.valueI === undefined ? undefined : compoToPass.valueI
-            "
-            placeholder="not yet available"
-          />
-          <div>A</div>
-        </slot>
-
-        <slot v-if="isCurrentSource()">
-          <div>
-            I =
-          </div>
-          <input
-            type="number"
-            id="newValueI"
-            :value="
-              compoToPass.valueI === undefined ? undefined : compoToPass.valueI
-            "
-            placeholder="undefined"
-          />
-          <div>A</div>
-        </slot>
-
-        <!--disabled input-->
-        <slot v-if="isResistor() || isCurrentSource() || isVoltmeter()">
-          <div>
-            U =
-          </div>
-          <input
-            disabled
-            type="number"
-            id="newValueUDisabled"
-            :value="
-              compoToPass.valueU === undefined ? undefined : compoToPass.valueU
-            "
-            placeholder="not yet available"
-          />
-          <div>V</div>
-        </slot>
-      </section>
-      <!--button as shortcut to delete value of Potential-->
-      <section v-if="isKnoten()">
-        <button class="btn-width40pct" @click="deletePotentialvalue()">
-          delete Potential value
-        </button>
-      </section>
-      <!--possibility to "play" with current and voltage only if component isn't MultiPin-->
-      <section v-if="!compoToPass.isMultiPin">
-        <section class="oneLine">
-          <button class="btn-width40pct" @click="flipdirU()">
-            flip {{ voltage_data[getCurrentLanguage] }} arrow
-          </button>
-          <button class="btn-width40pct" @click="flipdirI()">
-            flip {{ current_data[getCurrentLanguage] }} arrow
-          </button>
-        </section>
-        <section class="checkboxArrow">
-          <div>{{ checkboxArrow_data[getCurrentLanguage] }}</div>
-          <div>
-            <input
-              type="checkbox"
-              id="displayDirU"
-              @click="DirUisChecked()"
-              :checked="controlDirU()"
-            />
-            <label>display {{ voltage_data[getCurrentLanguage] }} arrow</label>
-          </div>
-          <div>
-            <input
-              type="checkbox"
-              id="displayDirI"
-              @click="DirIisChecked()"
-              :checked="controlDirI()"
-            />
-            <label>display {{ current_data[getCurrentLanguage] }} arrow</label>
-          </div>
-        </section>
-      </section>
-      <!--checkbox for each components to display their symbol-->
-      <section>
-        <section class="checkboxArrow">
-          <div>
-            <input
-              type="checkbox"
-              id="displayDirU"
-              @click="showSymbolisChecked()"
-              :checked="controlshowSymbol()"
-            />
-            <label>display symbol</label>
-          </div>
-        </section>
-      </section>
-      <!--this line (span block) will be used if a value is not conform-->
-      <span id="alertHint"></span>
-      <footer class="popupComp-footer">
-        <slot name="footer">
+          <slot name="header"> {{ select_data[getCurrentLanguage] }} </slot>
           <button
+            style="float:right"
             type="button"
             class="btn-green"
             @click="close()"
-            aria-label="Close popupComp"
+            aria-label="Close modalSettings"
+            @mousedown.stop=""
           >
-            {{ close_data[getCurrentLanguage] }}
+            X
           </button>
-        </slot>
-      </footer>
+        </header>
+        <section class="popupComp-body-gridContainer" id="popupCompDescription">
+          <slot>
+            <div>Symbol =</div>
+            <input type="text" id="newID" :value="compoToPass.symbol" />
+            <div></div>
+          </slot>
+
+          <slot v-if="isResistor()">
+            <div>R =</div>
+            <input
+              type="number"
+              id="newValueR"
+              :value="
+                compoToPass.valueR === undefined
+                  ? undefined
+                  : compoToPass.valueR
+              "
+              placeholder="undefined"
+            />
+            <div>&#8486;</div>
+          </slot>
+
+          <slot v-if="isKnoten()">
+            <div>
+              Potential {{ source_data[getCurrentLanguage] }}
+              =
+            </div>
+            <input
+              type="number"
+              id="newValuePotential"
+              :value="
+                compoToPass.valuePotentialSource === undefined
+                  ? undefined
+                  : compoToPass.valuePotentialSource
+              "
+              placeholder="undefined"
+            />
+            <div>V</div>
+          </slot>
+
+          <!--disabled input-->
+          <slot v-if="isKnoten() || isKlemme()">
+            <div>Potential =</div>
+            <input
+              disabled
+              type="number"
+              id="newValuePhiDisabled"
+              :value="
+                compoToPass.valuePhi === undefined
+                  ? undefined
+                  : compoToPass.valuePhi
+              "
+              placeholder="not yet available"
+            />
+            <div>V</div>
+          </slot>
+
+          <slot v-if="isVoltageSource()">
+            <div>
+              U =
+            </div>
+            <input
+              type="number"
+              id="newValueU"
+              :value="
+                compoToPass.valueU === undefined
+                  ? undefined
+                  : compoToPass.valueU
+              "
+              placeholder="undefined"
+            />
+            <div>V</div>
+          </slot>
+
+          <!--disabled input-->
+          <slot
+            v-if="
+              isResistor() ||
+                isKnotenWithPotentialSrc() ||
+                isVoltageSource() ||
+                isAmpermeter()
+            "
+          >
+            <div>
+              I =
+            </div>
+            <input
+              disabled
+              type="number"
+              id="newValueIDisabled"
+              :value="
+                compoToPass.valueI === undefined
+                  ? undefined
+                  : compoToPass.valueI
+              "
+              placeholder="not yet available"
+            />
+            <div>A</div>
+          </slot>
+
+          <slot v-if="isCurrentSource()">
+            <div>
+              I =
+            </div>
+            <input
+              type="number"
+              id="newValueI"
+              :value="
+                compoToPass.valueI === undefined
+                  ? undefined
+                  : compoToPass.valueI
+              "
+              placeholder="undefined"
+            />
+            <div>A</div>
+          </slot>
+
+          <!--disabled input-->
+          <slot v-if="isResistor() || isCurrentSource() || isVoltmeter()">
+            <div>
+              U =
+            </div>
+            <input
+              disabled
+              type="number"
+              id="newValueUDisabled"
+              :value="
+                compoToPass.valueU === undefined
+                  ? undefined
+                  : compoToPass.valueU
+              "
+              placeholder="not yet available"
+            />
+            <div>V</div>
+          </slot>
+        </section>
+        <!--button as shortcut to delete value of Potential-->
+        <section v-if="isKnoten()">
+          <button class="btn-width40pct" @click="deletePotentialvalue()">
+            delete Potential value
+          </button>
+        </section>
+        <!--possibility to "play" with current and voltage only if component isn't MultiPin-->
+        <section v-if="!compoToPass.isMultiPin">
+          <section class="oneLine">
+            <button class="btn-width40pct" @click="flipdirU()">
+              flip {{ voltage_data[getCurrentLanguage] }} arrow
+            </button>
+            <button class="btn-width40pct" @click="flipdirI()">
+              flip {{ current_data[getCurrentLanguage] }} arrow
+            </button>
+          </section>
+          <section class="checkboxArrow">
+            <div>{{ checkboxArrow_data[getCurrentLanguage] }}</div>
+            <div>
+              <input
+                type="checkbox"
+                id="displayDirU"
+                @click="DirUisChecked()"
+                :checked="controlDirU()"
+              />
+              <label
+                >display {{ voltage_data[getCurrentLanguage] }} arrow</label
+              >
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                id="displayDirI"
+                @click="DirIisChecked()"
+                :checked="controlDirI()"
+              />
+              <label
+                >display {{ current_data[getCurrentLanguage] }} arrow</label
+              >
+            </div>
+          </section>
+        </section>
+        <!--checkbox for each components to display their symbol-->
+        <section>
+          <section class="checkboxArrow">
+            <div>
+              <input
+                type="checkbox"
+                id="displayDirU"
+                @click="showSymbolisChecked()"
+                :checked="controlshowSymbol()"
+              />
+              <label>display symbol</label>
+            </div>
+          </section>
+        </section>
+        <span style="flex-grow:1"></span>
+        <!--this line (span block) will be used if a value is not conform-->
+        <span id="alertHint"></span>
+        <footer class="popupComp-footer">
+          <slot name="footer">
+            <button
+              type="button"
+              class="btn-green"
+              @click="close()"
+              aria-label="Close popupComp"
+            >
+              {{ close_data[getCurrentLanguage] }}
+            </button>
+          </slot>
+        </footer>
+      </div>
     </div>
   </transition>
 </template>
@@ -239,7 +257,8 @@ export default {
   props: {
     compoToPass: Object,
     arrayComponents: Array,
-    currentLanguage: String
+    currentLanguage: String,
+    isPopupCompVisible: Boolean
   },
   data() {
     return {
@@ -262,12 +281,29 @@ export default {
       close_data: { en: 'Close', de: 'Schliessen' }
     };
   },
+  watch: {
+    isPopupCompVisible: function(newVal) {
+      if (newVal) {
+        //graphical aspect
+        this.compoToPass.directionI === 0
+          ? (this.compoToPass.showIdir0 = true)
+          : (this.compoToPass.showIdir1 = true);
+
+        this.compoToPass.directionU === 0
+          ? (this.compoToPass.showUdir0 = true)
+          : (this.compoToPass.showUdir1 = true);
+      }
+    }
+  },
   computed: {
     getCurrentLanguage: function() {
       return this.currentLanguage;
     }
   },
   methods: {
+    outsideClick() {
+      this.close();
+    },
     moveStart(e) {
       this.onDraggable = true;
       this.shiftX = e.offsetX; //where I click inside Component
@@ -594,6 +630,15 @@ export default {
 </script>
 
 <style>
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -613,16 +658,15 @@ input::-webkit-inner-spin-button {
 .popupComp {
   position: fixed;
   top: 0;
-  bottom: 0;
   left: 0;
-  right: 0;
   background: #ffffff;
   box-shadow: 2px 2px 20px 1px;
   overflow-x: auto;
+  resize: both;
   display: flex;
   flex-direction: column;
-  height: 60vh;
-  max-width: 60vw;
+  height: 410px;
+  width: 413px;
 }
 
 .popupComp-header,
@@ -635,6 +679,7 @@ input::-webkit-inner-spin-button {
   border-bottom: 1px solid #eeeeee;
   color: #4aae9b;
   justify-content: space-between;
+  cursor: default;
 }
 
 .popupComp-footer {
@@ -663,6 +708,7 @@ input::-webkit-inner-spin-button {
   display: flex;
   justify-content: space-around;
 }
+
 .btn-width40pct {
   width: 40%;
 }

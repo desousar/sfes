@@ -1,56 +1,61 @@
 <!-- src : https://www.digitalocean.com/community/tutorials/vuejs-vue-modal-component -->
 <template>
   <transition name="modal-fade">
-    <div
-      class="modalRes"
-      id="modalResId"
-      role="dialog"
-      aria-labelledby="modalResTitle"
-      aria-describedby="modalResDescription"
-      @mousemove.prevent="moveMotion($event)"
-      @mouseup="moveEnd($event)"
-    >
-      <header
-        class="modalRes-header"
-        id="modalResTitle"
-        @mousedown="moveStart($event)"
+    <div class="modal-backdrop" @click="outsideClick">
+      <div
+        class="modalRes"
+        id="modalResId"
+        role="dialog"
+        aria-labelledby="modalResTitle"
+        aria-describedby="modalResDescription"
+        @mousemove.prevent="moveMotion($event)"
+        @mouseup="moveEnd($event)"
+        @click.stop=""
       >
-        <slot name="header">
-          Result <br />
-          {{ success_data[getCurrentLanguage] }}
-          <button @click="exportResult()">export result</button>
-          <button
-            style="float:right"
-            type="button"
-            class="btn-green"
-            @click="close()"
-            aria-label="Close modalSettings"
-            @mousedown.stop=""
-          >
-            X
-          </button>
-        </slot>
-      </header>
-      <section class="modalRes-body" id="modalResDescription">
-        <slot name="body">
-          <div id="dvTable"></div>
-          <!-- <table>
+        <header
+          class="modalRes-header"
+          id="modalResTitle"
+          @mousedown="moveStart($event)"
+        >
+          <slot name="header">
+            Result <br />
+            {{ success_data[getCurrentLanguage] }}
+            <button @click="exportResult()" @mousedown.stop="">
+              export result
+            </button>
+            <button
+              style="float:right"
+              type="button"
+              class="btn-green"
+              @click="close()"
+              aria-label="Close modalSettings"
+              @mousedown.stop=""
+            >
+              X
+            </button>
+          </slot>
+        </header>
+        <section class="modalRes-body" id="modalResDescription">
+          <slot name="body">
+            <div id="dvTable"></div>
+            <!-- <table>
               <tr v-for=""></tr>
             </table> -->
-        </slot>
-      </section>
-      <footer class="modalRes-footer">
-        <slot name="footer">
-          <button
-            type="button"
-            class="btn-green"
-            @click="close()"
-            aria-label="Close modalRes"
-          >
-            {{ close_data[getCurrentLanguage] }}
-          </button>
-        </slot>
-      </footer>
+          </slot>
+        </section>
+        <footer class="modalRes-footer">
+          <slot name="footer">
+            <button
+              type="button"
+              class="btn-green"
+              @click="close()"
+              aria-label="Close modalRes"
+            >
+              {{ close_data[getCurrentLanguage] }}
+            </button>
+          </slot>
+        </footer>
+      </div>
     </div>
   </transition>
 </template>
@@ -91,6 +96,9 @@ export default {
     }
   },
   methods: {
+    outsideClick() {
+      this.close();
+    },
     moveStart(e) {
       this.onDraggable = true;
       this.shiftX = e.offsetX; //where I click inside Component
@@ -157,6 +165,15 @@ export default {
 </script>
 
 <style>
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
 .modal-fade-enter,
 .modal-fade-leave-to {
   opacity: 0;
@@ -170,18 +187,15 @@ export default {
 .modalRes {
   position: fixed;
   top: 0;
-  bottom: 0;
   left: 0;
-  right: 0;
   background: #ffffff;
   box-shadow: 2px 2px 20px 1px;
-  height: 90vh;
-  min-width: 40vw;
-  max-width: 40vw;
   overflow-x: auto;
-  overflow-y: auto;
+  resize: both;
   display: flex;
   flex-direction: column;
+  height: 617px;
+  width: 490px;
 }
 
 .modalRes-header,
@@ -194,6 +208,11 @@ export default {
   border-bottom: 1px solid #eeeeee;
   color: #4aae9b;
   justify-content: space-between;
+  position: sticky;
+  top: 0px;
+  background-color: white;
+  z-index: 5;
+  cursor: default;
 }
 
 .modalRes-footer {
@@ -204,6 +223,7 @@ export default {
 .modalRes-body {
   position: relative;
   padding: 20px 10px;
+  flex-grow: 1;
 }
 
 .btn-green {

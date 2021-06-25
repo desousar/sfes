@@ -155,6 +155,7 @@
         :compoToPass.sync="CompoToPass"
         :arrayComponents="circuit.components"
         :currentLanguage="currentLanguage"
+        :isPopupCompVisible="isPopupCompVisible"
       />
 
       <popupResult

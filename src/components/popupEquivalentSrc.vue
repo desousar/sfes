@@ -2,89 +2,92 @@
 
 <template>
   <transition name="modal-fade">
-    <div
-      class="modalEquSrc"
-      id="modalEquSrcId"
-      role="dialog"
-      aria-labelledby="modalEquSrcTitle"
-      aria-describedby="modalEquSrcDescription"
-      @mousemove.prevent="moveMotion($event)"
-      @mouseup="moveEnd($event)"
-    >
-      <header
-        class="modalEquSrc-header"
-        id="modalEquSrcTitle"
-        @mousedown="moveStart($event)"
+    <div class="modal-backdrop" @click="outsideClick">
+      <div
+        class="modalEquSrc"
+        id="modalEquSrcId"
+        role="dialog"
+        aria-labelledby="modalEquSrcTitle"
+        aria-describedby="modalEquSrcDescription"
+        @mousemove.prevent="moveMotion($event)"
+        @mouseup="moveEnd($event)"
+        @click.stop=""
       >
-        <slot name="header"> {{ equSrc[getCurrentLanguage] }} </slot>
-        <button
-          style="float:right"
-          type="button"
-          class="btn-green"
-          @click="close"
-          aria-label="Close modalSettings"
-          @mousedown.stop=""
+        <header
+          class="modalEquSrc-header"
+          id="modalEquSrcTitle"
+          @mousedown="moveStart($event)"
         >
-          X
-        </button>
-      </header>
-      <section class="modalEquSrc-body" id="modalEquSrcDescription">
-        <section name="body">
-          {{ instruction[getCurrentLanguage] }}
-        </section>
-
-        <section id="body-select">
-          <select
-            v-model="firstKlemme"
-            id="id-select-klemme"
-            @click="selectKlemme1"
-          >
-            <option
-              v-for="klemme in getKlemmeArray()"
-              :key="klemme.uniqueID"
-              :value="klemme"
-            >
-              {{ klemme.symbol }}
-            </option>
-          </select>
-          <span class="mdi mdi-arrow-right"></span>
-          <select
-            v-model="secondKlemme"
-            id="id-select-klemme"
-            @click="selectKlemme2"
-          >
-            <option
-              v-for="klemme in getKlemmeArray()"
-              :key="klemme.uniqueID"
-              :value="klemme"
-            >
-              {{ klemme.symbol }}
-            </option>
-          </select>
-          <button type="button" @click="calcule()">
-            {{ solve[getCurrentLanguage] }}
-          </button>
-        </section>
-      </section>
-
-      <section>
-        <p v-if="warningBool_data" id="alertHint">{{ warning_data }}</p>
-        <p v-if="resultBool_data" id="resultBlock">
-          <span v-html="result_data"></span>
-        </p>
-      </section>
-      <footer class="modalEquSrc-footer">
-        <slot name="footer">
+          <slot name="header"> {{ equSrc[getCurrentLanguage] }} </slot>
           <button
+            style="float:right"
             type="button"
             class="btn-green"
             @click="close"
-            aria-label="Close modalEquSrc"
+            aria-label="Close modalSettings"
+            @mousedown.stop=""
           >
-            {{ close_data[getCurrentLanguage] }}
+            X
           </button>
-        </slot>
-      </footer>
+        </header>
+        <section class="modalEquSrc-body" id="modalEquSrcDescription">
+          <section name="body">
+            {{ instruction[getCurrentLanguage] }}
+          </section>
+
+          <section id="body-select">
+            <select
+              v-model="firstKlemme"
+              id="id-select-klemme"
+              @click="selectKlemme1"
+            >
+              <option
+                v-for="klemme in getKlemmeArray()"
+                :key="klemme.uniqueID"
+                :value="klemme"
+              >
+                {{ klemme.symbol }}
+              </option>
+            </select>
+            <span class="mdi mdi-arrow-right"></span>
+            <select
+              v-model="secondKlemme"
+              id="id-select-klemme"
+              @click="selectKlemme2"
+            >
+              <option
+                v-for="klemme in getKlemmeArray()"
+                :key="klemme.uniqueID"
+                :value="klemme"
+              >
+                {{ klemme.symbol }}
+              </option>
+            </select>
+            <button type="button" @click="calcule()">
+              {{ solve[getCurrentLanguage] }}
+            </button>
+          </section>
+        </section>
+
+        <section>
+          <p v-if="warningBool_data" id="alertHint">{{ warning_data }}</p>
+          <p v-if="resultBool_data" id="resultBlock">
+            <span v-html="result_data"></span>
+          </p>
+        </section>
+        <footer class="modalEquSrc-footer">
+          <slot name="footer">
+            <button
+              type="button"
+              class="btn-green"
+              @click="close"
+              aria-label="Close modalEquSrc"
+            >
+              {{ close_data[getCurrentLanguage] }}
+            </button>
+          </slot>
+        </footer>
+      </div>
     </div>
   </transition>
 </template>
@@ -136,6 +139,9 @@ export default {
     }
   },
   methods: {
+    outsideClick() {
+      this.close();
+    },
     moveStart(e) {
       this.onDraggable = true;
       this.shiftX = e.offsetX; //where I click inside Component
@@ -319,6 +325,15 @@ export default {
 </script>
 
 <style>
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
 .modal-fade-enter,
 .modal-fade-leave-to {
   opacity: 0;
@@ -332,16 +347,15 @@ export default {
 .modalEquSrc {
   position: fixed;
   top: 0;
-  bottom: 0;
   left: 0;
-  right: 0;
   background: #ffffff;
   box-shadow: 2px 2px 20px 1px;
   overflow-x: auto;
+  resize: both;
   display: flex;
   flex-direction: column;
-  height: 40vh;
-  width: 50vw;
+  height: 296px;
+  width: 612px;
 }
 
 .modalEquSrc-header,
@@ -354,6 +368,7 @@ export default {
   border-bottom: 1px solid #eeeeee;
   color: #4aae9b;
   justify-content: space-between;
+  cursor: default;
 }
 
 .modalEquSrc-footer {

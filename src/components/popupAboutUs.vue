@@ -1,55 +1,58 @@
 <!-- src : https://www.digitalocean.com/community/tutorials/vuejs-vue-modal-component -->
 <template>
   <transition name="modal-fade">
-    <div
-      class="modalAbout"
-      id="modalAboutId"
-      role="dialog"
-      aria-labelledby="modalAboutTitle"
-      aria-describedby="modalAboutDescription"
-      @mousemove.prevent="moveMotion($event)"
-      @mouseup="moveEnd($event)"
-    >
-      <header
-        class="modalAbout-header"
-        id="modalAboutTitle"
-        @mousedown="moveStart($event)"
+    <div class="modal-backdrop" @click="outsideClick">
+      <div
+        class="modalAbout"
+        id="modalAboutId"
+        role="dialog"
+        aria-labelledby="modalAboutTitle"
+        aria-describedby="modalAboutDescription"
+        @mousemove.prevent="moveMotion($event)"
+        @mouseup="moveEnd($event)"
+        @click.stop=""
       >
-        <slot name="header"> {{ aboutUs[getCurrentLanguage] }} </slot>
-        <button
-          style="float:right"
-          type="button"
-          class="btn-green"
-          @click="close"
-          aria-label="Close modalSettings"
-          @mousedown.stop=""
+        <header
+          class="modalAbout-header"
+          id="modalAboutTitle"
+          @mousedown="moveStart($event)"
         >
-          X
-        </button>
-      </header>
-      <section class="modalAbout-body" id="modalAboutDescription">
-        {{ content_data1[getCurrentLanguage] }}<br />
-        {{ content_data2[getCurrentLanguage] }}<br />
-        {{ content_data3[getCurrentLanguage] }}<br />
-        {{ content_data4[getCurrentLanguage] }}
-        <a href="https://github.com/desousar/sfes"
-          >https://github.com/desousar/sfes</a
-        ><br />
-        {{ content_data5[getCurrentLanguage] }}<br />
-        {{ content_data6[getCurrentLanguage] }}
-      </section>
-      <footer class="modalAbout-footer">
-        <slot name="footer">
+          <slot name="header"> {{ aboutUs[getCurrentLanguage] }} </slot>
           <button
+            style="float:right"
             type="button"
             class="btn-green"
             @click="close"
-            aria-label="Close modalAbout"
+            aria-label="Close modalSettings"
+            @mousedown.stop=""
           >
-            {{ close_data[getCurrentLanguage] }}
+            X
           </button>
-        </slot>
-      </footer>
+        </header>
+        <section class="modalAbout-body" id="modalAboutDescription">
+          {{ content_data1[getCurrentLanguage] }}<br />
+          {{ content_data2[getCurrentLanguage] }}<br />
+          {{ content_data3[getCurrentLanguage] }}<br />
+          {{ content_data4[getCurrentLanguage] }}
+          <a href="https://github.com/desousar/sfes"
+            >https://github.com/desousar/sfes</a
+          ><br />
+          {{ content_data5[getCurrentLanguage] }}<br />
+          {{ content_data6[getCurrentLanguage] }}
+        </section>
+        <footer class="modalAbout-footer">
+          <slot name="footer">
+            <button
+              type="button"
+              class="btn-green"
+              @click="close"
+              aria-label="Close modalAbout"
+            >
+              {{ close_data[getCurrentLanguage] }}
+            </button>
+          </slot>
+        </footer>
+      </div>
     </div>
   </transition>
 </template>
@@ -105,6 +108,9 @@ export default {
     }
   },
   methods: {
+    outsideClick() {
+      this.close();
+    },
     moveStart(e) {
       this.onDraggable = true;
       this.shiftX = e.offsetX; //where I click inside Component
@@ -131,6 +137,15 @@ export default {
 </script>
 
 <style>
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
 .modal-fade-enter,
 .modal-fade-leave-to {
   opacity: 0;
@@ -144,16 +159,15 @@ export default {
 .modalAbout {
   position: fixed;
   top: 0;
-  bottom: 0;
   left: 0;
-  right: 0;
   background: #ffffff;
   box-shadow: 2px 2px 20px 1px;
   overflow-x: auto;
+  resize: both;
   display: flex;
   flex-direction: column;
-  height: 40vh;
-  width: 70vw;
+  height: 282px;
+  width: 697px;
 }
 
 .modalAbout-header,
@@ -166,6 +180,7 @@ export default {
   border-bottom: 1px solid #eeeeee;
   color: #4aae9b;
   justify-content: space-between;
+  cursor: default;
 }
 
 .modalAbout-footer {
@@ -176,6 +191,7 @@ export default {
 .modalAbout-body {
   position: relative;
   padding: 25px 15px;
+  flex-grow: 1;
 }
 
 .btn-green {

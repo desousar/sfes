@@ -1,12 +1,33 @@
 import KnotenJS from '../../jsFolder/constructorComponent/jsComponents/Knoten';
-import ResistorJS from '../../jsFolder/constructorComponent/jsComponents/Resistor';
 import KlemmeJS from '../../jsFolder/constructorComponent/jsComponents/Klemme';
+import ResistorJS from '../../jsFolder/constructorComponent/jsComponents/Resistor';
+import CurrentSrcJS from '../../jsFolder/constructorComponent/jsComponents/CurrentSource';
 
-export default class MultipleRinParallel {
+import {
+  centerX2PinsComp,
+  centerY2PinsComp
+} from '../../jsFolder/constructorComponent/Component';
+
+import { dropComp } from '../../jsFolder/dropComponent';
+
+export default class TheveninToNorton {
+  /**
+   * ext1out_comp : extern extremity on CurrentSrcJS side (neighbor)
+   * ext1out_pinID : neighbor pin on which CurrentSrcJS is connected
+   * ext1in_maincomp : CurrentSrcJS
+   * ext1in_pinID : CurrentSrcJS pin connected to ext1out_comp
+   * ext1in_pinID_opposite : CurrentSrcJS pin connected to Resistor
+   * rComp : Resistor
+   */
   constructor() {
-    this.ext1 = undefined;
-    this.ext2 = undefined;
+    this.ext1out_comp = undefined;
+    this.ext1out_pinID = undefined;
+    this.ext1in_maincomp = undefined;
+    this.ext1in_pinID = undefined;
+    this.ext1in_pinID_opposite = undefined;
+    this.rComp = undefined;
   }
+
   /**
    * every Conversion Class has at least 2 importants functions:
    * -isPossible()
@@ -17,40 +38,57 @@ export default class MultipleRinParallel {
    * @param {just comp with attribut selected === true} selectedComp_array
    * @param {entire object} circuit
    * @returns true if condition are met :
-   * -isAllSameInstance()
+   * -isInstanceCorrect()
    * -isInParallel()
    */
-  isPossible(selectedComp_array, circuit) {
-    console.log('---------Parallel---------');
-    let isAllSameInstance_bool = false;
+  isPossible(onReal, selectedComp_array, circuit) {
+    console.log('---------NortonToThevenin---------');
+    let isInstanceCorrect_bool = false;
     let isInParallel_bool = false;
-    isAllSameInstance_bool = this.isAllSameInstance(selectedComp_array);
-    if (!isAllSameInstance_bool) {
+    isInstanceCorrect_bool = this.isInstanceCorrect(selectedComp_array);
+    if (!isInstanceCorrect_bool) {
       return false;
     }
-    isInParallel_bool = this.isInParallel(circuit);
-    return isAllSameInstance_bool && isInParallel_bool;
+    isInParallel_bool = this.isInParallel(onReal, selectedComp_array, circuit);
+    return isInstanceCorrect_bool && isInParallel_bool;
   }
 
-  isAllSameInstance(selectedComp_array) {
-    return selectedComp_array.every(comp => comp instanceof ResistorJS);
+  isInstanceCorrect(selectedComp_array) {
+    let oneResistor = false;
+    let oneCurrentSrc = false;
+    selectedComp_array.forEach(comp => {
+      if (comp instanceof ResistorJS) {
+        oneResistor = true;
+        this.rComp = comp;
+      }
+      if (comp instanceof CurrentSrcJS) {
+        oneCurrentSrc = true;
+        this.ext1in_maincomp = comp;
+      }
+    });
+    return oneResistor && oneCurrentSrc;
   }
 
-  isInParallel(circuitOriginal) {
-    let circuit = circuitOriginal.project();
+  // eslint-disable-next-line no-unused-vars
+  isInParallel(onReal, selectedComp_array, circuitOriginal) {
+    // eslint-disable-next-line no-unused-vars
+    let circuit;
+    if (onReal) {
+      circuit = circuitOriginal;
+    } else {
+      circuit = circuitOriginal.project();
+    }
 
-    const selArray = circuit.getSelectedComponents();
     // First Test: the selected components have the 2 neighbors and they are Knoten
     // WARNING can't interrupt a ForEach loop with return => use for loop
-    let bool_data1 = this.is2MultiPinNeighbors(circuit, selArray);
+    let bool_data1 = this.is2MultiPinNeighbors(circuit, selectedComp_array);
     if (!bool_data1) {
       return false;
     }
     // Then visit all Knoten that are directs neighbors with firstComp
     // and flag twice comps that are neighbors to this visited Knoten and in selArray
     // FUSION
-    let firstComp = selArray[0];
-    console.log('firstComp', firstComp.symbol);
+    let firstComp = selectedComp_array[0];
     for (let w of circuit.wires) {
       const fromComp = circuit.componentFromPin(w.from);
       const toComp = circuit.componentFromPin(w.to);
@@ -58,7 +96,7 @@ export default class MultipleRinParallel {
         // check "path" based on 1st pin
         const result = this.fusionNeighborsKnoten(
           circuit,
-          selArray,
+          selectedComp_array,
           fromComp,
           toComp,
           0
@@ -71,7 +109,7 @@ export default class MultipleRinParallel {
         // check "path" based on 2nd pin
         const result = this.fusionNeighborsKnoten(
           circuit,
-          selArray,
+          selectedComp_array,
           toComp,
           fromComp,
           1
@@ -81,7 +119,7 @@ export default class MultipleRinParallel {
         }
       }
     }
-    let bool_data2 = this.is2MultiPinNeighbors(circuit, selArray);
+    let bool_data2 = this.is2MultiPinNeighbors(circuit, selectedComp_array);
     if (!bool_data2) {
       return false;
     }
@@ -95,7 +133,7 @@ export default class MultipleRinParallel {
       for (let w of circuit.wires) {
         const fromComp = circuit.componentFromPin(w.from);
         const toComp = circuit.componentFromPin(w.to);
-        if (comp === fromComp) {
+        if (comp.uniqueID === fromComp.uniqueID) {
           console.log('find1', comp.symbol);
           if (!toComp.isMultiPin) {
             console.log('STOP1');
@@ -104,7 +142,7 @@ export default class MultipleRinParallel {
             comp.find.push(toComp.uniqueID);
           }
         }
-        if (comp === toComp) {
+        if (comp.uniqueID === toComp.uniqueID) {
           console.log('find2', comp.symbol);
           if (!fromComp.isMultiPin) {
             console.log('STOP2');
@@ -126,21 +164,14 @@ export default class MultipleRinParallel {
     return true;
   }
 
-  getCountConnectionAsGroup(circuit, comp) {
-    let count = 0;
-    for (let wire of circuit.wires) {
-      var compFrom = circuit.componentFromPin(wire.from);
-      var compTo = circuit.componentFromPin(wire.to);
-      if (comp === compFrom && (compTo.visited || compTo.flagConversion)) {
-        count++;
-      }
-      if (comp === compTo && (compFrom.visited || compFrom.flagConversion)) {
-        count++;
-      }
-    }
-    return count;
-  }
-
+  //simplification by fusion from all Knoten to obtain the classical Norton circuit
+  /*
+     |-----kn----kl
+     |     |
+     I     R
+     |     |
+     L-----kn----kl
+     */
   fusionNeighborsKnoten(circuit, selArray, origin, destination, compStorageID) {
     let localKnoten = [];
     console.log('find', origin.symbol, destination.isMultiPin);
@@ -168,7 +199,7 @@ export default class MultipleRinParallel {
 
     selArray.map(comp => (comp.flagConversion = false));
     circuit.components.map(comp => (comp.visited = false));
-    // for fusion keep One, transfer only connection (circuit.wires) to One and delete other
+    // for fusion keep One, transfer only connection (circuit.wires) to One and delete other if One isn't already connected
     var compStorage;
     compStorageID === 0 ? (compStorage = this.ext1) : (compStorage = this.ext2);
     console.log(localKnoten);
@@ -221,6 +252,21 @@ export default class MultipleRinParallel {
       }
     }
     return true;
+  }
+
+  getCountConnectionAsGroup(circuit, comp) {
+    let count = 0;
+    for (let wire of circuit.wires) {
+      var compFrom = circuit.componentFromPin(wire.from);
+      var compTo = circuit.componentFromPin(wire.to);
+      if (comp === compFrom && (compTo.visited || compTo.flagConversion)) {
+        count++;
+      }
+      if (comp === compTo && (compFrom.visited || compFrom.flagConversion)) {
+        count++;
+      }
+    }
+    return count;
   }
 
   nextNeighbor(circuit, origin, comp, compStorageID) {
@@ -286,73 +332,108 @@ export default class MultipleRinParallel {
     }
   }
 
-  /**
-   * modify value from one comp ~ keepAlive (R)
-   * delete Other (R)
-   */
   conversion(circuit) {
-    const selectedComp_array = circuit.getSelectedComponents();
-    let sum = 0;
-    selectedComp_array.forEach(comp => {
-      sum += 1 / comp.valueR;
-    });
-    console.log('result', 1 / sum);
-
-    let [keepAlive] = selectedComp_array.splice(0, 1);
-    keepAlive.symbol += 'SUM';
-    keepAlive.valueR = 1 / sum;
-    keepAlive.selected = false;
-    selectedComp_array.forEach(component => {
-      circuit.deleteOneComponent(component);
-    });
-    // while a Knoten in the circuit has just 1 connection && this Knoten isn't a potentialSrc => delete this one
-    while (this.everyKnotenHas2CoMin_control(circuit) === false) {
-      this.everyKnotenHas2CoMin_function(circuit);
+    //we have a classical Norton circuit
+    const valueIq = this.ext1in_maincomp.valueI;
+    const dirU = this.ext1in_maincomp.directionU;
+    const dirI = this.ext1in_maincomp.directionI;
+    if (dirI === 0) {
+      this.ext1in_pinID = 1;
+      this.ext1in_pinID_opposite = 0;
+    } else {
+      this.ext1in_pinID = 0;
+      this.ext1in_pinID_opposite = 1;
     }
-  }
-  everyKnotenHas2CoMin_function(circuit) {
-    circuit.components.forEach(kn => {
-      if (this.isSimpleKnoten(kn)) {
-        if (circuit.getCountConnection(kn) === 1) {
-          const tempComp = this.getNeighborFor1Co(circuit, kn);
-          if (this.isSimpleKnoten(tempComp)) {
-            circuit.deleteOneComponent(kn);
-          }
-        } else if (circuit.getCountConnection(kn) === 0) {
-          circuit.deleteOneComponent(kn);
-        }
-      }
-    });
-  }
-  everyKnotenHas2CoMin_control(circuit) {
-    for (let kn of circuit.components) {
-      if (this.isSimpleKnoten(kn)) {
-        if (circuit.getCountConnection(kn) === 1) {
-          const tempComp = this.getNeighborFor1Co(circuit, kn);
-          if (this.isSimpleKnoten(tempComp)) {
-            return false;
-          }
-        } else if (circuit.getCountConnection(kn) === 0) {
-          return false;
-        }
-      }
-    }
-  }
-  getNeighborFor1Co(circuit, comp) {
-    let compToReturn;
     for (let wire of circuit.wires) {
-      var compFrom = circuit.componentFromPin(wire.from);
-      var compTo = circuit.componentFromPin(wire.to);
-      if (comp === compFrom) {
-        compToReturn = compTo;
+      const compFrom = circuit.componentFromPin(wire.from);
+      const compTo = circuit.componentFromPin(wire.to);
+      if (
+        this.ext1in_maincomp.uniqueID === compFrom.uniqueID &&
+        this.ext1in_pinID ===
+          circuit.pinIndexFromComponent(this.ext1in_maincomp, wire.from)
+      ) {
+        this.ext1out_comp = compTo;
+        this.ext1out_pinID = circuit.pinIndexFromComponent(compTo, wire.to);
+        this.findR_middleConversion(circuit, valueIq, dirI, dirU);
       }
-      if (comp === compTo) {
-        compToReturn = compFrom;
+      if (
+        this.ext1in_maincomp.uniqueID === compTo.uniqueID &&
+        this.ext1in_pinID ===
+          circuit.pinIndexFromComponent(this.ext1in_maincomp, wire.to)
+      ) {
+        this.ext1out_comp = compFrom;
+        this.ext1out_pinID = circuit.pinIndexFromComponent(compFrom, wire.from);
+        this.findR_middleConversion(circuit, valueIq, dirI, dirU);
       }
     }
-    return compToReturn;
   }
-  isSimpleKnoten(comp) {
-    return comp instanceof KnotenJS && comp.valuePotentialSource === undefined;
+
+  findR_middleConversion(circuit, valueIq, dirI, dirU) {
+    circuit.wires.forEach((wire2, index) => {
+      const compFrom2 = circuit.componentFromPin(wire2.from);
+      const compTo2 = circuit.componentFromPin(wire2.to);
+      let pinRtoHold;
+      if (this.ext1out_comp === compFrom2 && this.rComp === compTo2) {
+        pinRtoHold = circuit.pinIndexFromComponent(this.rComp, wire2.to);
+        this.terminateTheConversion(
+          circuit,
+          wire2,
+          index,
+          valueIq,
+          dirI,
+          dirU,
+          pinRtoHold
+        );
+      }
+      if (this.ext1out_comp === compTo2 && this.rComp === compFrom2) {
+        pinRtoHold = circuit.pinIndexFromComponent(this.rComp, wire2.from);
+        this.terminateTheConversion(
+          circuit,
+          wire2,
+          index,
+          valueIq,
+          dirI,
+          dirU,
+          pinRtoHold
+        );
+      }
+    });
+  }
+
+  terminateTheConversion(
+    circuit,
+    wire2,
+    index,
+    valueIq,
+    dirI,
+    dirU,
+    pinRtoHold
+  ) {
+    circuit.deleteOneWire(wire2, index);
+    circuit.deleteOneComponent(this.ext1in_maincomp);
+    this.rComp.selected = false;
+    let vsrc = dropComp({
+      c_id: 'VoltageSource',
+      valueLeft: this.ext1in_maincomp.x + centerX2PinsComp,
+      valueTop: this.ext1in_maincomp.y + centerY2PinsComp
+    });
+    dirU === 0 ? (vsrc.directionU = 0) : (vsrc.directionU = 1);
+    dirI === 0 ? (vsrc.directionI = 0) : (vsrc.directionI = 1);
+    vsrc.valueU = valueIq * this.rComp.valueR;
+    circuit.components.push(vsrc);
+    circuit.createOneWire(
+      circuit,
+      vsrc,
+      this.ext1in_pinID,
+      this.ext1out_comp,
+      this.ext1out_pinID
+    );
+    circuit.createOneWire(
+      circuit,
+      vsrc,
+      this.ext1in_pinID_opposite,
+      this.rComp,
+      pinRtoHold
+    );
   }
 }

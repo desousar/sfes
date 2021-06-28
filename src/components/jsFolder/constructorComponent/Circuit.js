@@ -143,6 +143,26 @@ export default class Circuit {
     });
   }
 
+  createOneWire(circuit, compA, compAPinId, compB, compBPinId) {
+    const wire = new Wire({
+      from: compA.pins[compAPinId],
+      to: compB.pins[compBPinId]
+    });
+    if (compA.isMultiPin === false) {
+      if (compAPinId === 0) {
+        compA.showPin1 = false;
+      } else if (compAPinId === 1) {
+        compA.showPin2 = false;
+      }
+    }
+    if (compBPinId === 0) {
+      compB.showPin1 = false;
+    } else if (compBPinId === 1) {
+      compB.showPin2 = false;
+    }
+    circuit.wires.push(wire);
+  }
+
   /**
    * @returns a deep project on which we can work (add/remove comp) without to change original circuit
    */

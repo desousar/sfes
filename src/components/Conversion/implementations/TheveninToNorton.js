@@ -1,7 +1,11 @@
 import KnotenJS from '../../jsFolder/constructorComponent/jsComponents/Knoten';
 import ResistorJS from '../../jsFolder/constructorComponent/jsComponents/Resistor';
 import VoltageSrcJS from '../../jsFolder/constructorComponent/jsComponents/VoltageSource';
-import WireJS from '../../jsFolder/constructorComponent/Wire.js';
+
+import {
+  centerX2PinsComp,
+  centerY2PinsComp
+} from '../../jsFolder/constructorComponent/Component';
 
 import { dropComp } from '../../jsFolder/dropComponent';
 
@@ -60,9 +64,11 @@ export default class TheveninToNorton {
     selectedComp_array.forEach(comp => {
       if (comp instanceof ResistorJS) {
         oneResistor = true;
+        this.rComp = comp;
       }
       if (comp instanceof VoltageSrcJS) {
         oneVoltageSrc = true;
+        this.ext1in_maincomp = comp;
       }
     });
     return oneResistor && oneVoltageSrc;
@@ -70,13 +76,6 @@ export default class TheveninToNorton {
 
   isInSerie(onReal, selectedComp_array, circuit) {
     circuit.components.map(comp => (comp.flagConversion = false));
-    for (let c of selectedComp_array) {
-      if (c instanceof VoltageSrcJS) {
-        this.ext1in_maincomp = c;
-      } else {
-        this.rComp = c;
-      }
-    }
     this.ext1in_maincomp.flagConversion = true;
     console.log(this.ext1in_maincomp.symbol, 'fflagConversion = true');
     circuit.wires.forEach(w => {
@@ -259,8 +258,8 @@ export default class TheveninToNorton {
 
     let csrc = dropComp({
       c_id: 'CurrentSource',
-      valueLeft: this.ext1in_maincomp.x,
-      valueTop: this.ext1in_maincomp.y
+      valueLeft: this.ext1in_maincomp.x + centerX2PinsComp,
+      valueTop: this.ext1in_maincomp.y + centerY2PinsComp
     });
     dirU === 0 ? (csrc.directionU = 0) : (csrc.directionU = 1);
     dirI === 0 ? (csrc.directionI = 0) : (csrc.directionI = 1);
@@ -279,39 +278,31 @@ export default class TheveninToNorton {
       valueTop: this.ext1in_maincomp.pins[1].y + 20
     });
     circuit.components.push(kn2);
-    this.create1Wire(circuit, csrc, this.ext1in_pinID, kn1, 0);
-    this.create1Wire(circuit, csrc, this.ext1in_pinID_opposite, kn2, 0);
+    circuit.createOneWire(circuit, csrc, this.ext1in_pinID, kn1, 0);
+    circuit.createOneWire(circuit, csrc, this.ext1in_pinID_opposite, kn2, 0);
 
-    this.create1Wire(circuit, this.rComp, 0, kn1, 0);
-    this.create1Wire(circuit, this.rComp, 1, kn2, 0);
+    circuit.createOneWire(circuit, this.rComp, 0, kn1, 0);
+    circuit.createOneWire(circuit, this.rComp, 1, kn2, 0);
 
     if (this.ext1out_comp) {
       //same Knoten as (csrc, this.ext1in_pinID)
-      this.create1Wire(circuit, this.ext1out_comp, this.ext1out_pinID, kn1, 0);
+      circuit.createOneWire(
+        circuit,
+        this.ext1out_comp,
+        this.ext1out_pinID,
+        kn1,
+        0
+      );
     }
     if (this.ext2out_comp) {
       //same Knoten as (csrc, this.ext1in_pinID_opposite)
-      this.create1Wire(circuit, this.ext2out_comp, this.ext2out_pinID, kn2, 0);
+      circuit.createOneWire(
+        circuit,
+        this.ext2out_comp,
+        this.ext2out_pinID,
+        kn2,
+        0
+      );
     }
-  }
-
-  create1Wire(circuit, extremity, extPinId, newR, newRPinId) {
-    const wire = new WireJS({
-      from: extremity.pins[extPinId],
-      to: newR.pins[newRPinId]
-    });
-    if (extremity.isMultiPin === false) {
-      if (extPinId === 0) {
-        extremity.showPin1 = false;
-      } else if (extPinId === 1) {
-        extremity.showPin2 = false;
-      }
-    }
-    if (newRPinId === 0) {
-      newR.showPin1 = false;
-    } else if (newRPinId === 1) {
-      newR.showPin2 = false;
-    }
-    circuit.wires.push(wire);
   }
 }

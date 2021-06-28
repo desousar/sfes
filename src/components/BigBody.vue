@@ -215,6 +215,9 @@
         <li v-if="theveninToNorton_data" @click="theveninToNorton_function">
           Thevenin to Norton
         </li>
+        <li v-if="nortonToThevenin_data" @click="nortonToThevenin_function">
+          Norton to Thevenin
+        </li>
       </ul>
     </div>
   </div>
@@ -248,6 +251,7 @@ import { hasMainVal } from './Conversion/util/hasMainValue';
 import MultipleRinSerie from './Conversion/implementations/MultipleRinSerie.js';
 import MultipleRinParallel from './Conversion/implementations/MultipleRinParallel.js';
 import TheveninToNorton from './Conversion/implementations/TheveninToNorton.js';
+import NortonToThevenin from './Conversion/implementations/NortonToThevenin.js';
 
 function srcPath(file) {
   return './image/components/' + file;
@@ -363,7 +367,8 @@ export default {
       left: '0px',
       multipleRinSerie_data: false,
       multipleRinParallel_data: false,
-      theveninToNorton_data: false
+      theveninToNorton_data: false,
+      nortonToThevenin_data: false
     };
   },
   methods: {
@@ -428,6 +433,10 @@ export default {
 
     closeMenu: function() {
       this.viewMenu = false;
+      (this.multipleRinSerie_data = false),
+        (this.multipleRinParallel_data = false),
+        (this.theveninToNorton_data = false),
+        (this.nortonToThevenin_data = false);
     },
 
     openMenu: function(e) {
@@ -444,6 +453,7 @@ export default {
         this.multipleRinSerie_openMenu(selectedComp);
         this.multipleRinParallel_openMenu(selectedComp);
         this.theveninToNorton_openMenu(selectedComp);
+        this.nortonToThevenin_openMenu(selectedComp);
       }
     },
     multipleRinSerie_openMenu: function(selectedComp) {
@@ -469,6 +479,14 @@ export default {
         this.circuit
       );
     },
+    nortonToThevenin_openMenu(selectedComp) {
+      let nortonToThevenin = new NortonToThevenin();
+      this.nortonToThevenin_data = nortonToThevenin.isPossible(
+        false,
+        selectedComp,
+        this.circuit
+      );
+    },
 
     multipleRinSerie_function: function() {
       let multiRinSerie = new MultipleRinSerie();
@@ -483,6 +501,7 @@ export default {
       );
       this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
       this.closeMenu();
+
       this.save();
     },
     multipleRinParallel_function: function() {
@@ -500,6 +519,18 @@ export default {
         this.circuit
       );
       theveninToNorton.conversion(this.circuit);
+      this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
+      this.closeMenu();
+      this.save();
+    },
+    nortonToThevenin_function() {
+      let nortonToThevenin = new NortonToThevenin();
+      nortonToThevenin.isPossible(
+        true,
+        this.circuit.getSelectedComponents(),
+        this.circuit
+      );
+      nortonToThevenin.conversion(this.circuit);
       this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
       this.closeMenu();
       this.save();

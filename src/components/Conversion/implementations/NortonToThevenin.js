@@ -81,7 +81,7 @@ export default class TheveninToNorton {
 
     // First Test: the selected components have the 2 neighbors and they are Knoten
     // WARNING can't interrupt a ForEach loop with return => use for loop
-    let bool_data1 = this.is2MultiPinNeighbors(circuit, selectedComp_array);
+    let bool_data1 = this.is2MultiPinNeighbors(circuit, false);
     if (!bool_data1) {
       return false;
     }
@@ -92,41 +92,30 @@ export default class TheveninToNorton {
     for (let w of circuit.wires) {
       const fromComp = circuit.componentFromPin(w.from);
       const toComp = circuit.componentFromPin(w.to);
-      if (firstComp === fromComp) {
+      if (firstComp.uniqueID === fromComp.uniqueID) {
         // check "path" based on 1st pin
-        const result = this.fusionNeighborsKnoten(
-          circuit,
-          selectedComp_array,
-          fromComp,
-          toComp,
-          0
-        );
+        const result = this.fusionNeighborsKnoten(circuit, fromComp, toComp, 0);
         if (!result) {
           return false;
         }
       }
-      if (firstComp === toComp) {
+      if (firstComp.uniqueID === toComp.uniqueID) {
         // check "path" based on 2nd pin
-        const result = this.fusionNeighborsKnoten(
-          circuit,
-          selectedComp_array,
-          toComp,
-          fromComp,
-          1
-        );
+        const result = this.fusionNeighborsKnoten(circuit, toComp, fromComp, 1);
         if (!result) {
           return false;
         }
       }
     }
-    let bool_data2 = this.is2MultiPinNeighbors(circuit, selectedComp_array);
+    let bool_data2 = this.is2MultiPinNeighbors(circuit, true);
     if (!bool_data2) {
       return false;
     }
     return true;
   }
 
-  is2MultiPinNeighbors(circuit, selArray) {
+  is2MultiPinNeighbors(circuit, same) {
+    let selArray = circuit.getSelectedComponents();
     for (let comp of selArray) {
       comp.find = [];
       console.log('comp under test', comp.symbol);
@@ -153,11 +142,25 @@ export default class TheveninToNorton {
         }
       }
     }
+    const firstTemp = selArray.splice(0, 1);
+    const knTemp1uniqueID = firstTemp.find[0];
+    const knTemp2uniqueID = firstTemp.find[1];
     for (let comp of selArray) {
       if (comp.find.length !== 2 || comp.find[0] === comp.find[1]) {
         console.log('Problem With Connection', comp.symbol);
         comp.find = undefined;
         return false;
+      }
+      if (same) {
+        if (
+          (comp.find[0] === knTemp1uniqueID &&
+            comp.find[1] === knTemp2uniqueID) ||
+          (comp.find[0] === knTemp2uniqueID && comp.find[1] === knTemp1uniqueID)
+        ) {
+          console.log('Not same Knoten', comp.symbol);
+          comp.find = undefined;
+          return false;
+        }
       }
       comp.find = undefined;
     }
@@ -172,11 +175,11 @@ export default class TheveninToNorton {
      |     |
      L-----kn----kl
      */
-  fusionNeighborsKnoten(circuit, selArray, origin, destination, compStorageID) {
+  fusionNeighborsKnoten(circuit, origin, destination, compStorageID) {
+    let selArray = circuit.getSelectedComponents();
     let localKnoten = [];
     console.log('find', origin.symbol, destination.isMultiPin);
     const r = this.nextNeighbor(circuit, origin, destination, compStorageID);
-
     if (r === false) {
       return false;
     }
@@ -216,7 +219,7 @@ export default class TheveninToNorton {
         const compFrom = circuit.componentFromPin(wire.from);
         const compTo = circuit.componentFromPin(wire.to);
         if (
-          lk === compFrom &&
+          lk.uniqueID === compFrom.uniqueID &&
           (!(compTo instanceof KnotenJS) ||
             compTo.valuePotentialSource !== undefined) &&
           this.isNotConnectedTogether(compTo, keepAlive, circuit)
@@ -224,7 +227,7 @@ export default class TheveninToNorton {
           wire.from = keepAlive.pins[0];
         }
         if (
-          lk === compTo &&
+          lk.uniqueID === compTo.uniqueID &&
           (!(compFrom instanceof KnotenJS) ||
             compFrom.valuePotentialSource !== undefined) &&
           this.isNotConnectedTogether(compFrom, keepAlive, circuit)
@@ -245,8 +248,8 @@ export default class TheveninToNorton {
       var compFrom = circuit.componentFromPin(wire.from);
       var compTo = circuit.componentFromPin(wire.to);
       if (
-        (a === compFrom && b === compTo) ||
-        (a === compTo && b === compFrom)
+        (a.uniqueID === compFrom.uniqueID && b.uniqueID === compTo.uniqueID) ||
+        (a.uniqueID === compTo.uniqueID && b.uniqueID === compFrom.uniqueID)
       ) {
         return false;
       }
@@ -259,10 +262,16 @@ export default class TheveninToNorton {
     for (let wire of circuit.wires) {
       var compFrom = circuit.componentFromPin(wire.from);
       var compTo = circuit.componentFromPin(wire.to);
-      if (comp === compFrom && (compTo.visited || compTo.flagConversion)) {
+      if (
+        comp.uniqueID === compFrom.uniqueID &&
+        (compTo.visited || compTo.flagConversion)
+      ) {
         count++;
       }
-      if (comp === compTo && (compFrom.visited || compFrom.flagConversion)) {
+      if (
+        comp.uniqueID === compTo.uniqueID &&
+        (compFrom.visited || compFrom.flagConversion)
+      ) {
         count++;
       }
     }
@@ -296,7 +305,7 @@ export default class TheveninToNorton {
     for (let wire of circuit.wires) {
       const compFrom = circuit.componentFromPin(wire.from);
       const compTo = circuit.componentFromPin(wire.to);
-      if (comp === compFrom) {
+      if (comp.uniqueID === compFrom.uniqueID) {
         console.log('ENTER 10 find:', compTo.symbol);
         if (
           (compTo instanceof KnotenJS ||
@@ -312,7 +321,7 @@ export default class TheveninToNorton {
           console.log('SELARRAY10 contains', compTo.symbol);
           compTo.flagConversion = true;
         }
-      } else if (comp === compTo) {
+      } else if (comp.uniqueID === compTo.uniqueID) {
         console.log('ENTER 20 find:', compFrom.symbol);
         if (
           (compFrom instanceof KnotenJS ||
@@ -330,6 +339,7 @@ export default class TheveninToNorton {
         }
       }
     }
+    return true;
   }
 
   conversion(circuit) {
@@ -373,7 +383,10 @@ export default class TheveninToNorton {
       const compFrom2 = circuit.componentFromPin(wire2.from);
       const compTo2 = circuit.componentFromPin(wire2.to);
       let pinRtoHold;
-      if (this.ext1out_comp === compFrom2 && this.rComp === compTo2) {
+      if (
+        this.ext1out_comp.uniqueID === compFrom2.uniqueID &&
+        this.rComp.uniqueID === compTo2.uniqueID
+      ) {
         pinRtoHold = circuit.pinIndexFromComponent(this.rComp, wire2.to);
         this.terminateTheConversion(
           circuit,
@@ -385,7 +398,10 @@ export default class TheveninToNorton {
           pinRtoHold
         );
       }
-      if (this.ext1out_comp === compTo2 && this.rComp === compFrom2) {
+      if (
+        this.ext1out_comp.uniqueID === compTo2.uniqueID &&
+        this.rComp.uniqueID === compFrom2.uniqueID
+      ) {
         pinRtoHold = circuit.pinIndexFromComponent(this.rComp, wire2.from);
         this.terminateTheConversion(
           circuit,

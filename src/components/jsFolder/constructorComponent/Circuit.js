@@ -77,7 +77,7 @@ export default class Circuit {
   deleteOneComponent(componentToDelete) {
     let index = undefined; // used for graphical
     this.components.forEach((comp, i) => {
-      if (componentToDelete === comp) {
+      if (componentToDelete.uniqueID === comp.uniqueID) {
         index = i;
       }
     });
@@ -91,12 +91,12 @@ export default class Circuit {
       const fromPin = this.pinIndexFromComponent(fromComp, wireUnderTest.from);
       const toComp = this.componentFromPin(wireUnderTest.to);
       const toPin = this.pinIndexFromComponent(toComp, wireUnderTest.to);
-      if (componentToDelete === fromComp) {
+      if (componentToDelete.uniqueID === fromComp.uniqueID) {
         if (toComp.isMultiPin === false) {
           toPin === 0 ? (toComp.showPin1 = true) : (toComp.showPin2 = true);
         }
         this.wires.splice(wireIndex, 1);
-      } else if (componentToDelete === toComp) {
+      } else if (componentToDelete.uniqueID === toComp.uniqueID) {
         if (fromComp.isMultiPin === false) {
           fromPin === 0
             ? (fromComp.showPin1 = true)
@@ -123,13 +123,13 @@ export default class Circuit {
       const fromPinNB = this.pinIndexFromComponent(fromComp, wireToDelete.from);
       const toComp = this.componentFromPin(wireToDelete.to);
       const toPinNB = this.pinIndexFromComponent(toComp, wireToDelete.to);
-      if (fromComp === compUnderTest) {
+      if (fromComp.uniqueID === compUnderTest.uniqueID) {
         if (compUnderTest.isMultiPin === false) {
           fromPinNB === 0
             ? (compUnderTest.showPin1 = true)
             : (compUnderTest.showPin2 = true);
         }
-      } else if (toComp === compUnderTest) {
+      } else if (toComp.uniqueID === compUnderTest.uniqueID) {
         if (compUnderTest.isMultiPin === false) {
           toPinNB === 0
             ? (compUnderTest.showPin1 = true)
@@ -241,7 +241,7 @@ export default class Circuit {
         const pinFrom = this.pinIndexFromComponent(compFrom, wire.from);
         const compTo = this.componentFromPin(wire.to);
         const pinTo = this.pinIndexFromComponent(compTo, wire.to);
-        if (comp === compFrom && !comp.isMultiPin) {
+        if (comp.uniqueID === compFrom.uniqueID && !comp.isMultiPin) {
           if (!compTo.isMultiPin) {
             //add a Knoten
             let index = this.wires.indexOf(wire);
@@ -269,7 +269,7 @@ export default class Circuit {
             this.wires.push(wSTEP21, wSTEP22);
           }
         }
-        if (comp === compTo && !comp.isMultiPin) {
+        if (comp.uniqueID === compTo.uniqueID && !comp.isMultiPin) {
           if (!compFrom.isMultiPin) {
             //add a Knoten
             let index = this.wires.indexOf(wire);
@@ -510,7 +510,10 @@ export default class Circuit {
     for (let wire of this.wires) {
       var compFrom = this.componentFromPin(wire.from);
       var compTo = this.componentFromPin(wire.to);
-      if (comp === compFrom || comp === compTo) {
+      if (
+        comp.uniqueID === compFrom.uniqueID ||
+        comp.uniqueID === compTo.uniqueID
+      ) {
         count++;
       }
     }
@@ -556,7 +559,8 @@ export default class Circuit {
             const compTo = this.componentFromPinInSubC(wire.to, i);
             if (compFrom !== undefined && compTo !== undefined) {
               if (
-                (comp === compFrom || comp === compTo) &&
+                (comp.uniqueID === compFrom.uniqueID ||
+                  comp.uniqueID === compTo.uniqueID) &&
                 compFrom.isMultiPin &&
                 compTo.isMultiPin
               ) {
@@ -689,7 +693,7 @@ export default class Circuit {
         for (let wire of this.wires) {
           const compFrom = this.componentFromPinInSubC(wire.from, nb);
           const compTo = this.componentFromPinInSubC(wire.to, nb);
-          if (comp === compFrom) {
+          if (comp.uniqueID === compFrom.uniqueID) {
             const pinTo = this.pinIndexFromComponent(compTo, wire.to);
             let indexI = compTo.addValueIinListModelANDgetIndex(
               this.listModel,
@@ -709,7 +713,7 @@ export default class Circuit {
               }
             }
           }
-          if (comp === compTo) {
+          if (comp.uniqueID === compTo.uniqueID) {
             const pinFrom = this.pinIndexFromComponent(compFrom, wire.from);
             let indexI = compFrom.addValueIinListModelANDgetIndex(
               this.listModel,
@@ -772,7 +776,7 @@ export default class Circuit {
           for (let wire of this.wires) {
             const compFrom = this.componentFromPinInSubC(wire.from, nb);
             const compTo = this.componentFromPinInSubC(wire.to, nb);
-            if (comp === compFrom) {
+            if (comp.uniqueID === compFrom.uniqueID) {
               let indexPHI = compTo.addValuePHIinListModelANDgetIndex(
                 this.listModel,
                 nb
@@ -793,7 +797,7 @@ export default class Circuit {
                 }
               }
             }
-            if (comp === compTo) {
+            if (comp.uniqueID === compTo.uniqueID) {
               let indexPHI = compFrom.addValuePHIinListModelANDgetIndex(
                 this.listModel,
                 nb

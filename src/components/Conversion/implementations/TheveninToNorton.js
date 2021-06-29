@@ -81,7 +81,7 @@ export default class TheveninToNorton {
     circuit.wires.forEach(w => {
       const fromComp = circuit.componentFromPin(w.from);
       const toComp = circuit.componentFromPin(w.to);
-      if (this.ext1in_maincomp === fromComp) {
+      if (this.ext1in_maincomp.uniqueID === fromComp.uniqueID) {
         console.log('find', this.ext1in_maincomp.symbol, 'on fromComp');
         console.log(
           'nbPin',
@@ -93,7 +93,7 @@ export default class TheveninToNorton {
         );
         this.nextNeighbor(circuit, fromComp, toComp);
       }
-      if (this.ext1in_maincomp === toComp) {
+      if (this.ext1in_maincomp.uniqueID === toComp.uniqueID) {
         console.log('find', this.ext1in_maincomp.symbol, 'on toComp');
         console.log(
           'nbPin',
@@ -122,14 +122,14 @@ export default class TheveninToNorton {
     for (let wire of circuit.wires) {
       const compFrom = circuit.componentFromPin(wire.from);
       const compTo = circuit.componentFromPin(wire.to);
-      if (comp === compFrom) {
+      if (comp.uniqueID === compFrom.uniqueID) {
         console.log('ENTER 10:', compTo.symbol);
         if (compTo.flagConversion !== true) {
           this.nextNeighbor(circuit, compFrom, compTo);
         } else {
           console.log('finish10');
         }
-      } else if (comp === compTo) {
+      } else if (comp.uniqueID === compTo.uniqueID) {
         console.log('ENTER 20:', compFrom.symbol);
         if (compFrom.flagConversion !== true) {
           this.nextNeighbor(circuit, compTo, compFrom);
@@ -143,10 +143,10 @@ export default class TheveninToNorton {
     for (let wire of circuit.wires) {
       const compFrom = circuit.componentFromPin(wire.from);
       const compTo = circuit.componentFromPin(wire.to);
-      if (comp === compFrom && compTo !== origin) {
+      if (comp.uniqueID === compFrom.uniqueID && compTo !== origin) {
         return compTo;
       }
-      if (comp === compTo && compFrom !== origin) {
+      if (comp.uniqueID === compTo.uniqueID && compFrom !== origin) {
         return compFrom;
       }
     }
@@ -186,9 +186,12 @@ export default class TheveninToNorton {
       for (let wire of circuit.wires) {
         const compFrom = circuit.componentFromPin(wire.from);
         const compTo = circuit.componentFromPin(wire.to);
-        if (comp === compFrom && destination === compTo) {
+        if (comp.uniqueID === compFrom.uniqueID && destination === compTo) {
           pinID = circuit.pinIndexFromComponent(destination, wire.to);
-        } else if (comp === compTo && destination === compFrom) {
+        } else if (
+          comp.uniqueID === compTo.uniqueID &&
+          destination === compFrom
+        ) {
           pinID = circuit.pinIndexFromComponent(destination, wire.from);
         }
       }
@@ -212,14 +215,14 @@ export default class TheveninToNorton {
         const compFrom = circuit.componentFromPin(wire.from);
         const compTo = circuit.componentFromPin(wire.to);
         if (
-          this.ext1in_maincomp === compFrom &&
+          this.ext1in_maincomp.uniqueID === compFrom.uniqueID &&
           circuit.pinIndexFromComponent(this.ext1in_maincomp, wire.from) ===
             this.ext1in_pinID_start
         ) {
           pinID = circuit.pinIndexFromComponent(compTo, wire.to);
           extremity = compTo;
         } else if (
-          this.ext1in_maincomp === compTo &&
+          this.ext1in_maincomp.uniqueID === compTo.uniqueID &&
           circuit.pinIndexFromComponent(this.ext1in_maincomp, wire.to) ===
             this.ext1in_pinID_start
         ) {
@@ -250,7 +253,10 @@ export default class TheveninToNorton {
     circuit.wires.forEach((wire, index) => {
       const compFrom = circuit.componentFromPin(wire.from);
       const compTo = circuit.componentFromPin(wire.to);
-      if (this.rComp === compFrom || this.rComp === compTo) {
+      if (
+        this.rComp.uniqueID === compFrom.uniqueID ||
+        this.rComp.uniqueID === compTo.uniqueID
+      ) {
         circuit.deleteOneWire(wire, index);
       }
     });

@@ -52,11 +52,11 @@ export default class MultipleRinSerie {
     circuit.wires.forEach(w => {
       const fromComp = circuit.componentFromPin(w.from);
       const toComp = circuit.componentFromPin(w.to);
-      if (firstComp === fromComp) {
+      if (firstComp.uniqueID === fromComp.uniqueID) {
         console.log('find', firstComp.symbol, 'on fromComp');
         this.nextNeighbor(circuit, fromComp, toComp);
       }
-      if (firstComp === toComp) {
+      if (firstComp.uniqueID === toComp.uniqueID) {
         console.log('find', firstComp.symbol, 'on toComp');
         this.nextNeighbor(circuit, toComp, fromComp);
       }
@@ -76,12 +76,12 @@ export default class MultipleRinSerie {
     for (let wire of circuit.wires) {
       const compFrom = circuit.componentFromPin(wire.from);
       const compTo = circuit.componentFromPin(wire.to);
-      if (comp === compFrom) {
+      if (comp.uniqueID === compFrom.uniqueID) {
         console.log('ENTER 10:', compTo.symbol);
         if (compTo.flagConversion !== true) {
           this.nextNeighbor(circuit, compFrom, compTo);
         }
-      } else if (comp === compTo) {
+      } else if (comp.uniqueID === compTo.uniqueID) {
         console.log('ENTER 20:', compFrom.symbol);
         if (compFrom.flagConversion !== true) {
           this.nextNeighbor(circuit, compTo, compFrom);
@@ -114,9 +114,15 @@ export default class MultipleRinSerie {
       for (let wire of circuit.wires) {
         const compFrom = circuit.componentFromPin(wire.from);
         const compTo = circuit.componentFromPin(wire.to);
-        if (origin === compFrom && comp === compTo) {
+        if (
+          origin.uniqueID === compFrom.uniqueID &&
+          comp.uniqueID === compTo.uniqueID
+        ) {
           pinID = circuit.pinIndexFromComponent(comp, wire.to);
-        } else if (origin === compTo && comp === compFrom) {
+        } else if (
+          origin.uniqueID === compTo.uniqueID &&
+          comp.uniqueID === compFrom.uniqueID
+        ) {
           pinID = circuit.pinIndexFromComponent(comp, wire.from);
         }
       }
@@ -155,7 +161,10 @@ export default class MultipleRinSerie {
     circuit.wires.forEach((wire, index) => {
       const compFrom = circuit.componentFromPin(wire.from);
       const compTo = circuit.componentFromPin(wire.to);
-      if (keepRAlive === compFrom || keepRAlive === compTo) {
+      if (
+        keepRAlive.uniqueID === compFrom.uniqueID ||
+        keepRAlive.uniqueID === compTo.uniqueID
+      ) {
         circuit.deleteOneWire(wire, index);
       }
     });

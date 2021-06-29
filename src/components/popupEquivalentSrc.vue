@@ -180,15 +180,23 @@ export default {
     },
     assert2DifferentsKlemmen() {
       this.resultBool_data = false;
-      if (this.firstKlemme === this.secondKlemme) {
-        this.warningBool_data = true;
-        this.warning_data =
-          'Warning: the 2 selected terminals must be different';
-      } else {
-        this.warningBool_data = false;
+      if (this.firstKlemme !== undefined && this.secondKlemme !== undefined) {
+        if (this.firstKlemme.uniqueID === this.secondKlemme.uniqueID) {
+          this.warningBool_data = true;
+          this.warning_data =
+            'Warning: the 2 selected terminals must be different';
+        } else {
+          this.warningBool_data = false;
+        }
       }
     },
     calcule() {
+      if (this.firstKlemme === undefined || this.secondKlemme === undefined) {
+        this.warningBool_data = true;
+        this.warning_data =
+          'Warning: the 2 selected terminals must be selected and be different';
+        return;
+      }
       if (this.firstKlemme !== this.secondKlemme) {
         this.solveSimple = undefined;
         this.solveIqe = undefined;

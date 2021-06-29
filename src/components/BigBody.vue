@@ -145,6 +145,7 @@
             :y1="wire.from.y"
             :y2="wire.to.y"
             @click="selectedWire(wire)"
+            @drop.stop="dropOnWire($event, wire)"
           />
         </template>
       </svg>
@@ -612,6 +613,7 @@ export default {
 
         this.circuit.components.push(c);
         this.save();
+        return c;
       }
     },
     /**
@@ -812,6 +814,14 @@ export default {
           }
         });
       }
+    },
+    dropOnWire(e, wire) {
+      const c_id = e.dataTransfer.getData('c_id');
+      console.log('Drop on Wire', wire, 'for', c_id);
+      const comp = this.drop(e);
+      console.log(comp);
+      //find line => do like in selectedWire and remove it
+      //this.circuit.createOneWire(circuit, compA, compAPinId, compB, compBPinId)
     },
     drawWire: function() {
       let wire = new WireJS({

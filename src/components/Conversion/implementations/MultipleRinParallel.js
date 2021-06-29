@@ -54,7 +54,7 @@ export default class MultipleRinParallel {
     for (let w of circuit.wires) {
       const fromComp = circuit.componentFromPin(w.from);
       const toComp = circuit.componentFromPin(w.to);
-      if (firstComp === fromComp) {
+      if (firstComp.uniqueID === fromComp.uniqueID) {
         // check "path" based on 1st pin
         const result = this.fusionNeighborsKnoten(
           circuit,
@@ -67,7 +67,7 @@ export default class MultipleRinParallel {
           return false;
         }
       }
-      if (firstComp === toComp) {
+      if (firstComp.uniqueID === toComp.uniqueID) {
         // check "path" based on 2nd pin
         const result = this.fusionNeighborsKnoten(
           circuit,
@@ -95,7 +95,7 @@ export default class MultipleRinParallel {
       for (let w of circuit.wires) {
         const fromComp = circuit.componentFromPin(w.from);
         const toComp = circuit.componentFromPin(w.to);
-        if (comp === fromComp) {
+        if (comp.uniqueID === fromComp.uniqueID) {
           console.log('find1', comp.symbol);
           if (!toComp.isMultiPin) {
             console.log('STOP1');
@@ -104,7 +104,7 @@ export default class MultipleRinParallel {
             comp.find.push(toComp.uniqueID);
           }
         }
-        if (comp === toComp) {
+        if (comp.uniqueID === toComp.uniqueID) {
           console.log('find2', comp.symbol);
           if (!fromComp.isMultiPin) {
             console.log('STOP2');
@@ -131,10 +131,16 @@ export default class MultipleRinParallel {
     for (let wire of circuit.wires) {
       var compFrom = circuit.componentFromPin(wire.from);
       var compTo = circuit.componentFromPin(wire.to);
-      if (comp === compFrom && (compTo.visited || compTo.flagConversion)) {
+      if (
+        comp.uniqueID === compFrom.uniqueID &&
+        (compTo.visited || compTo.flagConversion)
+      ) {
         count++;
       }
-      if (comp === compTo && (compFrom.visited || compFrom.flagConversion)) {
+      if (
+        comp.uniqueID === compTo.uniqueID &&
+        (compFrom.visited || compFrom.flagConversion)
+      ) {
         count++;
       }
     }
@@ -185,7 +191,7 @@ export default class MultipleRinParallel {
         const compFrom = circuit.componentFromPin(wire.from);
         const compTo = circuit.componentFromPin(wire.to);
         if (
-          lk === compFrom &&
+          lk.uniqueID === compFrom.uniqueID &&
           (!(compTo instanceof KnotenJS) ||
             compTo.valuePotentialSource !== undefined) &&
           this.isNotConnectedTogether(compTo, keepAlive, circuit)
@@ -193,7 +199,7 @@ export default class MultipleRinParallel {
           wire.from = keepAlive.pins[0];
         }
         if (
-          lk === compTo &&
+          lk.uniqueID === compTo.uniqueID &&
           (!(compFrom instanceof KnotenJS) ||
             compFrom.valuePotentialSource !== undefined) &&
           this.isNotConnectedTogether(compFrom, keepAlive, circuit)
@@ -214,8 +220,8 @@ export default class MultipleRinParallel {
       var compFrom = circuit.componentFromPin(wire.from);
       var compTo = circuit.componentFromPin(wire.to);
       if (
-        (a === compFrom && b === compTo) ||
-        (a === compTo && b === compFrom)
+        (a.uniqueID === compFrom.uniqueID && b.uniqueID === compTo.uniqueID) ||
+        (a.uniqueID === compTo.uniqueID && b.uniqueID === compFrom.uniqueID)
       ) {
         return false;
       }
@@ -250,7 +256,7 @@ export default class MultipleRinParallel {
     for (let wire of circuit.wires) {
       const compFrom = circuit.componentFromPin(wire.from);
       const compTo = circuit.componentFromPin(wire.to);
-      if (comp === compFrom) {
+      if (comp.uniqueID === compFrom.uniqueID) {
         console.log('ENTER 10 find:', compTo.symbol);
         if (
           (compTo instanceof KnotenJS ||
@@ -266,7 +272,7 @@ export default class MultipleRinParallel {
           console.log('SELARRAY10 contains', compTo.symbol);
           compTo.flagConversion = true;
         }
-      } else if (comp === compTo) {
+      } else if (comp.uniqueID === compTo.uniqueID) {
         console.log('ENTER 20 find:', compFrom.symbol);
         if (
           (compFrom instanceof KnotenJS ||
@@ -343,10 +349,10 @@ export default class MultipleRinParallel {
     for (let wire of circuit.wires) {
       var compFrom = circuit.componentFromPin(wire.from);
       var compTo = circuit.componentFromPin(wire.to);
-      if (comp === compFrom) {
+      if (comp.uniqueID === compFrom.uniqueID) {
         compToReturn = compTo;
       }
-      if (comp === compTo) {
+      if (comp.uniqueID === compTo.uniqueID) {
         compToReturn = compFrom;
       }
     }

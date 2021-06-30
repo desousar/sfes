@@ -138,11 +138,6 @@ export default class Component extends BaseComponent {
       */
   }
 
-  assertMainValue() {
-    // do not throw any error => specification in children class
-    throw new Error('Error Software component unknown');
-  }
-
   createElementTDvalueR() {
     let td = document.createElement('td');
     td.className = 'td';

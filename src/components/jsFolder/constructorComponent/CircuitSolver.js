@@ -79,8 +79,11 @@ class CircuitSolver {
   checkAndSolveCircuit(projection) {
     //STEP 1
     console.log('STEP 1 started');
+    /**
+     * purpose: check that all 2-Pins-components have their main value
+     * => Done before calling checkAndSolveCircuit
+     */
     try {
-      projection.assertMainValues();
       /* if you run test-circuit in command line comment following function call */
       projection.isCircuitOpen();
     } catch (e) {

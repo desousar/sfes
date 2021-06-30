@@ -36,9 +36,9 @@
       id="targetDiv"
       ref="targetDiv"
       @dragover.prevent
-      @drop.prevent="drop"
+      @drop.prevent="drop($event, true)"
       @dragenter.prevent
-      @mouseup="moveEnd"
+      @mouseup.prevent="moveEnd"
       @mousemove.prevent="moveMotion($event)"
       @contextmenu="openMenu"
     >
@@ -56,11 +56,7 @@
             {{ component.symbol }}
           </span>
           <span
-            v-if="
-              component.name === 'Knoten' &&
-                !component.showPotential &&
-                !component.showGround
-            "
+            v-if="component.name === 'Knoten' && !component.showPotential"
             :key="'label-' + idx"
             :style="{
               left: component.x + 'px',
@@ -73,11 +69,7 @@
           <span
             v-if="
               component.isMultiPin &&
-                !(
-                  component.name === 'Knoten' &&
-                  !component.showPotential &&
-                  !component.showGround
-                )
+                !(component.name === 'Knoten' && !component.showPotential)
             "
             :key="'label-' + idx"
             :style="{
@@ -130,7 +122,6 @@
           <line
             style="cursor: pointer; stroke: black; stroke-width: 2"
             :key="'line-' + idx"
-            class="lineClass"
             :x1="wire.from.x"
             :x2="wire.to.x"
             :y1="wire.from.y"
@@ -139,7 +130,6 @@
           <line
             style="cursor: pointer; stroke: transparent; stroke-width: 10"
             :key="'shadow-line-' + idx"
-            class="lineClass"
             :x1="wire.from.x"
             :x2="wire.to.x"
             :y1="wire.from.y"
@@ -249,6 +239,7 @@ import Voltmeter from './elements/Voltmeter.vue';
 import WireJS from './jsFolder/constructorComponent/Wire.js';
 
 import { hasMainVal } from './Conversion/util/hasMainValue';
+import { distanceBtw2Points } from './Conversion/util/mathFunction';
 import MultipleRinSerie from './Conversion/implementations/MultipleRinSerie.js';
 import MultipleRinParallel from './Conversion/implementations/MultipleRinParallel.js';
 import TheveninToNorton from './Conversion/implementations/TheveninToNorton.js';
@@ -369,7 +360,9 @@ export default {
       multipleRinSerie_data: false,
       multipleRinParallel_data: false,
       theveninToNorton_data: false,
-      nortonToThevenin_data: false
+      nortonToThevenin_data: false,
+
+      compToDD: undefined
     };
   },
   methods: {
@@ -450,7 +443,7 @@ export default {
       );
       e.preventDefault();
       const selectedComp = this.circuit.getSelectedComponents();
-      if (hasMainVal(selectedComp)) {
+      if (hasMainVal(selectedComp) && selectedComp.length > 1) {
         this.multipleRinSerie_openMenu(selectedComp);
         this.multipleRinParallel_openMenu(selectedComp);
         this.theveninToNorton_openMenu(selectedComp);
@@ -588,11 +581,10 @@ export default {
         'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; //blank img
       e.dataTransfer.setDragImage(img, 0, 0);
 
-      const target = e.target;
-      e.dataTransfer.setData('c_id', target.alt); // target.alt is the correct name of the component
+      this.compToDD = e.target.alt; // target.alt is the correct name of the component
     },
-    drop: function(e) {
-      const c_id = e.dataTransfer.getData('c_id');
+    drop: function(e, saveAfterDrop) {
+      const c_id = this.compToDD;
       if (c_id != '') {
         //security
         let targetDiv = this.$refs.targetDiv; //instead of document.getElementById("targetDiv");
@@ -612,7 +604,9 @@ export default {
         });
 
         this.circuit.components.push(c);
-        this.save();
+        if (saveAfterDrop === true) {
+          this.save();
+        }
         return c;
       }
     },
@@ -815,13 +809,46 @@ export default {
         });
       }
     },
+
     dropOnWire(e, wire) {
-      const c_id = e.dataTransfer.getData('c_id');
-      console.log('Drop on Wire', wire, 'for', c_id);
-      const comp = this.drop(e);
-      console.log(comp);
-      //find line => do like in selectedWire and remove it
-      //this.circuit.createOneWire(circuit, compA, compAPinId, compB, compBPinId)
+      if (confirm('Do you want to insert this component on the Wire?')) {
+        const comp = this.drop(e, false);
+        this.circuit.wires.forEach((w, index) => {
+          if (w === wire) {
+            const fromComp = this.circuit.componentFromPin(w.from);
+            const fromPin = this.circuit.pinIndexFromComponent(
+              fromComp,
+              w.from
+            );
+            const toComp = this.circuit.componentFromPin(w.to);
+            const toPin = this.circuit.pinIndexFromComponent(toComp, w.to);
+            this.circuit.deleteOneWire(w, index);
+            if (comp.isMultiPin) {
+              this.circuit.createOneWire(comp, 0, fromComp, fromPin);
+              this.circuit.createOneWire(comp, 0, toComp, toPin);
+            } else {
+              const lengthPin0 = distanceBtw2Points(
+                fromComp.pins[fromPin],
+                comp.pins[0]
+              );
+              const lengthPin1 = distanceBtw2Points(
+                fromComp.pins[fromPin],
+                comp.pins[1]
+              );
+              if (lengthPin0 <= lengthPin1) {
+                this.circuit.createOneWire(comp, 0, fromComp, fromPin);
+                this.circuit.createOneWire(comp, 1, toComp, toPin);
+              } else {
+                this.circuit.createOneWire(comp, 1, fromComp, fromPin);
+                this.circuit.createOneWire(comp, 0, toComp, toPin);
+              }
+            }
+            this.save();
+          }
+        });
+      } else {
+        this.drop(e, true);
+      }
     },
     drawWire: function() {
       let wire = new WireJS({
@@ -890,7 +917,8 @@ export default {
 
     MBsolve() {
       if (
-        this.circuit.components.length > 0 /*&& this.circuit.wires.length > 0*/
+        hasMainVal(this.circuit.components) &&
+        this.circuit.components.length > 0
       ) {
         let solver = new CircuitSolver();
         try {

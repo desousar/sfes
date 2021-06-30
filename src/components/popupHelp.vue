@@ -47,6 +47,7 @@
               from a voltage point of view, there is a short circuit in the
               circuit
             </li>
+            <li>error with potentials, maybe neighbouring potentials</li>
           </ul>
 
           <h3>How to create a component ?</h3>

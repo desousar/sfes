@@ -143,7 +143,7 @@ export default class Circuit {
     });
   }
 
-  createOneWire(circuit, compA, compAPinId, compB, compBPinId) {
+  createOneWire(compA, compAPinId, compB, compBPinId) {
     const wire = new Wire({
       from: compA.pins[compAPinId],
       to: compB.pins[compBPinId]
@@ -160,7 +160,7 @@ export default class Circuit {
     } else if (compBPinId === 1) {
       compB.showPin2 = false;
     }
-    circuit.wires.push(wire);
+    this.wires.push(wire);
   }
 
   /**
@@ -179,16 +179,6 @@ export default class Circuit {
 
   /*--------------------STEP 1--------------------*/
 
-  /**
-   * purpose: check that all 2-Pins-components have their main value
-   */
-  assertMainValues() {
-    this.components.forEach(comp => {
-      if (!comp.isMultiPin) {
-        comp.assertMainValue();
-      }
-    });
-  }
   isCircuitOpen() {
     this.components.forEach(comp => {
       if (comp.isMultiPin) {

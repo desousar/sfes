@@ -179,8 +179,8 @@ export default class MultipleRinSerie {
         valueTop: selectedComp_array[0].y
       });
       circuit.components.push(kn);
-      circuit.createOneWire(circuit, keepRAlive, 0, kn, 0);
-      circuit.createOneWire(circuit, keepRAlive, 1, kn, 0);
+      circuit.createOneWire(keepRAlive, 0, kn, 0);
+      circuit.createOneWire(keepRAlive, 1, kn, 0);
     }
     // check coord x and y for graphical attribution
     else if (
@@ -198,14 +198,12 @@ export default class MultipleRinSerie {
       if (pin0 <= pin1) {
         //connect extremity1_comp with pin0 and extremity2_comp with pin1
         circuit.createOneWire(
-          circuit,
           this.extremity1_comp,
           this.extremity1_pinID,
           keepRAlive,
           0
         );
         circuit.createOneWire(
-          circuit,
           this.extremity2_comp,
           this.extremity2_pinID,
           keepRAlive,
@@ -214,14 +212,12 @@ export default class MultipleRinSerie {
       } else {
         //connect extremity1_comp with pin1 and extremity2_comp with pin0
         circuit.createOneWire(
-          circuit,
           this.extremity1_comp,
           this.extremity1_pinID,
           keepRAlive,
           1
         );
         circuit.createOneWire(
-          circuit,
           this.extremity2_comp,
           this.extremity2_pinID,
           keepRAlive,
@@ -241,7 +237,6 @@ export default class MultipleRinSerie {
         if (pin0 <= pin1) {
           //connect extremity1_comp with pin0
           circuit.createOneWire(
-            circuit,
             this.extremity1_comp,
             this.extremity1_pinID,
             keepRAlive,
@@ -250,7 +245,6 @@ export default class MultipleRinSerie {
         } else {
           //connect extremity1_comp with pin1
           circuit.createOneWire(
-            circuit,
             this.extremity1_comp,
             this.extremity1_pinID,
             keepRAlive,
@@ -270,7 +264,6 @@ export default class MultipleRinSerie {
         if (pin0 <= pin1) {
           //connect extremity2_comp with pin0
           circuit.createOneWire(
-            circuit,
             this.extremity2_comp,
             this.extremity2_pinID,
             keepRAlive,
@@ -279,7 +272,6 @@ export default class MultipleRinSerie {
         } else {
           //connect extremity2_comp with pin1
           circuit.createOneWire(
-            circuit,
             this.extremity2_comp,
             this.extremity2_pinID,
             keepRAlive,

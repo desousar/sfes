@@ -284,31 +284,19 @@ export default class TheveninToNorton {
       valueTop: this.ext1in_maincomp.pins[1].y + 20
     });
     circuit.components.push(kn2);
-    circuit.createOneWire(circuit, csrc, this.ext1in_pinID, kn1, 0);
-    circuit.createOneWire(circuit, csrc, this.ext1in_pinID_opposite, kn2, 0);
+    circuit.createOneWire(csrc, this.ext1in_pinID, kn1, 0);
+    circuit.createOneWire(csrc, this.ext1in_pinID_opposite, kn2, 0);
 
-    circuit.createOneWire(circuit, this.rComp, 0, kn1, 0);
-    circuit.createOneWire(circuit, this.rComp, 1, kn2, 0);
+    circuit.createOneWire(this.rComp, 0, kn1, 0);
+    circuit.createOneWire(this.rComp, 1, kn2, 0);
 
     if (this.ext1out_comp) {
       //same Knoten as (csrc, this.ext1in_pinID)
-      circuit.createOneWire(
-        circuit,
-        this.ext1out_comp,
-        this.ext1out_pinID,
-        kn1,
-        0
-      );
+      circuit.createOneWire(this.ext1out_comp, this.ext1out_pinID, kn1, 0);
     }
     if (this.ext2out_comp) {
       //same Knoten as (csrc, this.ext1in_pinID_opposite)
-      circuit.createOneWire(
-        circuit,
-        this.ext2out_comp,
-        this.ext2out_pinID,
-        kn2,
-        0
-      );
+      circuit.createOneWire(this.ext2out_comp, this.ext2out_pinID, kn2, 0);
     }
   }
 }

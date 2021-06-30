@@ -438,14 +438,12 @@ export default class TheveninToNorton {
     vsrc.valueU = valueIq * this.rComp.valueR;
     circuit.components.push(vsrc);
     circuit.createOneWire(
-      circuit,
       vsrc,
       this.ext1in_pinID,
       this.ext1out_comp,
       this.ext1out_pinID
     );
     circuit.createOneWire(
-      circuit,
       vsrc,
       this.ext1in_pinID_opposite,
       this.rComp,

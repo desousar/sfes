@@ -25,12 +25,6 @@ export default class Ampermeter extends Component {
     });
   }
 
-  assertMainValue() {
-    if (this.valueU == undefined) {
-      throw new Error('missing voltage value on ' + this.symbol);
-    }
-  }
-
   assertMainValueStr() {
     if (this.valueU == undefined) {
       return 'missing voltage value on ' + this.symbol;

@@ -25,12 +25,6 @@ export default class Voltmeter extends Component {
     });
   }
 
-  assertMainValue() {
-    if (this.valueI == undefined) {
-      throw new Error('missing current value on ' + this.symbol);
-    }
-  }
-
   assertMainValueStr() {
     if (this.valueI == undefined) {
       return 'missing current value on ' + this.symbol;

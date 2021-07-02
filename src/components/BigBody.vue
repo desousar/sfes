@@ -209,6 +209,9 @@
         <li v-if="nortonToThevenin_data" @click="nortonToThevenin_function">
           Norton to Thevenin
         </li>
+        <li v-if="dreieckToStern_data" @click="dreieckToStern_function">
+          Dreieck to Stern
+        </li>
       </ul>
     </div>
   </div>
@@ -244,6 +247,7 @@ import MultipleRinSerie from './Conversion/implementations/MultipleRinSerie.js';
 import MultipleRinParallel from './Conversion/implementations/MultipleRinParallel.js';
 import TheveninToNorton from './Conversion/implementations/TheveninToNorton.js';
 import NortonToThevenin from './Conversion/implementations/NortonToThevenin.js';
+import DreieckToStern from './Conversion/implementations/DreieckToStern.js';
 
 function srcPath(file) {
   return './image/components/' + file;
@@ -361,6 +365,7 @@ export default {
       multipleRinParallel_data: false,
       theveninToNorton_data: false,
       nortonToThevenin_data: false,
+      dreieckToStern_data: false,
 
       compToDD: undefined
     };
@@ -427,10 +432,11 @@ export default {
 
     closeMenu: function() {
       this.viewMenu = false;
-      (this.multipleRinSerie_data = false),
-        (this.multipleRinParallel_data = false),
-        (this.theveninToNorton_data = false),
-        (this.nortonToThevenin_data = false);
+      this.multipleRinSerie_data = false;
+      this.multipleRinParallel_data = false;
+      this.theveninToNorton_data = false;
+      this.nortonToThevenin_data = false;
+      this.dreieckToStern_data = false;
     },
 
     openMenu: function(e) {
@@ -448,6 +454,7 @@ export default {
         this.multipleRinParallel_openMenu(selectedComp);
         this.theveninToNorton_openMenu(selectedComp);
         this.nortonToThevenin_openMenu(selectedComp);
+        this.dreieckToStern_openMenu(selectedComp);
       }
     },
     multipleRinSerie_openMenu: function(selectedComp) {
@@ -481,7 +488,13 @@ export default {
         this.circuit
       );
     },
-
+    dreieckToStern_openMenu(selectedComp) {
+      let dreieckToStern = new DreieckToStern();
+      this.dreieckToStern_data = dreieckToStern.isPossible(
+        selectedComp,
+        this.circuit
+      );
+    },
     multipleRinSerie_function: function() {
       let multiRinSerie = new MultipleRinSerie();
       multiRinSerie.isPossible(
@@ -525,6 +538,16 @@ export default {
         this.circuit
       );
       nortonToThevenin.conversion(this.circuit);
+      this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
+      this.closeMenu();
+      this.save();
+    },
+    dreieckToStern_function() {
+      let dreieckToStern = new DreieckToStern();
+      dreieckToStern.conversion(
+        this.circuit.getSelectedComponents(),
+        this.circuit
+      );
       this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
       this.closeMenu();
       this.save();

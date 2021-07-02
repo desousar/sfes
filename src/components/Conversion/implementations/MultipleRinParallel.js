@@ -49,35 +49,35 @@ export default class MultipleRinParallel {
     // Then visit all Knoten that are directs neighbors with firstComp
     // and flag twice comps that are neighbors to this visited Knoten and in selArray
     // FUSION
-    let firstComp = selArray[0];
-    console.log('firstComp', firstComp.symbol);
-    for (let w of circuit.wires) {
-      const fromComp = circuit.componentFromPin(w.from);
-      const toComp = circuit.componentFromPin(w.to);
-      if (firstComp.uniqueID === fromComp.uniqueID) {
-        // check "path" based on 1st pin
-        const result = this.fusionNeighborsKnoten(
-          circuit,
-          selArray,
-          fromComp,
-          toComp,
-          0
-        );
-        if (!result) {
-          return false;
+    for (let comp of selArray) {
+      for (let w of circuit.wires) {
+        const fromComp = circuit.componentFromPin(w.from);
+        const toComp = circuit.componentFromPin(w.to);
+        if (comp.uniqueID === fromComp.uniqueID) {
+          // check "path" based on 1st pin
+          const result = this.fusionNeighborsKnoten(
+            circuit,
+            selArray,
+            fromComp,
+            toComp,
+            0
+          );
+          if (!result) {
+            return false;
+          }
         }
-      }
-      if (firstComp.uniqueID === toComp.uniqueID) {
-        // check "path" based on 2nd pin
-        const result = this.fusionNeighborsKnoten(
-          circuit,
-          selArray,
-          toComp,
-          fromComp,
-          1
-        );
-        if (!result) {
-          return false;
+        if (comp.uniqueID === toComp.uniqueID) {
+          // check "path" based on 2nd pin
+          const result = this.fusionNeighborsKnoten(
+            circuit,
+            selArray,
+            toComp,
+            fromComp,
+            1
+          );
+          if (!result) {
+            return false;
+          }
         }
       }
     }
@@ -147,10 +147,10 @@ export default class MultipleRinParallel {
     return count;
   }
 
-  fusionNeighborsKnoten(circuit, selArray, origin, destination, compStorageID) {
+  fusionNeighborsKnoten(circuit, selArray, origin, destination, compID) {
     let localKnoten = [];
     console.log('find', origin.symbol, destination.isMultiPin);
-    const r = this.nextNeighbor(circuit, origin, destination, compStorageID);
+    const r = this.nextNeighbor(circuit, origin, destination, compID);
 
     if (r === false) {
       return false;
@@ -175,16 +175,18 @@ export default class MultipleRinParallel {
     selArray.map(comp => (comp.flagConversion = false));
     circuit.components.map(comp => (comp.visited = false));
     // for fusion keep One, transfer only connection (circuit.wires) to One and delete other
-    var compStorage;
-    compStorageID === 0 ? (compStorage = this.ext1) : (compStorage = this.ext2);
-    console.log(localKnoten);
-    if (compStorage !== undefined) {
-      var index = localKnoten.indexOf(compStorage);
+    let keepAlive;
+    localKnoten.forEach((lk, index) => {
+      if (
+        lk instanceof KlemmeJS ||
+        (lk instanceof KnotenJS && lk.valuePotentialSource !== undefined)
+      ) {
+        [keepAlive] = localKnoten.splice(index, 1);
+      }
+    });
+    if (keepAlive === undefined) {
+      [keepAlive] = localKnoten.splice(0, 1);
     }
-    let [keepAlive] =
-      compStorage !== undefined
-        ? localKnoten.splice(index, 1)
-        : localKnoten.splice(0, 1);
     console.log('keepAlive', keepAlive.symbol);
     localKnoten.forEach(lk => {
       for (let wire of circuit.wires) {
@@ -229,9 +231,9 @@ export default class MultipleRinParallel {
     return true;
   }
 
-  nextNeighbor(circuit, origin, comp, compStorageID) {
+  nextNeighbor(circuit, origin, comp, compID) {
     var compStorage;
-    compStorageID === 0 ? (compStorage = this.ext1) : (compStorage = this.ext2);
+    compID === 0 ? (compStorage = this.ext1) : (compStorage = this.ext2);
     const selArray = circuit.getSelectedComponents();
     if (selArray.includes(origin)) {
       console.log('SELARRAY contains', origin.symbol);
@@ -244,7 +246,7 @@ export default class MultipleRinParallel {
       (comp instanceof KnotenJS && comp.valuePotentialSource !== undefined)
     ) {
       if (compStorage === undefined) {
-        compStorageID === 0
+        compID === 0
           ? (compStorage = this.ext1 = comp)
           : (compStorage = this.ext2 = comp);
         console.log('compStorage', compStorage.symbol);
@@ -266,7 +268,7 @@ export default class MultipleRinParallel {
               compTo.valuePotentialSource !== undefined)) &&
           !compTo.visited
         ) {
-          this.nextNeighbor(circuit, compFrom, compTo, compStorageID);
+          this.nextNeighbor(circuit, compFrom, compTo, compID);
         }
         if (selArray.includes(compTo)) {
           console.log('SELARRAY10 contains', compTo.symbol);
@@ -282,7 +284,7 @@ export default class MultipleRinParallel {
               compFrom.valuePotentialSource !== undefined)) &&
           !compFrom.visited
         ) {
-          this.nextNeighbor(circuit, compTo, compFrom, compStorageID);
+          this.nextNeighbor(circuit, compTo, compFrom, compID);
         }
         if (selArray.indexOf(compFrom) !== -1) {
           console.log('SELARRAY20 contains', compFrom.symbol);

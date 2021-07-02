@@ -69,9 +69,7 @@ export default class TheveninToNorton {
     return oneResistor && oneCurrentSrc;
   }
 
-  // eslint-disable-next-line no-unused-vars
   isInParallel(onReal, selectedComp_array, circuitOriginal) {
-    // eslint-disable-next-line no-unused-vars
     let circuit;
     if (onReal) {
       circuit = circuitOriginal;
@@ -88,22 +86,33 @@ export default class TheveninToNorton {
     // Then visit all Knoten that are directs neighbors with firstComp
     // and flag twice comps that are neighbors to this visited Knoten and in selArray
     // FUSION
-    let firstComp = selectedComp_array[0];
-    for (let w of circuit.wires) {
-      const fromComp = circuit.componentFromPin(w.from);
-      const toComp = circuit.componentFromPin(w.to);
-      if (firstComp.uniqueID === fromComp.uniqueID) {
-        // check "path" based on 1st pin
-        const result = this.fusionNeighborsKnoten(circuit, fromComp, toComp, 0);
-        if (!result) {
-          return false;
+    for (let comp of selectedComp_array) {
+      for (let w of circuit.wires) {
+        const fromComp = circuit.componentFromPin(w.from);
+        const toComp = circuit.componentFromPin(w.to);
+        if (comp.uniqueID === fromComp.uniqueID) {
+          // check "path" based on 1st pin
+          const result = this.fusionNeighborsKnoten(
+            circuit,
+            fromComp,
+            toComp,
+            0
+          );
+          if (!result) {
+            return false;
+          }
         }
-      }
-      if (firstComp.uniqueID === toComp.uniqueID) {
-        // check "path" based on 2nd pin
-        const result = this.fusionNeighborsKnoten(circuit, toComp, fromComp, 1);
-        if (!result) {
-          return false;
+        if (comp.uniqueID === toComp.uniqueID) {
+          // check "path" based on 2nd pin
+          const result = this.fusionNeighborsKnoten(
+            circuit,
+            toComp,
+            fromComp,
+            1
+          );
+          if (!result) {
+            return false;
+          }
         }
       }
     }

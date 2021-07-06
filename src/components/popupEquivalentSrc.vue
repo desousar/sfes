@@ -9,7 +9,7 @@
         role="dialog"
         aria-labelledby="modalEquSrcTitle"
         aria-describedby="modalEquSrcDescription"
-        @mousemove.prevent="moveMotion($event)"
+        @mousemove="moveMotion($event)"
         @mouseup="moveEnd($event)"
         @click.stop=""
       >
@@ -333,24 +333,7 @@ export default {
 </script>
 
 <style>
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(0, 0, 0, 0.3);
-}
-
-.modal-fade-enter,
-.modal-fade-leave-to {
-  opacity: 0;
-}
-
-.modal-fade-enter-active,
-.modal-fade-leave-active {
-  transition: opacity 0.5s ease;
-}
+@import './cssFolder/popUp.css';
 
 .modalEquSrc {
   position: fixed;
@@ -388,13 +371,6 @@ export default {
   position: relative;
   padding: 20px 10px;
   flex-grow: 1;
-}
-
-.btn-green {
-  color: white;
-  background: #4aae9b;
-  border: 1px solid #4aae9b;
-  border-radius: 2px;
 }
 
 /*my css*/

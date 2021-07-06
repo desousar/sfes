@@ -19,8 +19,8 @@ https://medium.com/fbbd/intro-to-writing-undo-redo-systems-in-javascript-af17148
     />
     <BigBody
       :currentLanguage="currentLanguage"
+      :withPredefinedValue="withPredefinedValue"
       :selectedTool="tool"
-      :locales="locales"
       @tool-state-changed="onToolStateChanged"
       :circuit="circuit"
       @set-circuit="setCircuit"
@@ -30,6 +30,52 @@ https://medium.com/fbbd/intro-to-writing-undo-redo-systems-in-javascript-af17148
       @slice-history="sliceHistory"
       @push-history="pushHistory"
     />
+
+    <!-- Pop Up Windows -->
+
+    <popupAboutUs
+      v-show="isPopupAboutUsVisible"
+      @close="openClosePopupAboutUs"
+      :currentLanguage="currentLanguage"
+    />
+
+    <popupSettings
+      v-show="isPopupSettingsVisible"
+      @close="openClosePopupSettings"
+      :currentLanguage="currentLanguage"
+      :locales="locales"
+      :withPredefinedValue="withPredefinedValue"
+    />
+
+    <popupComp
+      v-show="isPopupCompVisible"
+      @close="openClosePopupComp"
+      :compoToPass.sync="compoToPass"
+      :arrayComponents="circuit.components"
+      :currentLanguage="currentLanguage"
+      :isPopupCompVisible="isPopupCompVisible"
+    />
+
+    <popupResult
+      v-show="isPopupResultVisible"
+      @close="openClosePopupResult"
+      :arrayComponents="circuit.components"
+      :currentLanguage="currentLanguage"
+      :isPopupResultVisible="isPopupResultVisible"
+    />
+
+    <popupEquivalentSrc
+      v-show="isPopupEquivalentSrcVisible"
+      @close="openClosePopupEquivalentSrc"
+      :circuitcomplet="circuit"
+      :currentLanguage="currentLanguage"
+    />
+
+    <popupHelp
+      v-show="isPopupHelpVisible"
+      @close="openClosePopupHelp"
+      :currentLanguage="currentLanguage"
+    />
   </div>
 </template>
 
@@ -37,6 +83,13 @@ https://medium.com/fbbd/intro-to-writing-undo-redo-systems-in-javascript-af17148
 import MenuBar from './components/MenuBar.vue';
 import ToolBar from './components/ToolBar.vue';
 import BigBody from './components/BigBody.vue';
+
+import popupAboutUs from './components/popupAboutUs.vue';
+import popupSettings from './components/popupSettings.vue';
+import popupComp from './components/popupComp.vue';
+import popupResult from './components/popupResult.vue';
+import popupEquivalentSrc from './components/popupEquivalentSrc.vue';
+import popupHelp from './components/popupHelp.vue';
 
 import toolStates from './states.js';
 import EventBus from './components/jsFolder/event-bus';
@@ -48,11 +101,43 @@ export default {
   components: {
     MenuBar,
     ToolBar,
-    BigBody
+    BigBody,
+
+    popupAboutUs,
+    popupSettings,
+    popupComp,
+    popupResult,
+    popupEquivalentSrc,
+    popupHelp
   },
   mounted: function() {
     EventBus.$on('PUSchangeLanguage', newL => {
       this.updateLanguage(newL);
+    });
+    EventBus.$on('MBaboutUs', () => {
+      this.openClosePopupAboutUs();
+    });
+    EventBus.$on('MBsettings', () => {
+      this.openClosePopupSettings();
+    });
+    EventBus.$on('MBequivalentSource', () => {
+      this.openClosePopupEquivalentSrc();
+    });
+    EventBus.$on('MBhelp', () => {
+      this.openClosePopupHelp();
+    });
+    EventBus.$on('PUSpredVal', predValue => {
+      this.withPredefinedValue = predValue;
+    });
+    EventBus.$on('BBcomp', compToPass => {
+      this.compoToPass = compToPass;
+      this.openClosePopupComp();
+    });
+    EventBus.$on('BBresult', () => {
+      this.openClosePopupResult();
+    });
+    EventBus.$on('BBSave', () => {
+      this.save();
     });
   },
   data() {
@@ -69,7 +154,17 @@ export default {
         history: [new Circuit([], [])], //1st state in history written manual
         position: 0,
         historyMaxLength: 10
-      }
+      },
+
+      isPopupAboutUsVisible: false,
+      isPopupSettingsVisible: false,
+      isPopupCompVisible: false,
+      isPopupResultVisible: false,
+      isPopupEquivalentSrcVisible: false,
+      isPopupHelpVisible: false,
+
+      withPredefinedValue: false,
+      compoToPass: null
     };
   },
   methods: {
@@ -90,6 +185,27 @@ export default {
         this.circuit = new Circuit([], []);
       }
     },
+    /**
+     * #region Undo Redo function
+     */
+    save() {
+      const deepCopy = this.circuit.project();
+      this.setValue(deepCopy);
+    },
+    setValue(value) {
+      if (this.undoRedoData.position < this.undoRedoData.history.length - 1) {
+        this.sliceHistory(this.undoRedoData.position + 1);
+      }
+      if (
+        this.undoRedoData.position ===
+        this.undoRedoData.historyMaxLength - 1
+      ) {
+        this.shiftHistory();
+        this.setPosition(-1);
+      }
+      this.pushHistory(value);
+      this.setPosition(1);
+    },
     shiftHistory() {
       this.undoRedoData.history.shift();
     },
@@ -98,6 +214,32 @@ export default {
     },
     pushHistory(val) {
       this.undoRedoData.history.push(val);
+    },
+    /**
+     * #endregion
+     */
+
+    openClosePopupAboutUs: function() {
+      this.isPopupAboutUsVisible = !this.isPopupAboutUsVisible;
+    },
+    openClosePopupSettings() {
+      this.isPopupSettingsVisible = !this.isPopupSettingsVisible;
+    },
+    openClosePopupComp: function() {
+      // situation: click on close button from pop up windows
+      if (this.isPopupCompVisible) {
+        this.save();
+      }
+      this.isPopupCompVisible = !this.isPopupCompVisible;
+    },
+    openClosePopupResult() {
+      this.isPopupResultVisible = !this.isPopupResultVisible;
+    },
+    openClosePopupEquivalentSrc: function() {
+      this.isPopupEquivalentSrcVisible = !this.isPopupEquivalentSrcVisible;
+    },
+    openClosePopupHelp: function() {
+      this.isPopupHelpVisible = !this.isPopupHelpVisible;
     }
   }
 };

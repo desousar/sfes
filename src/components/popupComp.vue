@@ -9,7 +9,7 @@
         role="dialog"
         aria-labelledby="popupCompTitle"
         aria-describedby="popupCompDescription"
-        @mousemove.prevent="moveMotion($event)"
+        @mousemove="moveMotion($event)"
         @mouseup="moveEnd($event)"
         @click.stop=""
       >
@@ -630,29 +630,12 @@ export default {
 </script>
 
 <style>
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(0, 0, 0, 0.3);
-}
+@import './cssFolder/popUp.css';
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
-}
-
-.modal-fade-enter,
-.modal-fade-leave-to {
-  opacity: 0;
-}
-
-.modal-fade-enter-active,
-.modal-fade-leave-active {
-  transition: opacity 0.5s ease;
 }
 
 .popupComp {
@@ -695,13 +678,6 @@ input::-webkit-inner-spin-button {
   display: grid;
   grid-gap: 5px;
   grid-template-columns: auto 40vh auto;
-}
-
-.btn-green {
-  color: white;
-  background: #4aae9b;
-  border: 1px solid #4aae9b;
-  border-radius: 2px;
 }
 
 .oneLine {

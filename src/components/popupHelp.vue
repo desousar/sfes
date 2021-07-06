@@ -8,7 +8,7 @@
         role="dialog"
         aria-labelledby="modalHelpTitle"
         aria-describedby="modalHelpDescription"
-        @mousemove.prevent="moveMotion($event)"
+        @mousemove="moveMotion($event)"
         @mouseup="moveEnd($event)"
         @click.stop=""
       >
@@ -178,24 +178,8 @@ export default {
 </script>
 
 <style>
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(0, 0, 0, 0.3);
-}
+@import './cssFolder/popUp.css';
 
-.modal-fade-enter,
-.modal-fade-leave-to {
-  opacity: 0;
-}
-
-.modal-fade-enter-active,
-.modal-fade-leave-active {
-  transition: opacity 0.5s ease;
-}
 .modalHelp {
   position: fixed;
   top: 0;
@@ -236,12 +220,5 @@ export default {
   position: relative;
   padding: 0px 10px;
   flex-grow: 1;
-}
-
-.btn-green {
-  color: white;
-  background: #4aae9b;
-  border: 1px solid #4aae9b;
-  border-radius: 2px;
 }
 </style>

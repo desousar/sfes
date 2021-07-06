@@ -140,50 +140,6 @@
         </template>
       </svg>
 
-      <popupComp
-        v-show="isPopupCompVisible"
-        @close="openClosePopupComp"
-        :compoToPass.sync="CompoToPass"
-        :arrayComponents="circuit.components"
-        :currentLanguage="currentLanguage"
-        :isPopupCompVisible="isPopupCompVisible"
-      />
-
-      <popupResult
-        v-show="isPopupResultVisible"
-        @close="openClosePopupResult"
-        :arrayComponents="circuit.components"
-        :currentLanguage="currentLanguage"
-        :isPopupResultVisible="isPopupResultVisible"
-      />
-
-      <popupEquivalentSrc
-        v-show="isPopupEquivalentSrcVisible"
-        @close="openClosePopupEquivalentSrc"
-        :circuitcomplet="circuit"
-        :currentLanguage="currentLanguage"
-      />
-
-      <popupAboutUs
-        v-show="isPopupAboutUsVisible"
-        @close="openClosePopupAboutUs"
-        :currentLanguage="currentLanguage"
-      />
-
-      <popupSettings
-        v-show="isPopupSettingsVisible"
-        @close="openClosePopupSettings"
-        :currentLanguage="currentLanguage"
-        :locales="locales"
-        :withPredefinedValue="withPredefinedValue"
-      />
-
-      <popupHelp
-        v-show="isPopupHelpVisible"
-        @close="openClosePopupHelp"
-        :currentLanguage="currentLanguage"
-      />
-
       <!-- contextmenu as right click menu -->
       <ul
         id="right-click-menu"
@@ -212,6 +168,9 @@
         <li v-if="dreieckToStern_data" @click="dreieckToStern_function">
           Dreieck to Stern
         </li>
+        <li v-if="sternToDreieck_data" @click="sternToDreieck_function">
+          Stern to Dreieck
+        </li>
       </ul>
     </div>
   </div>
@@ -223,12 +182,6 @@ import toolStates from '../states.js';
 import { dropComp } from './jsFolder/dropComponent.js';
 import CircuitSolver from './jsFolder/constructorComponent/CircuitSolver.js';
 
-import popupComp from './popupComp.vue';
-import popupResult from './popupResult.vue';
-import popupEquivalentSrc from './popupEquivalentSrc.vue';
-import popupAboutUs from './popupAboutUs.vue';
-import popupSettings from './popupSettings.vue';
-import popupHelp from './popupHelp.vue';
 import Knoten from './elements/Knoten.vue';
 import Klemme from './elements/Klemme.vue';
 import Resistor from './elements/Resistor.vue';
@@ -248,6 +201,7 @@ import MultipleRinParallel from './Conversion/implementations/MultipleRinParalle
 import TheveninToNorton from './Conversion/implementations/TheveninToNorton.js';
 import NortonToThevenin from './Conversion/implementations/NortonToThevenin.js';
 import DreieckToStern from './Conversion/implementations/DreieckToStern.js';
+import SternToDreieck from './Conversion/implementations/SternToDreieck.js';
 
 function srcPath(file) {
   return './image/components/' + file;
@@ -267,12 +221,6 @@ const componentsItem = [
 
 export default {
   components: {
-    popupComp,
-    popupResult,
-    popupEquivalentSrc,
-    popupAboutUs,
-    popupSettings,
-    popupHelp,
     Knoten,
     Klemme,
     Resistor,
@@ -285,7 +233,7 @@ export default {
   },
   props: {
     currentLanguage: String,
-    locales: Array,
+    withPredefinedValue: Boolean,
     selectedTool: Number,
     circuit: Object, //circuit with components and wires array
     undoRedoData: Object
@@ -312,23 +260,9 @@ export default {
     EventBus.$on('MBsaveFile', () => {
       this.MBsaveFile();
     });
-    EventBus.$on('MBequivalentSource', () => {
-      this.MBequivalentSource();
-    });
+
     EventBus.$on('MBgetEmptyCircuit', () => {
       this.MBgetEmptyCircuit();
-    });
-    EventBus.$on('MBaboutUs', () => {
-      this.MBaboutUs();
-    });
-    EventBus.$on('MBsettings', () => {
-      this.MBsettings();
-    });
-    EventBus.$on('MBhelp', () => {
-      this.MBhelp();
-    });
-    EventBus.$on('PUSpredVal', predValue => {
-      this.withPredefinedValue = predValue;
     });
   },
 
@@ -347,16 +281,8 @@ export default {
       fromComponent: null,
       toComponentPin: null,
       toComponent: null,
-      isPopupCompVisible: false,
-      CompoToPass: null,
-      isPopupResultVisible: false,
-      isPopupEquivalentSrcVisible: false,
-      isPopupAboutUsVisible: false,
-      isPopupSettingsVisible: false,
-      isPopupHelpVisible: false,
 
       toolState: toolStates,
-      withPredefinedValue: false,
 
       viewMenu: false,
       top: '0px',
@@ -366,9 +292,15 @@ export default {
       theveninToNorton_data: false,
       nortonToThevenin_data: false,
       dreieckToStern_data: false,
+      sternToDreieck_data: false,
 
       compToDD: undefined
     };
+  },
+  computed: {
+    getWithPredefinedValue() {
+      return this.withPredefinedValue;
+    }
   },
   methods: {
     showTooltip: function(e, comp) {
@@ -437,6 +369,7 @@ export default {
       this.theveninToNorton_data = false;
       this.nortonToThevenin_data = false;
       this.dreieckToStern_data = false;
+      this.sternToDreieck_data = false;
     },
 
     openMenu: function(e) {
@@ -455,6 +388,7 @@ export default {
         this.theveninToNorton_openMenu(selectedComp);
         this.nortonToThevenin_openMenu(selectedComp);
         this.dreieckToStern_openMenu(selectedComp);
+        this.sternToDreieck_openMenu(selectedComp);
       }
     },
     multipleRinSerie_openMenu: function(selectedComp) {
@@ -495,6 +429,13 @@ export default {
         this.circuit
       );
     },
+    sternToDreieck_openMenu(selectedComp) {
+      let sternToDreieck = new SternToDreieck();
+      this.sternToDreieck_data = sternToDreieck.isPossible(
+        selectedComp,
+        this.circuit
+      );
+    },
     multipleRinSerie_function: function() {
       let multiRinSerie = new MultipleRinSerie();
       multiRinSerie.isPossible(
@@ -509,14 +450,14 @@ export default {
       this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
       this.closeMenu();
 
-      this.save();
+      EventBus.$emit('BBSave');
     },
     multipleRinParallel_function: function() {
       let multiRinParallel = new MultipleRinParallel();
       multiRinParallel.conversion(this.circuit);
       this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
       this.closeMenu();
-      this.save();
+      EventBus.$emit('BBSave');
     },
     theveninToNorton_function() {
       let theveninToNorton = new TheveninToNorton();
@@ -528,7 +469,7 @@ export default {
       theveninToNorton.conversion(this.circuit);
       this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
       this.closeMenu();
-      this.save();
+      EventBus.$emit('BBSave');
     },
     nortonToThevenin_function() {
       let nortonToThevenin = new NortonToThevenin();
@@ -540,7 +481,7 @@ export default {
       nortonToThevenin.conversion(this.circuit);
       this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
       this.closeMenu();
-      this.save();
+      EventBus.$emit('BBSave');
     },
     dreieckToStern_function() {
       let dreieckToStern = new DreieckToStern();
@@ -550,29 +491,13 @@ export default {
       );
       this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
       this.closeMenu();
-      this.save();
+      EventBus.$emit('BBSave');
     },
-    openClosePopupComp: function() {
-      // situation: click on close button from pop up windows
-      if (this.isPopupCompVisible) {
-        this.save();
-      }
-      this.isPopupCompVisible = !this.isPopupCompVisible;
-    },
-    openClosePopupResult: function() {
-      this.isPopupResultVisible = !this.isPopupResultVisible;
-    },
-    openClosePopupEquivalentSrc: function() {
-      this.isPopupEquivalentSrcVisible = !this.isPopupEquivalentSrcVisible;
-    },
-    openClosePopupAboutUs: function() {
-      this.isPopupAboutUsVisible = !this.isPopupAboutUsVisible;
-    },
-    openClosePopupSettings() {
-      this.isPopupSettingsVisible = !this.isPopupSettingsVisible;
-    },
-    openClosePopupHelp: function() {
-      this.isPopupHelpVisible = !this.isPopupHelpVisible;
+    sternToDreieck_function() {
+      //add code
+      this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
+      this.closeMenu();
+      EventBus.$emit('BBSave');
     },
 
     doubleClick: function(component) {
@@ -585,8 +510,7 @@ export default {
       }
 
       if (this.selectedTool === this.toolState.STATE_IDLE) {
-        this.CompoToPass = component;
-        this.openClosePopupComp();
+        EventBus.$emit('BBcomp', component);
       }
     },
 
@@ -620,7 +544,7 @@ export default {
 
         //method from dropComponent.js
         let c = dropComp({
-          withPresValue: this.withPredefinedValue,
+          withPresValue: this.getWithPredefinedValue,
           c_id,
           valueLeft,
           valueTop
@@ -628,7 +552,7 @@ export default {
 
         this.circuit.components.push(c);
         if (saveAfterDrop === true) {
-          this.save();
+          EventBus.$emit('BBSave');
         }
         return c;
       }
@@ -697,7 +621,7 @@ export default {
       ) {
         this.moveMotion(e);
         this.selectedComponent = null;
-        this.save();
+        EventBus.$emit('BBSave');
       }
       if (
         this.selectedTool === this.toolState.TOOL_CREATE_WIRE &&
@@ -718,7 +642,7 @@ export default {
           this.toComponentPin = nr;
           this.toComponent = component;
           this.drawWire();
-          this.save();
+          EventBus.$emit('BBSave');
         } else if (
           this.fromComponent !== null &&
           this.toComponent === null &&
@@ -749,7 +673,7 @@ export default {
           };
           createWire(this.fromComponent, 0, kn, 0);
           createWire(this.fromComponent, 1, kn, 0);
-          this.save();
+          EventBus.$emit('BBSave');
         } else {
           alert('You can choose same pin of the same component');
         }
@@ -771,13 +695,13 @@ export default {
         component.recalculatePins();
       } else if (this.selectedTool === this.toolState.TOOL_DELETE) {
         this.circuit.deleteOneComponent(component); //call the function delete
-        this.save();
+        EventBus.$emit('BBSave');
       } else if (
         this.selectedTool === this.toolState.TOOL_ROTATE &&
         component.isMultiPin === false
       ) {
         component.rotateRight();
-        this.save();
+        EventBus.$emit('BBSave');
       }
     },
     /**
@@ -827,7 +751,7 @@ export default {
         this.circuit.wires.forEach((wire, index) => {
           if (line === wire) {
             this.circuit.deleteOneWire(wire, index);
-            this.save();
+            EventBus.$emit('BBSave');
           }
         });
       }
@@ -866,7 +790,7 @@ export default {
                 this.circuit.createOneWire(comp, 0, toComp, toPin);
               }
             }
-            this.save();
+            EventBus.$emit('BBSave');
           }
         });
       } else {
@@ -905,31 +829,6 @@ export default {
      */
 
     /**
-     * #region Undo Redo function
-     */
-    setValue(value) {
-      if (this.undoRedoData.position < this.undoRedoData.history.length - 1) {
-        this.$emit('slice-history', this.undoRedoData.position + 1);
-      }
-      if (
-        this.undoRedoData.position ===
-        this.undoRedoData.historyMaxLength - 1
-      ) {
-        this.$emit('shift-history');
-        this.$emit('set-position', -1);
-      }
-      this.$emit('push-history', value);
-      this.$emit('set-position', 1);
-    },
-    save() {
-      const deepCopy = this.circuit.project();
-      this.setValue(deepCopy);
-    },
-    /**
-     * #endregion
-     */
-
-    /**
      * #region MenuBar function
      */
     MBcapture() {
@@ -946,15 +845,12 @@ export default {
         let solver = new CircuitSolver();
         try {
           solver.solveWithAttribution(this.circuit);
-          this.openClosePopupResult();
-          this.save();
+          EventBus.$emit('BBresult');
+          EventBus.$emit('BBSave');
         } catch (e) {
           alert('*****ERROR*****\n' + e.message);
         }
       }
-    },
-    MBequivalentSource() {
-      this.openClosePopupEquivalentSrc();
     },
     MBopenFile() {
       var file = document.getElementById('fileInput').files[0];
@@ -975,7 +871,7 @@ export default {
         self.circuit.loadWireOfNewCircuit(obj);
         console.log('CIRCUIT LOADED', self.circuit);
       };
-      this.save();
+      EventBus.$emit('BBSave');
     },
     MBsaveFile() {
       let data = this.circuit;
@@ -999,16 +895,7 @@ export default {
     },
     MBgetEmptyCircuit() {
       this.$emit('set-circuit');
-      this.save();
-    },
-    MBaboutUs() {
-      this.openClosePopupAboutUs();
-    },
-    MBsettings() {
-      this.openClosePopupSettings();
-    },
-    MBhelp() {
-      this.openClosePopupHelp();
+      EventBus.$emit('BBSave');
     }
   }
 };

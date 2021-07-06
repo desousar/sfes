@@ -68,9 +68,7 @@
     </div>
 
     <div class="title">
-      <p id="titlename">
-        <strong>BeNetz</strong>
-      </p>
+      <img class="logo" alt="BeNetz" src="../assets/logo.svg" />
       <p id="titledescription">{{ titledescription[getCurrentLanguage] }}</p>
     </div>
   </div>
@@ -189,7 +187,6 @@ export default {
   height: 40.8px;
   display: flex;
   flex-direction: row;
-  align-items: baseline;
 }
 
 #marginL2px {
@@ -276,20 +273,19 @@ input[type='button'] {
 
 /* TitleBanner */
 .title {
-  background: linear-gradient(to bottom right, rgb(50, 50, 255), white);
-  border-radius: 5px;
   padding: 0px 10px;
   margin-left: auto;
   margin-right: 5px;
-  text-align: center;
   white-space: nowrap;
+  display: flex;
+  align-items: flex-end;
 }
-#titlename {
-  font-size: 25px;
-  display: inline;
-  margin-right: 5px;
+.logo {
+  height: 39px;
+  width: auto;
+  margin: auto 5px auto 0;
 }
 #titledescription {
-  display: inline;
+  margin: 0 auto;
 }
 </style>

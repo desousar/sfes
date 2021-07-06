@@ -1,7 +1,6 @@
 {
   "name": "sfes",
   "short_name": "sfes",
-  "theme_color": "#ffffff",
   "icons": [
     {
       "src": "./img/icons/android-chrome-192x192.png",
@@ -15,6 +14,7 @@
     }
   ],
   "start_url": ".",
-  "display": "standalone",
-  "background_color": "#ffffff"
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
+  "display": "standalone"
 }

@@ -56,18 +56,6 @@
             {{ predVal_data[getCurrentLanguage] }} (R=1000Ω; I=1A; U=10V)
           </p>
         </section>
-        <footer class="modalSettings-footer">
-          <slot name="footer">
-            <button
-              type="button"
-              class="btn-green"
-              aria-label="Close modalSettings"
-              @click="close"
-            >
-              {{ close_data[getCurrentLanguage] }}
-            </button>
-          </slot>
-        </footer>
       </div>
     </div>
   </transition>
@@ -91,8 +79,7 @@ export default {
       withPredVal: this.withPredefinedValue,
       setting_data: { en: 'Settings', de: 'Einstellungen' },
       language_data: { en: 'Language selection', de: 'Sprachauswahl' },
-      predVal_data: { en: 'Predefined values', de: 'Vordefinierte Werte' },
-      close_data: { en: 'Close', de: 'Schliessen' }
+      predVal_data: { en: 'Predefined values', de: 'Vordefinierte Werte' }
     };
   },
   computed: {
@@ -153,8 +140,7 @@ export default {
   width: 382px;
 }
 
-.modalSettings-header,
-.modalSettings-footer {
+.modalSettings-header {
   padding: 15px;
   display: flex;
 }
@@ -164,11 +150,6 @@ export default {
   color: #4aae9b;
   justify-content: space-between;
   cursor: default;
-}
-
-.modalSettings-footer {
-  border-top: 1px solid #eeeeee;
-  justify-content: flex-end;
 }
 
 .modalSettings-body {

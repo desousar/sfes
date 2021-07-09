@@ -494,7 +494,11 @@ export default {
       EventBus.$emit('BBSave');
     },
     sternToDreieck_function() {
-      //add code
+      let sternToDreieck = new SternToDreieck();
+      sternToDreieck.conversion(
+        this.circuit.getSelectedComponents(),
+        this.circuit
+      );
       this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
       this.closeMenu();
       EventBus.$emit('BBSave');

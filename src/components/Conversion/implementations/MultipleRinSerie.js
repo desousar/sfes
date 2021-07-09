@@ -171,6 +171,8 @@ export default class MultipleRinSerie {
     keepRAlive.valueR = sumR;
     keepRAlive.showSymbol = true;
     keepRAlive.selected = false;
+    keepRAlive.showPin1 = true;
+    keepRAlive.showPin2 = true;
 
     if (this.circuitAsLoop) {
       let kn = dropComp({

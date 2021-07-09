@@ -111,19 +111,6 @@
             The results will be displayed only in the pop-up window.
           </p>
         </section>
-
-        <footer class="modalHelp-footer">
-          <slot name="footer">
-            <button
-              type="button"
-              class="btn-green"
-              @click="close"
-              aria-label="Close modalHelp"
-            >
-              {{ close_data[getCurrentLanguage] }}
-            </button>
-          </slot>
-        </footer>
       </div>
     </div>
   </transition>
@@ -139,8 +126,7 @@ export default {
       onDraggable: false,
       shiftX: undefined,
       shiftY: undefined,
-      help_data: { en: 'Help', de: 'Hilfe' },
-      close_data: { en: 'Close', de: 'Schliessen' }
+      help_data: { en: 'Help', de: 'Hilfe' }
     };
   },
   computed: {
@@ -194,8 +180,7 @@ export default {
   width: 540px;
 }
 
-.modalHelp-header,
-.modalHelp-footer {
+.modalHelp-header {
   padding: 15px;
   display: flex;
 }
@@ -209,11 +194,6 @@ export default {
   background-color: white;
   z-index: 5;
   cursor: default;
-}
-
-.modalHelp-footer {
-  border-top: 1px solid #eeeeee;
-  justify-content: flex-end;
 }
 
 .modalHelp-body {

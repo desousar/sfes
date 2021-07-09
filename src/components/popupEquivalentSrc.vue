@@ -75,18 +75,6 @@
             <span v-html="result_data"></span>
           </p>
         </section>
-        <footer class="modalEquSrc-footer">
-          <slot name="footer">
-            <button
-              type="button"
-              class="btn-green"
-              @click="close"
-              aria-label="Close modalEquSrc"
-            >
-              {{ close_data[getCurrentLanguage] }}
-            </button>
-          </slot>
-        </footer>
       </div>
     </div>
   </transition>
@@ -129,8 +117,7 @@ export default {
         de:
           'Um die Ersatzquellen zu berechnen, wählen Sie bitte 2 verschiedene Klemmen'
       },
-      solve: { en: 'Solve', de: 'Berechnen' },
-      close_data: { en: 'Close', de: 'Schliessen' }
+      solve: { en: 'Solve', de: 'Berechnen' }
     };
   },
   computed: {
@@ -349,8 +336,7 @@ export default {
   width: 612px;
 }
 
-.modalEquSrc-header,
-.modalEquSrc-footer {
+.modalEquSrc-header {
   padding: 15px;
   display: flex;
 }
@@ -360,11 +346,6 @@ export default {
   color: #4aae9b;
   justify-content: space-between;
   cursor: default;
-}
-
-.modalEquSrc-footer {
-  border-top: 1px solid #eeeeee;
-  justify-content: flex-end;
 }
 
 .modalEquSrc-body {

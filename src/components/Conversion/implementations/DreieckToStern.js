@@ -99,14 +99,20 @@ export default class DreieckToStern {
         });
         circuit.components.map(comp => (comp.visited = false));
         circuit.components.map(comp => (comp.onPath = undefined));
+
         if (!sComp.isConnected) {
+          sComp.isConnected = false;
           console.log('DONT HAVE NEIGHBOR');
           return false;
         }
+        sComp.isConnected = false;
+
         if (sComp.hasTooMuchNeighbor) {
+          sComp.hasTooMuchNeighbor = false;
           console.log('TOO MUCH NEIGHBOR');
           return false;
         }
+        sComp.hasTooMuchNeighbor = false;
 
         const res = this.checkLocalKnoten(localKnoten);
         if (!res) {
@@ -249,7 +255,7 @@ export default class DreieckToStern {
         console.log('OK');
         console.log(localKnoten);
       }
-    } else if (comp.selected) {
+    } else if (comp.selected && comp.uniqueID !== origin.uniqueID) {
       if (origin.isConnected) {
         console.log('HAVE ALREADY A NEIGHBOR');
         origin.hasTooMuchNeighbor = true;
@@ -333,6 +339,7 @@ export default class DreieckToStern {
   }
 
   conversion(selectedComp_array, circuit) {
+    console.log('###CONVERSION###');
     //Knoten fusion before all to simplify circuits part
     for (let comp of selectedComp_array) {
       for (let w of circuit.wires) {
@@ -428,7 +435,7 @@ export default class DreieckToStern {
     });
     console.log('divisor', divisor);
 
-    console.log('ON', this.extremity1_comp.symbol);
+    console.log('ON*', this.extremity1_comp.symbol);
     this.extremity1_comp.ngbValueR = [];
     var ext1_comp = undefined;
     var keepOne = 0;
@@ -440,7 +447,6 @@ export default class DreieckToStern {
         this.extremity1_comp.uniqueID === fromComp.uniqueID &&
         toComp.selected
       ) {
-        console.log('add', toComp.valueR);
         const val = toComp.valueR;
         this.extremity1_comp.ngbValueR.push(val);
         keepOne += 1;
@@ -449,6 +455,8 @@ export default class DreieckToStern {
           ext1_comp = toComp;
           console.log(toComp.symbol, 'is Checked');
         } else {
+          toComp.checked = false;
+          console.log(toComp.symbol, 'is not Checked');
           circuit.deleteOneWire(w, i);
         }
       }
@@ -464,6 +472,8 @@ export default class DreieckToStern {
           ext1_comp = fromComp;
           console.log(fromComp.symbol, 'is Checked');
         } else {
+          fromComp.checked = false;
+          console.log(fromComp.symbol, 'is not Checked');
           circuit.deleteOneWire(w, i);
         }
       }
@@ -480,7 +490,7 @@ export default class DreieckToStern {
       var firstValueR = dividend_ext1 / divisor;
     }
 
-    console.log('ON', this.extremity2_comp.symbol);
+    console.log('ON**', this.extremity2_comp.symbol);
     this.extremity2_comp.ngbValueR = [];
     var ext2_comp = undefined;
     for (let i = 0; i < circuit.wires.length; i++) {
@@ -494,11 +504,13 @@ export default class DreieckToStern {
         console.log('find1', toComp.symbol);
         const val = toComp.valueR;
         this.extremity2_comp.ngbValueR.push(val);
-        if (toComp.checked) {
-          circuit.deleteOneWire(w, i);
-        } else {
+        if (toComp.checked !== true) {
           toComp.checked = true;
+          console.log(toComp.symbol, 'is Checked');
           ext2_comp = toComp;
+        } else {
+          console.log(toComp.symbol, 'is already Checked');
+          circuit.deleteOneWire(w, i);
         }
       }
       if (
@@ -508,11 +520,13 @@ export default class DreieckToStern {
         console.log('find1', fromComp.symbol);
         const val = fromComp.valueR;
         this.extremity2_comp.ngbValueR.push(val);
-        if (fromComp.checked) {
-          circuit.deleteOneWire(w, i);
-        } else {
+        if (fromComp.checked !== true) {
           fromComp.checked = true;
+          console.log(fromComp.symbol, 'is Checked');
           ext2_comp = fromComp;
+        } else {
+          console.log(fromComp.symbol, 'is already Checked');
+          circuit.deleteOneWire(w, i);
         }
       }
     }
@@ -528,7 +542,7 @@ export default class DreieckToStern {
       var secondValueR = dividend_ext2 / divisor;
     }
 
-    console.log('ON', this.extremity3_comp.symbol);
+    console.log('ON***', this.extremity3_comp.symbol);
     this.extremity3_comp.ngbValueR = [];
     var ext3_comp = undefined;
     for (let i = 0; i < circuit.wires.length; i++) {
@@ -540,11 +554,13 @@ export default class DreieckToStern {
         toComp.selected
       ) {
         const val = toComp.valueR;
-        console.log('push', toComp, toComp.valueR);
+        console.log('push', toComp.symbol, toComp.valueR);
         this.extremity3_comp.ngbValueR.push(val);
         if (toComp.checked) {
+          console.log(toComp.symbol, 'is already Checked');
           circuit.deleteOneWire(w, i);
         } else {
+          console.log(toComp.symbol, 'is Checked');
           ext3_comp = toComp;
         }
       }
@@ -553,11 +569,13 @@ export default class DreieckToStern {
         fromComp.selected
       ) {
         const val = fromComp.valueR;
-        console.log('push', fromComp, fromComp.valueR);
+        console.log('push', fromComp.symbol, fromComp.valueR);
         this.extremity3_comp.ngbValueR.push(val);
         if (fromComp.checked) {
+          console.log(fromComp.symbol, 'is already Checked');
           circuit.deleteOneWire(w, i);
         } else {
+          console.log(fromComp.symbol, 'is Checked');
           ext3_comp = fromComp;
         }
       }
@@ -574,9 +592,17 @@ export default class DreieckToStern {
       var thirdValueR = dividend_ext3 / divisor;
     }
 
+    console.log('********************************************');
+    console.log(ext1_comp.valueR);
+    console.log(ext2_comp.valueR);
+    console.log(ext3_comp.valueR);
     ext1_comp.valueR = firstValueR;
     ext2_comp.valueR = secondValueR;
     ext3_comp.valueR = thirdValueR;
+    console.log('********************************************');
+    console.log(ext1_comp.valueR);
+    console.log(ext2_comp.valueR);
+    console.log(ext3_comp.valueR);
 
     selectedComp_array.forEach(c => {
       if (c.showPin1) {
@@ -592,7 +618,11 @@ export default class DreieckToStern {
   }
 
   fusionNeighborsKnoten(circuit, origin, destination) {
+    origin.isConnected = false;
+    origin.hasTooMuchNeighbor = false;
     let localKnoten = [];
+    circuit.components.map(comp => (comp.visited = false));
+    circuit.components.map(comp => (comp.onPath = undefined));
     console.log('find', origin.symbol, destination.isMultiPin);
     this.nextNeighbor(circuit, origin, origin, destination, localKnoten);
 

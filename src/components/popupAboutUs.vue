@@ -40,18 +40,6 @@
           {{ content_data5[getCurrentLanguage] }}<br />
           {{ content_data6[getCurrentLanguage] }}
         </section>
-        <footer class="modalAbout-footer">
-          <slot name="footer">
-            <button
-              type="button"
-              class="btn-green"
-              @click="close"
-              aria-label="Close modalAbout"
-            >
-              {{ close_data[getCurrentLanguage] }}
-            </button>
-          </slot>
-        </footer>
       </div>
     </div>
   </transition>
@@ -98,8 +86,7 @@ export default {
           'It allows, from an electronic circuit based on direct current, to calculate any current and voltage flowing through a component but also to calculate the equivalent sources of a circuit.',
         de:
           'Es erlaubt, aus einer elektronischen Schaltung, die auf Gleichstrom basiert, jeden Strom und jede Spannung zu berechnen, die durch ein Bauteil / Komponente fließen, aber auch die Ersatzquellen einer Schaltung zu berechnen.'
-      },
-      close_data: { en: 'Close', de: 'Schliessen' }
+      }
     };
   },
   computed: {
@@ -153,8 +140,7 @@ export default {
   width: 697px;
 }
 
-.modalAbout-header,
-.modalAbout-footer {
+.modalAbout-header {
   padding: 15px;
   display: flex;
 }
@@ -164,11 +150,6 @@ export default {
   color: #4aae9b;
   justify-content: space-between;
   cursor: default;
-}
-
-.modalAbout-footer {
-  border-top: 1px solid #eeeeee;
-  justify-content: flex-end;
 }
 
 .modalAbout-body {

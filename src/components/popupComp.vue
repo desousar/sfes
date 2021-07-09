@@ -225,18 +225,6 @@
         <span style="flex-grow:1"></span>
         <!--this line (span block) will be used if a value is not conform-->
         <span id="alertHint"></span>
-        <footer class="popupComp-footer">
-          <slot name="footer">
-            <button
-              type="button"
-              class="btn-green"
-              @click="close()"
-              aria-label="Close popupComp"
-            >
-              {{ close_data[getCurrentLanguage] }}
-            </button>
-          </slot>
-        </footer>
       </div>
     </div>
   </transition>
@@ -277,8 +265,7 @@ export default {
       checkboxArrow_data: {
         en: 'Check which elements should be displayed:',
         de: 'Anhaken welche Elemente angezeigt werden sollen:'
-      },
-      close_data: { en: 'Close', de: 'Schliessen' }
+      }
     };
   },
   watch: {
@@ -652,8 +639,7 @@ input::-webkit-inner-spin-button {
   width: 413px;
 }
 
-.popupComp-header,
-.popupComp-footer {
+.popupComp-header {
   padding: 15px;
   display: flex;
 }
@@ -663,11 +649,6 @@ input::-webkit-inner-spin-button {
   color: #4aae9b;
   justify-content: space-between;
   cursor: default;
-}
-
-.popupComp-footer {
-  border-top: 1px solid #eeeeee;
-  justify-content: flex-end;
 }
 
 /* (^) popup CSS -------- (v) my CSS */

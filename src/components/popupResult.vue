@@ -43,18 +43,6 @@
             </table> -->
           </slot>
         </section>
-        <footer class="modalRes-footer">
-          <slot name="footer">
-            <button
-              type="button"
-              class="btn-green"
-              @click="close()"
-              aria-label="Close modalRes"
-            >
-              {{ close_data[getCurrentLanguage] }}
-            </button>
-          </slot>
-        </footer>
       </div>
     </div>
   </transition>
@@ -79,8 +67,7 @@ export default {
       success_data: {
         en: 'calculation was successful',
         de: 'die Berechnung war erfolgreich'
-      },
-      close_data: { en: 'Close', de: 'Schliessen' }
+      }
     };
   },
   watch: {
@@ -181,8 +168,7 @@ export default {
   width: 490px;
 }
 
-.modalRes-header,
-.modalRes-footer {
+.modalRes-header {
   padding: 15px;
   display: flex;
 }
@@ -196,11 +182,6 @@ export default {
   background-color: white;
   z-index: 5;
   cursor: default;
-}
-
-.modalRes-footer {
-  border-top: 1px solid #eeeeee;
-  justify-content: flex-end;
 }
 
 .modalRes-body {

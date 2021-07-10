@@ -4,6 +4,10 @@ import Ampermeter from './jsComponents/Ampermeter.js';
 import Wire from './Wire.js';
 import Voltmeter from './jsComponents/Voltmeter.js';
 
+import CurrentSource from './jsComponents/CurrentSource.js';
+import Resistor from './jsComponents/Resistor.js';
+import VoltageSource from './jsComponents/VoltageSource.js';
+
 class CircuitSolver {
   constructor() {}
 
@@ -18,6 +22,17 @@ class CircuitSolver {
     } catch (e) {
       throw new Error('ERROR by Attribution: ' + e.message);
     }
+
+    //calculate Power for Resistor, CurrentSrc, VoltageSrc
+    circuit.components.forEach(c => {
+      if (
+        c instanceof Resistor ||
+        c instanceof CurrentSource ||
+        c instanceof VoltageSource
+      ) {
+        c.calculatePower();
+      }
+    });
   }
 
   solve(circuit) {

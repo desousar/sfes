@@ -69,7 +69,7 @@
           </section>
         </section>
 
-        <section>
+        <section style="flex-grow: 1">
           <p v-if="warningBool_data" id="alertHint">{{ warning_data }}</p>
           <p v-if="resultBool_data" id="resultBlock">
             <span v-html="result_data"></span>
@@ -268,7 +268,8 @@ export default {
               this.result_data = `ideale Stromquelle <br>
               Iqe = ${this.solveIqe.valueI} A <br>
               Uqe = unendlich <br>
-              Rqe = unendlich
+              Rqe = unendlich <br>
+              Pqe = unendlich
             `;
             }
           } else if (this.solveSimple === undefined) {
@@ -280,18 +281,21 @@ export default {
               this.result_data = `ideale Spannungsquelle <br>
               Iqe = unendlich <br>
               Uqe = ${this.solveUqe.valueU} V <br>
-              Rqe = 0 &#8486
+              Rqe = 0 &#8486 <br>
+              Pqe = unendlich
             `;
             } else if (
               this.solveIqe instanceof Ampermeter &&
               this.solveUqe instanceof Voltmeter
             ) {
               let valueRqe = this.solveUqe.valueU / this.solveIqe.valueI;
+              const valuePqe = this.solveUqe.valueU * this.solveIqe.valueI;
               this.resultBool_data = true;
               this.result_data = `
               Iqe = ${this.solveIqe.valueI} A <br>
               Uqe = ${this.solveUqe.valueU} V <br>
-              Rqe = ${valueRqe} &#8486
+              Rqe = ${valueRqe} &#8486 <br>
+              Pqe = ${valuePqe} W
             `;
             } else {
               this.resultBool_data = false;

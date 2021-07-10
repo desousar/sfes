@@ -7,7 +7,13 @@
           {{ neu[getCurrentLanguage] }}
         </button>
         <label class="custom-labelInput">
-          <input type="file" id="fileInput" @change="openFile()" />
+          <input
+            type="file"
+            id="fileInput"
+            ref="fileupload"
+            @change="openFile"
+            @click="onInputClick"
+          />
           {{ open[getCurrentLanguage] }}
         </label>
         <label class="custom-labelInput">
@@ -157,8 +163,14 @@ export default {
     },
 
     openFile() {
+      console.log('openFile');
       EventBus.$emit('MBopenFile');
     },
+    onInputClick() {
+      console.log('reset fileupload value');
+      this.$refs.fileupload.value = null;
+    },
+
     saveFile() {
       EventBus.$emit('MBsaveFile');
     },

@@ -23,6 +23,20 @@ export default class VoltageSource extends Component {
       directionI,
       valU
     });
+    this.valueP = undefined;
+  }
+
+  calculatePower() {
+    /**
+     * directionU = 0 => pin0 -> pin1
+     * directionI = 0 => pin0 -> pin1
+     */
+    if (this.directionU === this.directionI) {
+      this.valueP = this.valueU * this.valueI * -1;
+    }
+    if (this.directionU !== this.directionI) {
+      this.valueP = this.valueU * this.valueI;
+    }
   }
 
   assertMainValueStr() {

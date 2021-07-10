@@ -23,6 +23,20 @@ export default class Resistor extends Component {
       directionI,
       valR
     });
+    this.valueP = undefined;
+  }
+
+  calculatePower() {
+    /**
+     * directionU = 0 => pin0 -> pin1
+     * directionI = 0 => pin0 -> pin1
+     */
+    if (this.directionU === this.directionI) {
+      this.valueP = this.valueU * this.valueI;
+    }
+    if (this.directionU !== this.directionI) {
+      this.valueP = this.valueU * this.valueI * -1;
+    }
   }
 
   assertMainValueStr() {

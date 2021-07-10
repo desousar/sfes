@@ -313,9 +313,17 @@ export default {
         let tgt = targetDiv.getBoundingClientRect();
         let valueTop = e.clientY - tgt.top + targetDiv.scrollTop;
         let valueLeft = e.clientX - tgt.left + targetDiv.scrollLeft;
-
-        tooltip.style.left = valueLeft + 10 + 'px';
-        tooltip.style.top = valueTop + 10 + 'px';
+        //check tgt.right && tgt.bottom
+        if (valueTop > tgt.bottom - 180) {
+          tooltip.style.top = valueTop - 70 + 'px';
+        } else {
+          tooltip.style.top = valueTop + 10 + 'px';
+        }
+        if (valueLeft > tgt.right - 225) {
+          tooltip.style.left = valueLeft - 150 + 'px';
+        } else {
+          tooltip.style.left = valueLeft + 10 + 'px';
+        }
       }
     },
     hideTooltip: function() {

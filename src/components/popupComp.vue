@@ -165,6 +165,25 @@
             />
             <div>V</div>
           </slot>
+
+          <!--disabled input-->
+          <slot v-if="isResistor() || isCurrentSource() || isVoltageSource()">
+            <div>
+              P =
+            </div>
+            <input
+              disabled
+              type="number"
+              id="newValuePDisabled"
+              :value="
+                compoToPass.valueP === undefined
+                  ? undefined
+                  : compoToPass.valueP
+              "
+              placeholder="not yet available"
+            />
+            <div>W</div>
+          </slot>
         </section>
         <!--button as shortcut to delete value of Potential-->
         <section v-if="isKnoten()">

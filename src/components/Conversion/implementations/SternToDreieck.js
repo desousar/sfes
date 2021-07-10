@@ -372,7 +372,6 @@ export default class SternToStern {
         const fromComp = circuit.componentFromPin(w.from);
         const toComp = circuit.componentFromPin(w.to);
         if (comp.uniqueID === fromComp.uniqueID) {
-          console.log('--FUSION 1--');
           const result = this.fusionNeighborsKnoten(
             circuit,
             comp,
@@ -384,7 +383,6 @@ export default class SternToStern {
           }
         }
         if (comp.uniqueID === toComp.uniqueID) {
-          console.log('--FUSION 2--');
           const result = this.fusionNeighborsKnoten(
             circuit,
             comp,

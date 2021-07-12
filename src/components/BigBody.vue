@@ -906,8 +906,14 @@ export default {
       document.body.removeChild(newLink);
     },
     MBgetEmptyCircuit() {
-      this.$emit('set-circuit');
-      EventBus.$emit('BBSave');
+      if (
+        confirm(
+          'The current file will be deleted when you create a new one. Are you sure ?'
+        )
+      ) {
+        this.$emit('set-circuit');
+        EventBus.$emit('BBSave');
+      }
     }
   }
 };

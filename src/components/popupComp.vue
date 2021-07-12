@@ -167,7 +167,7 @@
           </slot>
 
           <!--disabled input-->
-          <slot v-if="isResistor() || isCurrentSource() || isVoltageSource()">
+          <slot v-if="isResistor()">
             <div>
               P =
             </div>
@@ -183,6 +183,33 @@
               placeholder="not yet available"
             />
             <div>W</div>
+          </slot>
+          <slot  v-if="isResistor()">
+            <div></div>
+            <div>({{ verLeistung[getCurrentLanguage] }})</div>
+          </slot>
+
+          <!--disabled input-->
+          <slot v-if="isCurrentSource() || isVoltageSource()">
+            <div>
+              P =
+            </div>
+            <input
+              disabled
+              type="number"
+              id="newValuePDisabled"
+              :value="
+                compoToPass.valueP === undefined
+                  ? undefined
+                  : compoToPass.valueP
+              "
+              placeholder="not yet available"
+            />
+            <div>W</div>
+          </slot>
+          <slot v-if="isCurrentSource() || isVoltageSource()">
+            <div></div>
+            <div>({{ erzLeistung[getCurrentLanguage] }})</div>
           </slot>
         </section>
         <!--button as shortcut to delete value of Potential-->
@@ -279,6 +306,8 @@ export default {
         de: 'Sie haben eine Komponente ausgewählt'
       },
       source_data: { en: 'Source', de: 'Quelle' },
+      erzLeistung: { en: 'generated power', de: 'erzeugte Leistung' },
+      verLeistung: { en: 'consume power', de: 'verbrauchte Leistung' },
       current_data: { en: 'current', de: 'strom' },
       voltage_data: { en: 'voltage', de: 'spannung' },
       checkboxArrow_data: {

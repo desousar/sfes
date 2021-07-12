@@ -439,7 +439,7 @@ export default class DreieckToStern {
     this.extremity1_comp.ngbValueR = [];
     var ext1_comp = undefined;
     var keepOne = 0;
-    for (let i = 0; i < circuit.wires.length; i++) {
+    for (let i = circuit.wires.length - 1; i >= 0; i--) {
       let w = circuit.wires[i];
       const fromComp = circuit.componentFromPin(w.from);
       const toComp = circuit.componentFromPin(w.to);
@@ -493,7 +493,7 @@ export default class DreieckToStern {
     console.log('ON**', this.extremity2_comp.symbol);
     this.extremity2_comp.ngbValueR = [];
     var ext2_comp = undefined;
-    for (let i = 0; i < circuit.wires.length; i++) {
+    for (let i = circuit.wires.length - 1; i >= 0; i--) {
       let w = circuit.wires[i];
       const fromComp = circuit.componentFromPin(w.from);
       const toComp = circuit.componentFromPin(w.to);
@@ -501,15 +501,19 @@ export default class DreieckToStern {
         this.extremity2_comp.uniqueID === fromComp.uniqueID &&
         toComp.selected
       ) {
-        console.log('find1', toComp.symbol);
+        console.log('find1.1', toComp.symbol, toComp.checked);
         const val = toComp.valueR;
         this.extremity2_comp.ngbValueR.push(val);
-        if (toComp.checked !== true) {
+        if (toComp.checked === true) {
+          console.log(toComp.symbol, 'is already Checked');
+          circuit.deleteOneWire(w, i);
+        } else if (toComp.checked === false) {
           toComp.checked = true;
           console.log(toComp.symbol, 'is Checked');
           ext2_comp = toComp;
         } else {
-          console.log(toComp.symbol, 'is already Checked');
+          console.log('undefined');
+          toComp.checked = false;
           circuit.deleteOneWire(w, i);
         }
       }
@@ -517,15 +521,19 @@ export default class DreieckToStern {
         this.extremity2_comp.uniqueID === toComp.uniqueID &&
         fromComp.selected
       ) {
-        console.log('find1', fromComp.symbol);
+        console.log('find1.2', fromComp.symbol, fromComp.checked);
         const val = fromComp.valueR;
         this.extremity2_comp.ngbValueR.push(val);
-        if (fromComp.checked !== true) {
+        if (fromComp.checked) {
+          console.log(fromComp.symbol, 'is already Checked');
+          circuit.deleteOneWire(w, i);
+        } else if (fromComp.checked === false) {
           fromComp.checked = true;
           console.log(fromComp.symbol, 'is Checked');
           ext2_comp = fromComp;
         } else {
-          console.log(fromComp.symbol, 'is already Checked');
+          console.log('undefined');
+          fromComp.checked = false;
           circuit.deleteOneWire(w, i);
         }
       }
@@ -545,10 +553,11 @@ export default class DreieckToStern {
     console.log('ON***', this.extremity3_comp.symbol);
     this.extremity3_comp.ngbValueR = [];
     var ext3_comp = undefined;
-    for (let i = 0; i < circuit.wires.length; i++) {
+    for (let i = circuit.wires.length - 1; i >= 0; i--) {
       let w = circuit.wires[i];
       const fromComp = circuit.componentFromPin(w.from);
       const toComp = circuit.componentFromPin(w.to);
+      console.log(fromComp.symbol, '-', toComp.symbol);
       if (
         this.extremity3_comp.uniqueID === fromComp.uniqueID &&
         toComp.selected

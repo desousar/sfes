@@ -31,12 +31,11 @@ export default class Resistor extends Component {
      * directionU = 0 => pin0 -> pin1
      * directionI = 0 => pin0 -> pin1
      */
-    if (this.directionU === this.directionI) {
-      this.valueP = this.valueU * this.valueI;
-    }
-    if (this.directionU !== this.directionI) {
-      this.valueP = this.valueU * this.valueI * -1;
-    }
+    let dI;
+    this.directionI === 0 ? (dI = 1) : (dI = -1);
+    let dU;
+    this.directionI === 0 ? (dU = 1) : (dU = -1);
+    this.valueP = this.valueU * dU * this.valueI * dI;
   }
 
   assertMainValueStr() {
@@ -83,11 +82,20 @@ export default class Resistor extends Component {
 
   //Tooltip
   getString() {
-    return `
+    if (this.valueP) {
+      return `
+    ${this.symbol} = ${this.valueR} &#8486<br>
+    U_${this.symbol} = ${this.valueU} V<br>
+    I_${this.symbol} = ${this.valueI} A<br>
+    P_${this.symbol} = ${this.valueP} W
+    `;
+    } else {
+      return `
     ${this.symbol} = ${this.valueR} &#8486<br>
     U_${this.symbol} = ${this.valueU} V<br>
     I_${this.symbol} = ${this.valueI} A
     `;
+    }
   }
 
   getExportString() {
@@ -101,7 +109,9 @@ export default class Resistor extends Component {
       this.valueU +
       ' V\n\tcurrent: ' +
       this.valueI +
-      ' A';
+      ' A\n\tpower: ' +
+      this.valueP +
+      ' W (consume power)';
     return data;
   }
 

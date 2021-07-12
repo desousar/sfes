@@ -269,7 +269,7 @@ export default {
               Iqe = ${this.solveIqe.valueI} A <br>
               Uqe = unendlich <br>
               Rqe = unendlich <br>
-              Pqe = unendlich
+              Pav = unendlich
             `;
             }
           } else if (this.solveSimple === undefined) {
@@ -282,20 +282,21 @@ export default {
               Iqe = unendlich <br>
               Uqe = ${this.solveUqe.valueU} V <br>
               Rqe = 0 &#8486 <br>
-              Pqe = unendlich
+              Pav = unendlich
             `;
             } else if (
               this.solveIqe instanceof Ampermeter &&
               this.solveUqe instanceof Voltmeter
             ) {
               let valueRqe = this.solveUqe.valueU / this.solveIqe.valueI;
-              const valuePqe = this.solveUqe.valueU * this.solveIqe.valueI;
+              const valuePav =
+                (this.solveUqe.valueU * this.solveUqe.valueU) / (4 * valueRqe);
               this.resultBool_data = true;
               this.result_data = `
               Iqe = ${this.solveIqe.valueI} A <br>
               Uqe = ${this.solveUqe.valueU} V <br>
               Rqe = ${valueRqe} &#8486 <br>
-              Pqe = ${valuePqe} W
+              Pav = ${valuePav} W
             `;
             } else {
               this.resultBool_data = false;

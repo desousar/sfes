@@ -163,8 +163,14 @@ export default {
     },
 
     openFile() {
-      console.log('openFile');
-      EventBus.$emit('MBopenFile');
+      if (
+        confirm(
+          'The current file will be deleted when you create a new one. Are you sure ?'
+        )
+      ) {
+        console.log('openFile');
+        EventBus.$emit('MBopenFile');
+      }
     },
     onInputClick() {
       console.log('reset fileupload value');

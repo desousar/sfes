@@ -31,12 +31,11 @@ export default class CurrentSource extends Component {
      * directionU = 0 => pin0 -> pin1
      * directionI = 0 => pin0 -> pin1
      */
-    if (this.directionU === this.directionI) {
-      this.valueP = this.valueU * this.valueI * -1;
-    }
-    if (this.directionU !== this.directionI) {
-      this.valueP = this.valueU * this.valueI;
-    }
+    let dI;
+    this.directionI === 0 ? (dI = 1) : (dI = -1);
+    let dU;
+    this.directionI === 0 ? (dU = 1) : (dU = -1);
+    this.valueP = -1 * this.valueU * dU * this.valueI * dI;
   }
 
   assertMainValueStr() {
@@ -62,10 +61,18 @@ export default class CurrentSource extends Component {
   }
 
   getString() {
-    return `
+    if (this.valueP) {
+      return `
+    ${this.symbol} = ${this.valueI} A<br>
+    U_${this.symbol} = ${this.valueU} V<br>
+    P_${this.symbol} = ${this.valueP} W
+    `;
+    } else {
+      return `
     ${this.symbol} = ${this.valueI} A<br>
     U_${this.symbol} = ${this.valueU} V
     `;
+    }
   }
 
   getExportString() {
@@ -77,7 +84,9 @@ export default class CurrentSource extends Component {
       this.valueI +
       ' A\n\tvoltage: ' +
       this.valueU +
-      ' V';
+      ' V\n\tpower: ' +
+      this.valueP +
+      ' W (generated power)';
     return data;
   }
 

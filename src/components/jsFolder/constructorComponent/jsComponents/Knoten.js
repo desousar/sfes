@@ -56,14 +56,6 @@ export default class Knoten extends MultiPinComponent {
     this.pins[0].y = piny;
   }
 
-  //used just if Knoten is a Potentialsource
-  bauteilEqu(A, b, listModel, nb, rowCounter) {
-    //1*U=0
-    let indexU = this.addValueUinListModelANDgetIndex(listModel, nb);
-    A[nb].set(rowCounter, indexU, 1); //-> 1*U
-    b[nb].set(rowCounter, 0, 0); //-> equation equals 0
-  }
-
   resetCalculatedValues() {
     this.valuePhi = undefined;
     this.valueI = undefined;

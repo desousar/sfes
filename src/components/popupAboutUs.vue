@@ -40,7 +40,7 @@
           {{ content_data5[getCurrentLanguage] }}<br />
           {{ content_data6[getCurrentLanguage] }}
         </section>
-        Version 1.0.0
+        Version 1.0.1
       </div>
     </div>
   </transition>

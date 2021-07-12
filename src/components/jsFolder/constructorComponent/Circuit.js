@@ -525,7 +525,8 @@ export default class Circuit {
       if (!hasOnePotential) {
         console.log('-------Warning: MISSING Potential, ADD one to 0');
         for (let sc of this.listOfSubCircuit[i]) {
-          if (sc instanceof Knoten) {
+          // if (sc instanceof Knoten) {
+          if (sc.isMultiPin) {
             sc.valuePotentialSource = 0;
             break; //to get just first Knoten
           }
@@ -733,6 +734,7 @@ export default class Circuit {
   /*-------------------StepB: BauteilGleichungen----------------------*/
   bauteilEquation(nb) {
     let rowCounter = this.numberMultiPinKomp(nb);
+    console.log(nb, this.listOfSubCircuit);
     this.listOfSubCircuit[nb].forEach(comp => {
       if (!comp.isMultiPin || comp.valuePotentialSource !== undefined) {
         comp.bauteilEqu(this.A, this.b, this.listModel, nb, rowCounter);
@@ -747,7 +749,7 @@ export default class Circuit {
     let rowCounter = this.numberMultiPinKomp(nb) + this.number2PinsKomp(nb);
     this.listOfSubCircuit[nb].forEach(comp => {
       if (!comp.isMultiPin || comp.valuePotentialSource !== undefined) {
-        if (comp instanceof Knoten && comp.valuePotentialSource !== undefined) {
+        if (comp.valuePotentialSource !== undefined) {
           //U+(-1)*valuePHI=(-1)*valuePotential
           let indexU = comp.addValueUinListModelANDgetIndex(this.listModel, nb);
           this.A[nb].set(rowCounter, indexU, 1); //-> 1*U

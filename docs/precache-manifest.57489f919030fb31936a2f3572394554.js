@@ -1,7 +1,7 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "7e34746bfc676006868b",
-    "url": "/sfes/css/app.81385f37.css"
+    "revision": "50f45c4d7397f14e53db",
+    "url": "/sfes/css/app.408adaed.css"
   },
   {
     "revision": "873c4ec6df02b40907ff",
@@ -68,8 +68,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/sfes/img/delete.1cf6ae27.svg"
   },
   {
-    "revision": "b8d614d92a171f73175fd03dbba65b11",
-    "url": "/sfes/img/logo.b8d614d9.svg"
+    "revision": "c8cb592c89afdddcae6fc12b03858ca0",
+    "url": "/sfes/img/logo.c8cb592c.svg"
   },
   {
     "revision": "18534ee3cf5a5d72cb2fc7c770832cd8",
@@ -88,12 +88,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/sfes/img/select.d2b9d3f8.svg"
   },
   {
-    "revision": "6a4f154c9c0b77a4ff8a56f967d0d12c",
+    "revision": "d2fa0e693df088579053843a18db7dbe",
     "url": "/sfes/index.html"
   },
   {
-    "revision": "7e34746bfc676006868b",
-    "url": "/sfes/js/app.fc7afaee.js"
+    "revision": "50f45c4d7397f14e53db",
+    "url": "/sfes/js/app.11a555ed.js"
   },
   {
     "revision": "873c4ec6df02b40907ff",

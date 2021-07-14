@@ -74,7 +74,7 @@
     </div>
 
     <div class="title">
-      <img class="logo" alt="BeNetz" src="../assets/logo.svg" />
+      <img class="logo" alt="BeNet" src="../assets/logo.svg" />
       <p id="titledescription">{{ titledescription[getCurrentLanguage] }}</p>
     </div>
   </div>

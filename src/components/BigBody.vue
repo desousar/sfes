@@ -171,6 +171,9 @@
         <li v-if="sternToDreieck_data" @click="sternToDreieck_function">
           Stern to Dreieck
         </li>
+        <li v-if="permutation_data" @click="permutation_function">
+          Permutation
+        </li>
       </ul>
     </div>
   </div>
@@ -193,6 +196,7 @@ import Ampermeter from './elements/Ampermeter.vue';
 import Voltmeter from './elements/Voltmeter.vue';
 
 import WireJS from './jsFolder/constructorComponent/Wire.js';
+import KnotenJS from './jsFolder/constructorComponent/jsComponents/Knoten.js';
 
 import { hasMainVal } from './Conversion/util/hasMainValue';
 import { distanceBtw2Points } from './Conversion/util/mathFunction';
@@ -202,6 +206,7 @@ import TheveninToNorton from './Conversion/implementations/TheveninToNorton.js';
 import NortonToThevenin from './Conversion/implementations/NortonToThevenin.js';
 import DreieckToStern from './Conversion/implementations/DreieckToStern.js';
 import SternToDreieck from './Conversion/implementations/SternToDreieck.js';
+import Permutation from './Conversion/implementations/Permutation.js';
 
 function srcPath(file) {
   return './image/components/' + file;
@@ -293,6 +298,7 @@ export default {
       nortonToThevenin_data: false,
       dreieckToStern_data: false,
       sternToDreieck_data: false,
+      permutation_data: false,
 
       compToDD: undefined
     };
@@ -378,6 +384,7 @@ export default {
       this.nortonToThevenin_data = false;
       this.dreieckToStern_data = false;
       this.sternToDreieck_data = false;
+      this.permutation_data = false;
     },
 
     openMenu: function(e) {
@@ -389,6 +396,11 @@ export default {
         }.bind(this)
       );
       e.preventDefault();
+      this.circuit.components.forEach(c => {
+        if (this.isClassicKnoten(c) && c.selected) {
+          c.selected = false; // a classic Knoten is useless
+        }
+      });
       const selectedComp = this.circuit.getSelectedComponents();
       if (hasMainVal(selectedComp) && selectedComp.length > 1) {
         this.multipleRinSerie_openMenu(selectedComp);
@@ -397,7 +409,13 @@ export default {
         this.nortonToThevenin_openMenu(selectedComp);
         this.dreieckToStern_openMenu(selectedComp);
         this.sternToDreieck_openMenu(selectedComp);
+        this.permutation_openMenu(selectedComp);
       }
+    },
+    isClassicKnoten(comp) {
+      return (
+        comp instanceof KnotenJS && comp.valuePotentialSource === undefined
+      );
     },
     multipleRinSerie_openMenu: function(selectedComp) {
       let multiRinSerie = new MultipleRinSerie();
@@ -444,6 +462,13 @@ export default {
         this.circuit
       );
     },
+    permutation_openMenu(selectedComp) {
+      let permutation = new Permutation();
+      this.permutation_data = permutation.isPossible(
+        selectedComp,
+        this.circuit
+      );
+    },
     multipleRinSerie_function: function() {
       let multiRinSerie = new MultipleRinSerie();
       multiRinSerie.isPossible(
@@ -455,17 +480,12 @@ export default {
         this.circuit.getSelectedComponents(),
         this.circuit
       );
-      this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
-      this.closeMenu();
-
-      EventBus.$emit('BBSave');
+      this.resetAndSaveAfterConversion();
     },
     multipleRinParallel_function: function() {
       let multiRinParallel = new MultipleRinParallel();
       multiRinParallel.conversion(this.circuit);
-      this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
-      this.closeMenu();
-      EventBus.$emit('BBSave');
+      this.resetAndSaveAfterConversion();
     },
     theveninToNorton_function() {
       let theveninToNorton = new TheveninToNorton();
@@ -475,9 +495,7 @@ export default {
         this.circuit
       );
       theveninToNorton.conversion(this.circuit);
-      this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
-      this.closeMenu();
-      EventBus.$emit('BBSave');
+      this.resetAndSaveAfterConversion();
     },
     nortonToThevenin_function() {
       let nortonToThevenin = new NortonToThevenin();
@@ -487,9 +505,7 @@ export default {
         this.circuit
       );
       nortonToThevenin.conversion(this.circuit);
-      this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
-      this.closeMenu();
-      EventBus.$emit('BBSave');
+      this.resetAndSaveAfterConversion();
     },
     dreieckToStern_function() {
       let dreieckToStern = new DreieckToStern();
@@ -497,9 +513,7 @@ export default {
         this.circuit.getSelectedComponents(),
         this.circuit
       );
-      this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
-      this.closeMenu();
-      EventBus.$emit('BBSave');
+      this.resetAndSaveAfterConversion();
     },
     sternToDreieck_function() {
       let sternToDreieck = new SternToDreieck();
@@ -507,6 +521,19 @@ export default {
         this.circuit.getSelectedComponents(),
         this.circuit
       );
+      this.resetAndSaveAfterConversion();
+    },
+    permutation_function() {
+      if (confirm('Potential values will change')) {
+        let permutation = new Permutation();
+        permutation.conversion(
+          this.circuit.getSelectedComponents(),
+          this.circuit
+        );
+        this.resetAndSaveAfterConversion();
+      }
+    },
+    resetAndSaveAfterConversion() {
       this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
       this.closeMenu();
       EventBus.$emit('BBSave');
@@ -699,10 +726,7 @@ export default {
      */
 
     simpleClick: function(component) {
-      if (
-        this.selectedTool === this.toolState.TOOL_SELECT &&
-        component.isMultiPin === false
-      ) {
+      if (this.selectedTool === this.toolState.TOOL_SELECT) {
         component.selected = !component.selected;
         component.recalculatePins();
       } else if (this.selectedTool === this.toolState.TOOL_DELETE) {

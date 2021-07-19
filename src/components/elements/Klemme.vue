@@ -4,7 +4,8 @@
     :style="{
       left: component.x,
       top: component.y,
-      position: 'absolute'
+      position: 'absolute',
+      border: component.selected ? '1px solid red' : ''
     }"
     xmlns:dc="http://purl.org/dc/elements/1.1/"
     xmlns:cc="http://creativecommons.org/ns#"

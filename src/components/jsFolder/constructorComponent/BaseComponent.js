@@ -9,6 +9,7 @@ export default class BaseComponent {
     this.y = valueTop;
 
     this.showSymbol = false;
+    this.selected = false;
   }
 
   /*-------------------StepB: BauteilGleichungen----------------------*/

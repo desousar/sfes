@@ -155,10 +155,12 @@ export default class Circuit {
         compA.showPin2 = false;
       }
     }
-    if (compBPinId === 0) {
-      compB.showPin1 = false;
-    } else if (compBPinId === 1) {
-      compB.showPin2 = false;
+    if (compB.isMultiPin === false) {
+      if (compBPinId === 0) {
+        compB.showPin1 = false;
+      } else if (compBPinId === 1) {
+        compB.showPin2 = false;
+      }
     }
     this.wires.push(wire);
   }

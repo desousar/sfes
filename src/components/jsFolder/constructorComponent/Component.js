@@ -68,7 +68,6 @@ export default class Component extends BaseComponent {
     );
     this.pins = pins;
     this.rotation = 0;
-    this.selected = false;
 
     this.isMultiPin = false;
     this.showPin1 = true;

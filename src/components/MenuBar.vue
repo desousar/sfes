@@ -75,7 +75,10 @@
 
     <div class="title">
       <img class="logo" alt="BeNet" src="../assets/logo.svg" />
-      <p id="titledescription">{{ titledescription[getCurrentLanguage] }}</p>
+      <div id="descContainer">
+        <p id="titledescription">{{ titledescription1[getCurrentLanguage] }}</p>
+        <p id="titledescription">{{ titledescription2[getCurrentLanguage] }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -119,9 +122,13 @@ export default {
       setting_data: { en: 'Settings', de: 'Einstellungen' },
       help_data: { en: 'Help', de: 'Hilfe' },
       aboutUs_data: { en: 'About us', de: 'Über uns' },
-      titledescription: {
-        en: 'Simulation tool for electronic circuits',
-        de: 'Simulationstool für elektronische Schaltungen'
+      titledescription1: {
+        en: 'Simulation tool for',
+        de: 'Simulationstool für'
+      },
+      titledescription2: {
+        en: 'electronic circuits',
+        de: 'elektronische Schaltungen'
       },
 
       a4FormatBool_data: false,
@@ -304,6 +311,12 @@ input[type='button'] {
   margin: auto 5px auto 0;
 }
 #titledescription {
-  margin: 0 auto;
+  margin: 0;
+}
+#descContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 5px;
 }
 </style>

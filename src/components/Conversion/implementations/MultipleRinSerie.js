@@ -26,7 +26,7 @@ export default class MultipleRinSerie {
    * -isAllSameInstance()
    * -isInSerie()
    */
-  isPossible(onReal, selectedComp_array, circuit) {
+  isPossible (onReal, selectedComp_array, circuit) {
     console.log('---------Serie---------');
     let isAllSameInstance_bool = false;
     let isInSerie_bool = false;
@@ -38,11 +38,11 @@ export default class MultipleRinSerie {
     return isAllSameInstance_bool && isInSerie_bool;
   }
 
-  isAllSameInstance(selectedComp_array) {
+  isAllSameInstance (selectedComp_array) {
     return selectedComp_array.every(comp => comp instanceof ResistorJS);
   }
 
-  isInSerie(onReal, selectedComp_array, circuit) {
+  isInSerie (onReal, selectedComp_array, circuit) {
     this.extremity1_comp = undefined;
     this.extremity2_comp = undefined;
     circuit.components.map(comp => (comp.flagConversion = false));
@@ -72,7 +72,7 @@ export default class MultipleRinSerie {
     return result;
   }
 
-  getNextCompWith(circuit, comp) {
+  getNextCompWith (circuit, comp) {
     for (let wire of circuit.wires) {
       const compFrom = circuit.componentFromPin(wire.from);
       const compTo = circuit.componentFromPin(wire.to);
@@ -90,7 +90,7 @@ export default class MultipleRinSerie {
     }
   }
 
-  nextNeighbor(circuit, origin, comp) {
+  nextNeighbor (circuit, origin, comp) {
     console.log(comp.symbol, 'is under test');
     if (comp.flagConversion === true) {
       console.log(comp.symbol, ' flagConversion is already true A LOOP');
@@ -140,7 +140,7 @@ export default class MultipleRinSerie {
    * delete old components (R)
    * add new component (R)
    */
-  conversion(selectedComp_array, circuit) {
+  conversion (selectedComp_array, circuit) {
     var sumR = 0;
     selectedComp_array.forEach(comp => {
       sumR += comp.valueR;
@@ -158,14 +158,14 @@ export default class MultipleRinSerie {
     selectedComp_array.forEach(component => {
       circuit.deleteOneComponent(component);
     });
-    circuit.wires.forEach((wire, index) => {
+    circuit.wires.forEach((wire) => {
       const compFrom = circuit.componentFromPin(wire.from);
       const compTo = circuit.componentFromPin(wire.to);
       if (
         keepRAlive.uniqueID === compFrom.uniqueID ||
         keepRAlive.uniqueID === compTo.uniqueID
       ) {
-        circuit.deleteOneWire(wire, index);
+        circuit.deleteOneWire(wire);
       }
     });
     keepRAlive.valueR = sumR;

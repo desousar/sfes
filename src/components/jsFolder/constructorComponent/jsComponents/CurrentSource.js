@@ -26,7 +26,7 @@ export default class CurrentSource extends Component {
     this.valueP = undefined;
   }
 
-  calculatePower() {
+  calculatePower () {
     /**
      * directionU = 0 => pin0 -> pin1
      * directionI = 0 => pin0 -> pin1
@@ -38,7 +38,7 @@ export default class CurrentSource extends Component {
     this.valueP = -1 * this.valueU * dU * this.valueI * dI;
   }
 
-  assertMainValueStr() {
+  assertMainValueStr () {
     if (this.valueI == undefined) {
       return 'missing current value on ' + this.symbol;
     } else {
@@ -46,36 +46,38 @@ export default class CurrentSource extends Component {
     }
   }
 
-  bauteilEqu(A, b, listModel, nb, rowCounter) {
+  bauteilEqu (A, b, listModel, nb, rowCounter) {
     //1*I=value of src
     let indexI = this.addValueIinListModelANDgetIndex(listModel, nb);
     A[nb].set(rowCounter, indexI, 1); //-> 1*I
     b[nb].set(rowCounter, 0, this.valueI); //-> value of src
   }
 
-  resetCalculatedValues() {
+  resetCalculatedValues () {
     this.valueR = undefined;
     this.valueU = undefined;
     this.potentialPin0 = undefined;
     this.potentialPin1 = undefined;
   }
 
-  getString() {
+  getString () {
     if (this.valueP) {
+      return `
+    ${this.symbol} = ${this.valueI} A<br>
+    U_${this.symbol} = ${this.valueU} V<br>
+    P_${this.symbol} = ${this.valueP} W<br>
+    generated power
+    `;
+    } else {
       return `
     ${this.symbol} = ${this.valueI} A<br>
     U_${this.symbol} = ${this.valueU} V<br>
     P_${this.symbol} = ${this.valueP} W
     `;
-    } else {
-      return `
-    ${this.symbol} = ${this.valueI} A<br>
-    U_${this.symbol} = ${this.valueU} V
-    `;
     }
   }
 
-  getExportString() {
+  getExportString () {
     let data =
       this.symbol +
       '(' +
@@ -90,7 +92,11 @@ export default class CurrentSource extends Component {
     return data;
   }
 
-  getPopupResultRow(table) {
+  selection () {
+    this.selected = !this.selected
+  }
+
+  getPopupResultRow (table) {
     let tr = document.createElement('tr');
     /**
      * left column

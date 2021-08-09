@@ -7,12 +7,9 @@
           greenClass: selectedTool === toolState.TOOL_DELETE
         }"
       >
-        <img
-          alt="Delete"
-          src="@/assets/toolBar/delete.svg"
-          draggable="false"
-          @click="deleteItem"
-        />
+        <button @click="deleteItem">
+          <span class="mdi mdi-delete mdi-48px"></span>
+        </button>
         <div>{{ deleteIcon[getCurrentLanguage] }}</div>
       </div>
       <div
@@ -21,12 +18,9 @@
           greenClass: selectedTool === toolState.TOOL_ROTATE
         }"
       >
-        <img
-          alt="Rotate"
-          src="@/assets/toolBar/rotate.svg"
-          draggable="false"
-          @click="rotateItem"
-        />
+        <button @click="rotateItem">
+          <span class="mdi mdi-rotate-right mdi-48px"></span>
+        </button>
         <div>{{ rotate[getCurrentLanguage] }}</div>
       </div>
       <div
@@ -35,12 +29,9 @@
           greenClass: selectedTool === toolState.TOOL_MOVE
         }"
       >
-        <img
-          alt="Movement"
-          src="@/assets/toolBar/moveIcon.svg"
-          draggable="false"
-          @click="movementItem"
-        />
+        <button @click="movementItem">
+          <span class="mdi mdi-cursor-move mdi-48px"></span>
+        </button>
         <div>{{ movement[getCurrentLanguage] }}</div>
       </div>
       <div
@@ -49,12 +40,9 @@
           greenClass: selectedTool === toolState.TOOL_SELECT
         }"
       >
-        <img
-          alt="Select"
-          src="@/assets/toolBar/select.svg"
-          draggable="false"
-          @click="selectItem"
-        />
+        <button @click="selectItem">
+          <span class="mdi mdi-select mdi-48px"></span>
+        </button>
         <div>{{ select[getCurrentLanguage] }}</div>
       </div>
       <div
@@ -63,12 +51,9 @@
           greenClass: selectedTool === toolState.STATE_IDLE
         }"
       >
-        <img
-          alt="Mouse"
-          src="@/assets/toolBar/mouse.svg"
-          draggable="false"
-          @click="mouseItem"
-        />
+        <button @click="mouseItem">
+          <span class="mdi mdi-cursor-default-outline mdi-48px"></span>
+        </button>
         <div>{{ mouse[getCurrentLanguage] }}</div>
       </div>
     </div>
@@ -212,25 +197,23 @@ export default {
   transition: visibility 0s, opacity 0.5s linear;
 }
 /* Hover on Parent Container */
-.content_img:hover {
-  cursor: pointer;
-}
 .content_img:hover div {
   visibility: visible;
   opacity: 0.7;
 }
-.content_img img {
-  width: 50px;
+
+.content_img button:hover {
+  cursor: pointer;
+}
+.content_img button {
+  border: none;
   height: 100%;
   margin: 0px 7px 0px 0px;
   background-color: white;
+  width: 50px;
+  padding: 0px;
 }
-.content_img button {
-  height: 100%;
-  margin: 0px 7px 0px 0px;
-}
-
-.greenClass img {
+.greenClass button {
   background-color: green;
 }
 </style>

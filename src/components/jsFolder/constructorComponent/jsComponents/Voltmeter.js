@@ -25,7 +25,7 @@ export default class Voltmeter extends Component {
     });
   }
 
-  assertMainValueStr() {
+  assertMainValueStr () {
     if (this.valueI == undefined) {
       return 'missing current value on ' + this.symbol;
     } else {
@@ -33,28 +33,28 @@ export default class Voltmeter extends Component {
     }
   }
 
-  bauteilEqu(A, b, listModel, nb, rowCounter) {
+  bauteilEqu (A, b, listModel, nb, rowCounter) {
     //1*I=value of src
     let indexI = this.addValueIinListModelANDgetIndex(listModel, nb);
     A[nb].set(rowCounter, indexI, 1); //-> 1*I
     b[nb].set(rowCounter, 0, this.valueI); //-> value of src
   }
 
-  resetCalculatedValues() {
+  resetCalculatedValues () {
     this.valueR = undefined;
     this.valueU = undefined;
     this.potentialPin0 = undefined;
     this.potentialPin1 = undefined;
   }
 
-  getString() {
+  getString () {
     return `
     U_${this.symbol} = ${this.valueU} V<br>
     I_${this.symbol} = ${this.valueI} A
     `;
   }
 
-  getExportString() {
+  getExportString () {
     let data =
       this.symbol +
       '(' +
@@ -67,7 +67,11 @@ export default class Voltmeter extends Component {
     return data;
   }
 
-  getPopupResultRow(table) {
+  selection () {
+    this.selected = !this.selected
+  }
+
+  getPopupResultRow (table) {
     let tr = document.createElement('tr');
     /**
      * left column

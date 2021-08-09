@@ -727,7 +727,7 @@ export default {
 
     simpleClick: function(component) {
       if (this.selectedTool === this.toolState.TOOL_SELECT) {
-        component.selected = !component.selected;
+        component.selection();
         component.recalculatePins();
       } else if (this.selectedTool === this.toolState.TOOL_DELETE) {
         this.circuit.deleteOneComponent(component); //call the function delete
@@ -784,19 +784,15 @@ export default {
     },
     selectedWire: function(line) {
       if (this.selectedTool === this.toolState.TOOL_DELETE) {
-        this.circuit.wires.forEach((wire, index) => {
-          if (line === wire) {
-            this.circuit.deleteOneWire(wire, index);
-            EventBus.$emit('BBSave');
-          }
-        });
+        this.circuit.deleteOneWire(line);
+        EventBus.$emit('BBSave');
       }
     },
 
     dropOnWire(e, wire) {
       if (confirm('Do you want to insert this component on the Wire?')) {
         const comp = this.drop(e, false);
-        this.circuit.wires.forEach((w, index) => {
+        this.circuit.wires.forEach(w => {
           if (w === wire) {
             const fromComp = this.circuit.componentFromPin(w.from);
             const fromPin = this.circuit.pinIndexFromComponent(
@@ -805,7 +801,7 @@ export default {
             );
             const toComp = this.circuit.componentFromPin(w.to);
             const toPin = this.circuit.pinIndexFromComponent(toComp, w.to);
-            this.circuit.deleteOneWire(w, index);
+            this.circuit.deleteOneWire(w);
             if (comp.isMultiPin) {
               this.circuit.createOneWire(comp, 0, fromComp, fromPin);
               this.circuit.createOneWire(comp, 0, toComp, toPin);

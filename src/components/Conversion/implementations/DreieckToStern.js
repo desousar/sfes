@@ -1,5 +1,4 @@
 import KnotenJS from '../../jsFolder/constructorComponent/jsComponents/Knoten';
-import KlemmeJS from '../../jsFolder/constructorComponent/jsComponents/Klemme';
 import ResistorJS from '../../jsFolder/constructorComponent/jsComponents/Resistor';
 
 import { middle3Points } from '../util/mathFunction';
@@ -10,9 +9,6 @@ export default class DreieckToStern {
     this.extremity1_comp = undefined;
     this.extremity2_comp = undefined;
     this.extremity3_comp = undefined;
-    this.extremity1_pinID = undefined;
-    this.extremity2_pinID = undefined;
-    this.extremity3_pinID = undefined;
   }
 
   /**
@@ -22,7 +18,7 @@ export default class DreieckToStern {
    */
 
   /**
-   * @param {just comp with attribut selected === true} selectedComp_array
+   * @param {comp with attribut selected === true} selectedComp_array
    * @param {entire object} circuit
    * @returns true if condition are met :
    * -is3SameInstance()
@@ -36,7 +32,8 @@ export default class DreieckToStern {
     if (!isAllSameInstance_bool) {
       return false;
     }
-    isInDreieck_bool = this.isInDreieck(selectedComp_array, circuit);
+    const circuitProject = circuit.project();
+    isInDreieck_bool = this.isInDreieck(circuitProject);
     return isAllSameInstance_bool && isInDreieck_bool;
   }
 
@@ -48,100 +45,153 @@ export default class DreieckToStern {
     }
   }
 
-  isInDreieck(selectedComp_array, circuit) {
+  isInDreieck(circuit) {
+    let selectedComp_array = circuit.getSelectedComponents();
     let bool_data1 = this.is2MultiPinNeighbors(circuit);
     if (!bool_data1) {
       return false;
     }
-
-    for (let sComp of selectedComp_array) {
-      console.log('---START---', sComp.symbol);
-      for (let pin of sComp.pins) {
-        console.log('---PIN---');
-        sComp.onPath = true;
-        sComp.visited = true;
-        sComp.isConnected = false;
-        sComp.hasTooMuchNeighbor = false;
-        let localKnoten = [];
-        circuit.wires.forEach(w => {
-          const fromComp = circuit.componentFromPin(w.from);
-          const toComp = circuit.componentFromPin(w.to);
-          if (pin === w.from) {
-            console.log('find', sComp.symbol, 'on fromComp');
-
-            toComp.onPath = true;
-            this.nextNeighbor(circuit, fromComp, fromComp, toComp, localKnoten);
-            console.log('a', localKnoten);
-            sComp.isConnected = false;
-            sComp.hasTooMuchNeighbor = false;
-            localKnoten = [];
-            circuit.components.map(comp => (comp.visited = false));
-            sComp.visited = true;
-            toComp.onPath = true;
-            this.nextNeighbor(circuit, fromComp, fromComp, toComp, localKnoten);
-            console.log('a2', localKnoten);
-          }
-          if (pin === w.to) {
-            console.log('find', sComp.symbol, 'on toComp');
-
-            fromComp.onPath = true;
-            this.nextNeighbor(circuit, toComp, toComp, fromComp, localKnoten);
-            console.log('b', localKnoten);
-            sComp.isConnected = false;
-            sComp.hasTooMuchNeighbor = false;
-            localKnoten = [];
-            circuit.components.map(comp => (comp.visited = false));
-            sComp.visited = true;
-            fromComp.onPath = true;
-            this.nextNeighbor(circuit, toComp, toComp, fromComp, localKnoten);
-            console.log('b2', localKnoten);
-          }
-        });
-        circuit.components.map(comp => (comp.visited = false));
-        circuit.components.map(comp => (comp.onPath = undefined));
-
-        if (!sComp.isConnected) {
-          sComp.isConnected = false;
-          console.log('DONT HAVE NEIGHBOR');
-          return false;
+    console.log('every selC has 2 MultiPin-Comp as Ngb');
+    /**
+     * à partir de R[0,1,2] sur les 2 pins: simplifier Path => 1 special MultiPin autorisé
+     *    L> STOP si R[autre] (renvoyer TRUE et attendre dessus) || 2ème special MultiPin ou autre 2-Pins-Comp (ne rien renvoyer)
+     *        comme ça pour chaque loop de chaque pin je ressors avec TRUE ou FALSE (laisser en défaut)
+     * => quand je pars d'une pin je dois arriver sur une autre pin d'un selC
+     */
+    console.log('control Path');
+    for (let w of circuit.wires) {
+      const fromComp = circuit.componentFromPin(w.from);
+      const toComp = circuit.componentFromPin(w.to);
+      for (let index = 0; index < selectedComp_array.length; index++) {
+        const selC = selectedComp_array[index];
+        if (selC.uniqueID === fromComp.uniqueID) {
+          console.log(index, 'start simplification with toComp', toComp.symbol);
+          this.findPathToAll(circuit, selC, toComp);
         }
-        sComp.isConnected = false;
-
-        if (sComp.hasTooMuchNeighbor) {
-          sComp.hasTooMuchNeighbor = false;
-          console.log('TOO MUCH NEIGHBOR');
-          return false;
-        }
-        sComp.hasTooMuchNeighbor = false;
-
-        const res = this.checkLocalKnoten(localKnoten);
-        if (!res) {
-          return false;
+        if (selC.uniqueID === toComp.uniqueID) {
+          console.log(
+            index,
+            'start simplification with fromComp',
+            fromComp.symbol
+          );
+          this.findPathToAll(circuit, selC, fromComp);
         }
       }
     }
+    for (let sc of selectedComp_array) {
+      if (!sc.checked) {
+        console.log('ERROR', sc.symbol, 'is not checked');
+        selectedComp_array.map(c => (c.checked = false));
+        return false;
+      } else {
+        sc.checked = false;
+      }
+    }
+
+    //after merging all Knoten, the R must have different neighbors
+    let bool_data2 = this.is2MultiPinNeighbors(circuit);
+    if (!bool_data2) {
+      return false;
+    }
+
+    /**
+     *attribuer extrémités this.extremity1 2 3_comp
+     *    L> 2 ngbs de R[0] et l'autre ngb de R[1] => comme ça sûr d'avoir 3 extrémités différentes
+     */
+    console.log('find extremities');
+    for (let w of circuit.wires) {
+      const fromComp = circuit.componentFromPin(w.from);
+      const toComp = circuit.componentFromPin(w.to);
+
+      /**
+       * this.extremity1_comp = undefined;
+          this.extremity2_comp = undefined;
+          this.extremity3_comp = undefined;
+       * id = 1
+       * this['extremity'+id+'_comp'] === undefined
+       */
+
+      if (selectedComp_array[0].uniqueID === fromComp.uniqueID) {
+        console.log('extremity with toComp', toComp.symbol);
+        if (this.extremity1_comp === undefined) {
+          this.extremity1_comp = toComp;
+        } else {
+          this.extremity2_comp = toComp;
+        }
+      }
+      if (selectedComp_array[0].uniqueID === toComp.uniqueID) {
+        console.log('extremity with fromComp', fromComp.symbol);
+        if (this.extremity1_comp === undefined) {
+          this.extremity1_comp = fromComp;
+        } else {
+          this.extremity2_comp = fromComp;
+        }
+      }
+    }
+
+    let extReg = 0;
+    for (let w of circuit.wires) {
+      const fromComp = circuit.componentFromPin(w.from);
+      const toComp = circuit.componentFromPin(w.to);
+
+      const deterExtr = comp => {
+        if (
+          comp.uniqueID === this.extremity1_comp.uniqueID ||
+          comp.uniqueID === this.extremity2_comp.uniqueID
+        ) {
+          extReg += 1;
+        } else if (this.extremity1_comp === undefined) {
+          this.extremity1_comp = comp;
+        } else if (this.extremity2_comp === undefined) {
+          this.extremity2_comp = comp;
+        } else {
+          this.extremity3_comp = comp;
+        }
+      };
+
+      if (selectedComp_array[1].uniqueID === fromComp.uniqueID) {
+        console.log('extremity with toComp', toComp.symbol);
+        deterExtr(toComp);
+      }
+      if (selectedComp_array[1].uniqueID === toComp.uniqueID) {
+        console.log('extremity with fromComp', fromComp.symbol);
+        deterExtr(fromComp);
+      }
+    }
+    if (extReg != 1) {
+      console.log('ERROR by extremity comp');
+      return false;
+    }
+
+    //All 3 extremities are determined
+    const tempExtr = [
+      this.extremity1_comp,
+      this.extremity2_comp,
+      this.extremity3_comp
+    ];
+    tempExtr.map(e => (e.find = []));
+    //chaque extremity doit être connecté à uniquement 2 selComp
+    for (let extr of tempExtr) {
+      for (let w of circuit.wires) {
+        const fromComp = circuit.componentFromPin(w.from);
+        const toComp = circuit.componentFromPin(w.to);
+        if (extr.uniqueID === fromComp.uniqueID && toComp.selected) {
+          extr.find.push(toComp.uniqueID);
+        }
+        if (extr.uniqueID === toComp.uniqueID && fromComp.selected) {
+          extr.find.push(fromComp.uniqueID);
+        }
+      }
+      if (extr.find.length !== 2 || extr.find[0] === extr.find[1]) {
+        console.log('Problem With Connection', extr.symbol);
+        circuit.components.map(c => (c.find = []));
+        return false;
+      }
+      extr.find = [];
+    }
+
     console.log('END SUCCESSFUL TEST');
     return true;
-  }
-
-  checkLocalKnoten(localKnoten) {
-    //in localKnoten max 1 Klemme or 1 Knoten with potential value
-    let specificMultiPin = 0;
-    console.log('localKnoten', localKnoten);
-    localKnoten.forEach(lk => {
-      if (
-        lk instanceof KlemmeJS ||
-        (lk instanceof KnotenJS && lk.valuePotentialSource !== undefined)
-      ) {
-        specificMultiPin += 1;
-      }
-    });
-    if (specificMultiPin > 1) {
-      console.log('too much specificMultiPin');
-      return false;
-    } else {
-      return true;
-    }
   }
 
   is2MultiPinNeighbors(circuit) {
@@ -171,8 +221,7 @@ export default class DreieckToStern {
           }
         }
       }
-    }
-    for (let comp of selArray) {
+
       if (comp.find.length !== 2 || comp.find[0] === comp.find[1]) {
         console.log('Problem With Connection', comp.symbol);
         comp.find = undefined;
@@ -183,245 +232,136 @@ export default class DreieckToStern {
     return true;
   }
 
-  getNextCompWith(circuit, origin, comp, localKnoten) {
-    console.log('##NEXT STEP##');
-    for (let wire of circuit.wires) {
-      const compFrom = circuit.componentFromPin(wire.from);
-      const compTo = circuit.componentFromPin(wire.to);
-      if (comp.uniqueID === compFrom.uniqueID && comp.onPath !== false) {
-        console.log('ENTER 10:', compTo.symbol);
-        if (
-          compTo !== origin &&
-          compTo.visited === false &&
-          compTo.onPath !== false
-        ) {
-          this.nextNeighbor(circuit, origin, compFrom, compTo, localKnoten);
+  /**
+   * @param {*} circuit
+   * @param {a R} originC
+   * @param {a Knoten} destC
+   */
+  findPathToAll(circuit, originC, destC) {
+    console.log(
+      'call findPathToAll, originC',
+      originC.symbol,
+      'and destC',
+      destC.symbol
+    );
+    const searchExtremities = compUT => {
+      //either compUT is a MultiPin or selected
+      if (compUT.isMultiPin) {
+        console.log('1)', compUT.symbol);
+        //simplify Knoten : merge destC and compUT : originC--destC--compUT--rest => originC--destC--rest
+        //WARNING can only have one special MultiPin per Path
+        const result = this.fusion2NeighborsKnoten(circuit, destC, compUT);
+        if (!result.bool) {
+          return { bool: true };
         }
-      } else if (comp.uniqueID === compTo.uniqueID && comp.onPath !== false) {
-        console.log('ENTER 20:', compFrom.symbol);
-        if (
-          compFrom !== origin &&
-          compFrom.visited === false &&
-          compFrom.onPath !== false
-        ) {
-          this.nextNeighbor(circuit, origin, compTo, compFrom, localKnoten);
-        }
-      }
-    }
-  }
-
-  nextNeighbor(circuit, origin, parent, comp, localKnoten) {
-    console.log(comp.symbol, 'is under test');
-    if (comp.isMultiPin) {
-      console.log('comp isMultiPin and visited', comp.symbol);
-      comp.visited = true;
-      localKnoten.push(comp);
-      if (this.checkLocalKnoten(localKnoten)) {
-        console.log('***OK***');
-        comp.onPath = true;
-        this.getNextCompWith(circuit, origin, comp, localKnoten);
-      } else {
-        console.log('***STOP impasse***');
-        comp.onPath = undefined;
-        localKnoten.pop();
-        console.log('1pop', localKnoten);
-        for (let i = localKnoten.length - 1; i >= 0; i--) {
-          console.log(localKnoten[i].symbol);
-          if (
-            (circuit.getCountConnection(localKnoten[i]) === 1 ||
-              circuit.getCountConnection(localKnoten[i]) === 2) &&
-            i !== 0
-          ) {
-            console.log(localKnoten[i].symbol, 'to delete');
-            localKnoten[i].onPath = false;
-            localKnoten.splice(i, 1);
-          } else {
-            break;
-          }
-        }
-        if (
-          !this.isOnPath(
-            circuit,
-            localKnoten[localKnoten.length - 1],
-            localKnoten
-          )
-        ) {
-          localKnoten.pop();
-          console.log('2pop', localKnoten);
-          console.log(parent.symbol, 'is not onPath');
-          parent.onPath = false;
-        }
-
-        console.log('OK');
-        console.log(localKnoten);
-      }
-    } else if (comp.selected && comp.uniqueID !== origin.uniqueID) {
-      if (origin.isConnected) {
-        console.log('HAVE ALREADY A NEIGHBOR');
-        origin.hasTooMuchNeighbor = true;
-      } else {
-        parent.onPath = true;
-        origin.isConnected = true;
-        console.log('comp.selected', comp.symbol, 'start:', origin.symbol);
-      }
-    }
-  }
-
-  isOnPath(circuit, parent, localKnoten) {
-    console.log('isOnPath');
-    if (parent.uniqueID === localKnoten[0].uniqueID) {
-      console.log('first comp always on path');
-      return true;
-    }
-    let count = 0;
-    for (let wire of circuit.wires) {
-      var compFrom = circuit.componentFromPin(wire.from);
-      var compTo = circuit.componentFromPin(wire.to);
-      if (parent.uniqueID === compFrom.uniqueID) {
-        if (this.isClassicKnoten(compTo)) {
-          if (compTo.onPath !== false) {
-            count += 1;
-            console.log(compTo.symbol, '+1');
-          }
-        } else if (compTo.selected || compTo.onPath === true) {
-          count += 1;
-          console.log(compTo.symbol, '+1');
+        //call nextNbs again -> after a while, it will no longer fit in this condition
+        return { bool: false, newKn: result.kn };
+      } else if (compUT.selected) {
+        // find a R from selected array
+        console.log('2)', compUT.symbol);
+        let sel_array = circuit.getSelectedComponents();
+        if (compUT.uniqueID === sel_array[0].uniqueID) {
+          console.log('equal to 0 from sel');
+          sel_array[0].checked = true;
+        } else if (compUT.uniqueID === sel_array[1].uniqueID) {
+          console.log('equal to 1 from sel');
+          sel_array[1].checked = true;
+        } else if (compUT.uniqueID === sel_array[2].uniqueID) {
+          console.log('equal to 2 from sel');
+          sel_array[2].checked = true;
         }
       }
-      if (parent.uniqueID === compTo.uniqueID) {
-        if (this.isClassicKnoten(compFrom)) {
-          if (compFrom.onPath !== false) {
-            count += 1;
-            console.log(compFrom.symbol, '+1');
-          }
-        } else if (compFrom.selected || compFrom.onPath === true) {
-          count += 1;
-          console.log(compFrom.symbol, '+1');
-        }
-      }
-    }
-    const counterCo = circuit.getCountConnection(parent);
-    let counterT = 0;
-    for (let wire of circuit.wires) {
-      var compFrom2 = circuit.componentFromPin(wire.from);
-      var compTo2 = circuit.componentFromPin(wire.to);
+      return { bool: true };
+    };
+    for (let w of circuit.wires) {
+      const fromComp2 = circuit.componentFromPin(w.from);
+      const toComp2 = circuit.componentFromPin(w.to);
       if (
-        parent.uniqueID === compFrom2.uniqueID &&
-        !this.isClassicKnoten(compTo2) &&
-        !compTo2.selected
+        destC.uniqueID === fromComp2.uniqueID &&
+        originC.uniqueID !== toComp2.uniqueID
       ) {
-        console.log('specific neignbors');
-        counterT += 1;
+        let res = searchExtremities(toComp2);
+        if (!res.bool) {
+          this.findPathToAll(circuit, originC, res.newKn);
+        }
       }
       if (
-        parent.uniqueID === compTo2.uniqueID &&
-        !this.isClassicKnoten(compFrom2) &&
-        !compFrom2.selected
+        destC.uniqueID === toComp2.uniqueID &&
+        originC.uniqueID !== fromComp2.uniqueID
       ) {
-        console.log('specific neignbors');
-        counterT += 1;
+        let res = searchExtremities(fromComp2);
+        if (!res.bool) {
+          this.findPathToAll(circuit, originC, res.newKn);
+        }
       }
     }
-    if (counterCo === counterT) {
-      console.log('only specific neignbors');
-      return false;
+  }
+
+  //simplify Knoten : merge KnOne and KnTwo : originC--KnOne--KnTwo--rest => originC--KnOne--rest
+  //KnOne will be/store the specialKnoten from the Path
+  fusion2NeighborsKnoten(circuit, KnOne, KnTwo) {
+    //transfer all connections from KnTwo to KnOne
+    const transferConnections = (Kalive, Kdead) => {
+      for (let wire of circuit.wires) {
+        const compFrom = circuit.componentFromPin(wire.from);
+        const compTo = circuit.componentFromPin(wire.to);
+        if (Kdead.uniqueID === compFrom.uniqueID) {
+          if (compTo.uniqueID !== Kalive.uniqueID) {
+            wire.from = Kalive.pins[0];
+          }
+        }
+        if (Kdead.uniqueID === compTo.uniqueID) {
+          if (compFrom.uniqueID !== Kalive.uniqueID) {
+            wire.to = Kalive.pins[0];
+          }
+        }
+      }
+      //Kdead will be destoyed
+      circuit.deleteOneComponent(Kdead);
+    };
+    //control if the path has already a specialKnoten
+    if (this.isClassicKnoten(KnOne) && this.isClassicKnoten(KnTwo)) {
+      console.log(KnOne.symbol, 'is c and', KnTwo.symbol, 'is c');
+      transferConnections(KnOne, KnTwo);
+      return { bool: true, kn: KnOne };
     }
-    if (count > 1) {
-      console.log('true');
-      return true;
-    } else {
-      console.log('false');
-      return false;
+    if (!this.isClassicKnoten(KnOne) && this.isClassicKnoten(KnTwo)) {
+      console.log(KnOne.symbol, 'is s and', KnTwo.symbol, 'is c');
+      transferConnections(KnOne, KnTwo);
+      return { bool: true, kn: KnOne };
+    }
+    if (this.isClassicKnoten(KnOne) && !this.isClassicKnoten(KnTwo)) {
+      console.log(KnOne.symbol, 'is c and', KnTwo.symbol, 'is s');
+      transferConnections(KnTwo, KnOne);
+      return { bool: true, kn: KnTwo };
+    }
+    if (!this.isClassicKnoten(KnOne) && !this.isClassicKnoten(KnTwo)) {
+      console.log(KnOne.symbol, 'is s and', KnTwo.symbol, 'is s');
+      return { bool: false };
     }
   }
+
   isClassicKnoten(comp) {
     return comp instanceof KnotenJS && comp.valuePotentialSource === undefined;
   }
 
   conversion(selectedComp_array, circuit) {
     console.log('###CONVERSION###');
-    //Knoten fusion before all to simplify circuits part
-    for (let comp of selectedComp_array) {
-      for (let w of circuit.wires) {
-        const fromComp = circuit.componentFromPin(w.from);
-        const toComp = circuit.componentFromPin(w.to);
-        if (comp.uniqueID === fromComp.uniqueID) {
-          const result = this.fusionNeighborsKnoten(circuit, fromComp, toComp);
-          if (!result) {
-            return false;
-          }
-        }
-        if (comp.uniqueID === toComp.uniqueID) {
-          const result = this.fusionNeighborsKnoten(circuit, toComp, fromComp);
-          if (!result) {
-            return false;
-          }
-        }
-      }
-    }
+    this.isInDreieck(circuit);
+    //The circuit is simplified and ready for the mathematical step
+
     //add centered Knoten
     let [x, y] = middle3Points(
       selectedComp_array[0],
       selectedComp_array[1],
       selectedComp_array[2]
     );
-
     let kn = dropComp({
       c_id: 'Knoten',
       valueLeft: x,
       valueTop: y
     });
     circuit.components.push(kn);
-    //detach one Wire from each extremity
-    let compA = selectedComp_array[0];
-    console.log(compA.symbol);
-    for (let w of circuit.wires) {
-      const fromComp = circuit.componentFromPin(w.from);
-      const toComp = circuit.componentFromPin(w.to);
-      if (compA.uniqueID === fromComp.uniqueID) {
-        console.log('0a', toComp.symbol);
-        this.extremity1_comp === undefined
-          ? (this.extremity1_comp = toComp)
-          : (this.extremity2_comp = toComp);
-      }
-      if (compA.uniqueID === toComp.uniqueID) {
-        console.log('1a', fromComp.symbol);
-        this.extremity1_comp === undefined
-          ? (this.extremity1_comp = fromComp)
-          : (this.extremity2_comp = fromComp);
-      }
-    }
-    console.log(
-      'ext',
-      this.extremity1_comp.symbol,
-      this.extremity2_comp.symbol
-    );
-    let compB = selectedComp_array[1];
-    console.log(compB.symbol);
-    for (let w of circuit.wires) {
-      const fromComp = circuit.componentFromPin(w.from);
-      const toComp = circuit.componentFromPin(w.to);
-      if (compB.uniqueID === fromComp.uniqueID) {
-        console.log('0b', toComp.symbol);
-        if (
-          toComp.uniqueID !== this.extremity1_comp.uniqueID &&
-          toComp.uniqueID !== this.extremity2_comp.uniqueID
-        ) {
-          console.log('3');
-          this.extremity3_comp = toComp;
-        }
-      }
-      if (compB.uniqueID === toComp.uniqueID) {
-        console.log('1b', fromComp.symbol);
-        if (
-          fromComp.uniqueID !== this.extremity1_comp.uniqueID &&
-          fromComp.uniqueID !== this.extremity2_comp.uniqueID
-        ) {
-          console.log('3');
-          this.extremity3_comp = fromComp;
-        }
-      }
-    }
 
     console.log(
       this.extremity1_comp.symbol,
@@ -435,10 +375,13 @@ export default class DreieckToStern {
     });
     console.log('divisor', divisor);
 
+    circuit.components.map(c => (c.checked = undefined));
+    //----- first step
+
     console.log('ON*', this.extremity1_comp.symbol);
     this.extremity1_comp.ngbValueR = [];
-    var ext1_comp = undefined;
-    var keepOne = 0;
+    let ext1_comp = undefined;
+    let keepOne = 0;
     for (let i = circuit.wires.length - 1; i >= 0; i--) {
       let w = circuit.wires[i];
       const fromComp = circuit.componentFromPin(w.from);
@@ -457,7 +400,7 @@ export default class DreieckToStern {
         } else {
           toComp.checked = false;
           console.log(toComp.symbol, 'is not Checked');
-          circuit.deleteOneWire(w, i);
+          circuit.deleteOneWire(w);
         }
       }
       if (
@@ -474,21 +417,21 @@ export default class DreieckToStern {
         } else {
           fromComp.checked = false;
           console.log(fromComp.symbol, 'is not Checked');
-          circuit.deleteOneWire(w, i);
+          circuit.deleteOneWire(w);
         }
       }
     }
-    if (this.extremity1_comp.ngbValueR.length === 2) {
-      console.log(
-        '*data*',
-        this.extremity1_comp.ngbValueR[0],
-        this.extremity1_comp.ngbValueR[1],
-        divisor
-      );
-      let dividend_ext1 =
-        this.extremity1_comp.ngbValueR[0] * this.extremity1_comp.ngbValueR[1];
-      var firstValueR = dividend_ext1 / divisor;
-    }
+    console.log(
+      '*data*',
+      this.extremity1_comp.ngbValueR[0],
+      this.extremity1_comp.ngbValueR[1],
+      divisor
+    );
+    let dividend_ext1 =
+      this.extremity1_comp.ngbValueR[0] * this.extremity1_comp.ngbValueR[1];
+    var firstValueR = dividend_ext1 / divisor;
+
+    //----- second step
 
     console.log('ON**', this.extremity2_comp.symbol);
     this.extremity2_comp.ngbValueR = [];
@@ -506,7 +449,7 @@ export default class DreieckToStern {
         this.extremity2_comp.ngbValueR.push(val);
         if (toComp.checked === true) {
           console.log(toComp.symbol, 'is already Checked');
-          circuit.deleteOneWire(w, i);
+          circuit.deleteOneWire(w);
         } else if (toComp.checked === false) {
           toComp.checked = true;
           console.log(toComp.symbol, 'is Checked');
@@ -514,7 +457,7 @@ export default class DreieckToStern {
         } else {
           console.log('undefined');
           toComp.checked = false;
-          circuit.deleteOneWire(w, i);
+          circuit.deleteOneWire(w);
         }
       }
       if (
@@ -526,7 +469,7 @@ export default class DreieckToStern {
         this.extremity2_comp.ngbValueR.push(val);
         if (fromComp.checked) {
           console.log(fromComp.symbol, 'is already Checked');
-          circuit.deleteOneWire(w, i);
+          circuit.deleteOneWire(w);
         } else if (fromComp.checked === false) {
           fromComp.checked = true;
           console.log(fromComp.symbol, 'is Checked');
@@ -534,21 +477,21 @@ export default class DreieckToStern {
         } else {
           console.log('undefined');
           fromComp.checked = false;
-          circuit.deleteOneWire(w, i);
+          circuit.deleteOneWire(w);
         }
       }
     }
-    if (this.extremity1_comp.ngbValueR.length === 2) {
-      console.log(
-        '*data*',
-        this.extremity2_comp.ngbValueR[0],
-        this.extremity2_comp.ngbValueR[1],
-        divisor
-      );
-      let dividend_ext2 =
-        this.extremity2_comp.ngbValueR[0] * this.extremity2_comp.ngbValueR[1];
-      var secondValueR = dividend_ext2 / divisor;
-    }
+    console.log(
+      '*data*',
+      this.extremity2_comp.ngbValueR[0],
+      this.extremity2_comp.ngbValueR[1],
+      divisor
+    );
+    let dividend_ext2 =
+      this.extremity2_comp.ngbValueR[0] * this.extremity2_comp.ngbValueR[1];
+    var secondValueR = dividend_ext2 / divisor;
+
+    //----- third step
 
     console.log('ON***', this.extremity3_comp.symbol);
     this.extremity3_comp.ngbValueR = [];
@@ -557,7 +500,6 @@ export default class DreieckToStern {
       let w = circuit.wires[i];
       const fromComp = circuit.componentFromPin(w.from);
       const toComp = circuit.componentFromPin(w.to);
-      console.log(fromComp.symbol, '-', toComp.symbol);
       if (
         this.extremity3_comp.uniqueID === fromComp.uniqueID &&
         toComp.selected
@@ -567,7 +509,7 @@ export default class DreieckToStern {
         this.extremity3_comp.ngbValueR.push(val);
         if (toComp.checked) {
           console.log(toComp.symbol, 'is already Checked');
-          circuit.deleteOneWire(w, i);
+          circuit.deleteOneWire(w);
         } else {
           console.log(toComp.symbol, 'is Checked');
           ext3_comp = toComp;
@@ -582,36 +524,26 @@ export default class DreieckToStern {
         this.extremity3_comp.ngbValueR.push(val);
         if (fromComp.checked) {
           console.log(fromComp.symbol, 'is already Checked');
-          circuit.deleteOneWire(w, i);
+          circuit.deleteOneWire(w);
         } else {
           console.log(fromComp.symbol, 'is Checked');
           ext3_comp = fromComp;
         }
       }
     }
-    if (this.extremity1_comp.ngbValueR.length === 2) {
-      console.log(
-        '*data*',
-        this.extremity3_comp.ngbValueR[0],
-        this.extremity3_comp.ngbValueR[1],
-        divisor
-      );
-      let dividend_ext3 =
-        this.extremity3_comp.ngbValueR[0] * this.extremity3_comp.ngbValueR[1];
-      var thirdValueR = dividend_ext3 / divisor;
-    }
+    console.log(
+      '*data*',
+      this.extremity3_comp.ngbValueR[0],
+      this.extremity3_comp.ngbValueR[1],
+      divisor
+    );
+    let dividend_ext3 =
+      this.extremity3_comp.ngbValueR[0] * this.extremity3_comp.ngbValueR[1];
+    var thirdValueR = dividend_ext3 / divisor;
 
-    console.log('********************************************');
-    console.log(ext1_comp.valueR);
-    console.log(ext2_comp.valueR);
-    console.log(ext3_comp.valueR);
     ext1_comp.valueR = firstValueR;
     ext2_comp.valueR = secondValueR;
     ext3_comp.valueR = thirdValueR;
-    console.log('********************************************');
-    console.log(ext1_comp.valueR);
-    console.log(ext2_comp.valueR);
-    console.log(ext3_comp.valueR);
 
     selectedComp_array.forEach(c => {
       if (c.showPin1) {
@@ -621,59 +553,6 @@ export default class DreieckToStern {
         circuit.createOneWire(c, 1, kn, 0);
       }
     });
-    circuit.components.map(c => (c.checked = false));
-    circuit.components.map(comp => (comp.visited = false));
-    circuit.components.map(comp => (comp.onPath = undefined));
-  }
-
-  fusionNeighborsKnoten(circuit, origin, destination) {
-    origin.isConnected = false;
-    origin.hasTooMuchNeighbor = false;
-    let localKnoten = [];
-    circuit.components.map(comp => (comp.visited = false));
-    circuit.components.map(comp => (comp.onPath = undefined));
-    console.log('find', origin.symbol, destination.isMultiPin);
-    this.nextNeighbor(circuit, origin, origin, destination, localKnoten);
-
-    circuit.components.map(comp => (comp.visited = false));
-    // for fusion keep One, transfer only connection (circuit.wires) to One and delete other
-    console.log('GO LK');
-    let keepAlive;
-    console.log(localKnoten);
-    localKnoten.forEach((lk, index) => {
-      if (
-        lk instanceof KlemmeJS ||
-        (lk instanceof KnotenJS && lk.valuePotentialSource !== undefined)
-      ) {
-        console.log('find keepAlive');
-        [keepAlive] = localKnoten.splice(index, 1);
-      }
-    });
-    if (keepAlive === undefined) {
-      [keepAlive] = localKnoten.splice(0, 1);
-    }
-    console.log('keepAlive', keepAlive.symbol);
-    localKnoten.forEach(lk => {
-      for (let i = 0; i < circuit.wires.length; i++) {
-        let wire = circuit.wires[i];
-        const compFrom = circuit.componentFromPin(wire.from);
-        const compTo = circuit.componentFromPin(wire.to);
-        if (lk.uniqueID === compFrom.uniqueID) {
-          if (compTo.uniqueID !== keepAlive.uniqueID) {
-            wire.from = keepAlive.pins[0];
-          }
-        }
-        if (lk.uniqueID === compTo.uniqueID) {
-          if (compFrom.uniqueID !== keepAlive.uniqueID) {
-            wire.to = keepAlive.pins[0];
-          }
-        }
-      }
-    });
-    // Delete Other
-    localKnoten.forEach(lk => {
-      circuit.deleteOneComponent(lk);
-    });
-    return true;
+    circuit.components.map(c => (c.checked = undefined));
   }
 }

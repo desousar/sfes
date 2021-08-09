@@ -4,6 +4,8 @@ export default class Permutation {
   /**
    * Situation
    * neighborA*neighborAPin--futurePinInB*compB*futurePinOutB--simpleKnoten--futurePinOutA*compA*futurePinInA--neighborBPin*neighborB
+   * OR
+   * neighborA*neighborAPin--futurePinInB*compB*futurePinOutB----futurePinOutA*compA*futurePinInA--neighborBPin*neighborB
    */
   constructor() {
     this.neighborA = undefined;
@@ -29,50 +31,75 @@ export default class Permutation {
    * @param {just comp with attribut selected === true} selectedComp_array
    * @param {entire object} circuit
    * @returns true if condition are met :
-   * -isInSerieWithKn()
+   * -twoAreInSerie()
    */
-  isPossible(selectedComp_array, circuit) {
+  isPossible (selectedComp_array, circuit) {
     console.log('---------Permutation---------');
     if (selectedComp_array.length !== 2) {
       return false;
     }
     let isInSerie_bool = false;
-    isInSerie_bool = this.isInSerieWithKn(selectedComp_array, circuit);
+    isInSerie_bool = this.twoAreInSerie(selectedComp_array, circuit);
     return isInSerie_bool;
   }
 
-  isInSerieWithKn(selectedComp_array, circuit) {
+  twoAreInSerie (selectedComp_array, circuit) {
     const compA = selectedComp_array[0];
     console.log('start on compA', compA.symbol);
     for (let w of circuit.wires) {
       const fromComp = circuit.componentFromPin(w.from);
       const toComp = circuit.componentFromPin(w.to);
       if (
-        compA.uniqueID === fromComp.uniqueID &&
-        this.isClassicKnoten(toComp)
+        compA.uniqueID === fromComp.uniqueID
       ) {
-        this.nextJump(circuit, toComp, fromComp, w.from);
+        if (this.isClassicKnoten(circuit, toComp)) {
+          this.nextJumpWithKn(circuit, toComp, fromComp, w.from);
+        } else if (toComp instanceof KnotenJS) {
+          return false
+        }
+        else {
+          this.assignAttributes(
+            circuit,
+            null,
+            fromComp,
+            w.from,
+            toComp,
+            w.to
+          )
+        }
       }
       if (
-        compA.uniqueID === toComp.uniqueID &&
-        this.isClassicKnoten(fromComp)
+        compA.uniqueID === toComp.uniqueID
       ) {
-        this.nextJump(circuit, fromComp, toComp, w.to);
+        if (this.isClassicKnoten(circuit, fromComp)) {
+          this.nextJumpWithKn(circuit, fromComp, toComp, w.to);
+        } else if (fromComp instanceof KnotenJS) {
+          return false
+        }
+        else {
+          this.assignAttributes(
+            circuit,
+            undefined,
+            toComp,
+            w.to,
+            fromComp,
+            w.from
+          )
+        }
       }
-    }
-    if (this.simpleKnoten === undefined) {
-      return false;
     }
 
     console.log(
       this.futurePinInA,
       this.compA.symbol,
       this.futurePinOutA,
-      this.simpleKnoten.symbol,
       this.futurePinOutB,
       this.compB.symbol,
       this.futurePinInB
-    );
+    )
+    if (this.simpleKnoten) {
+      console.log('Knoten common', this.simpleKnoten.symbol)
+    }
     if (this.neighborA) {
       console.log(this.neighborA.symbol, this.neighborAPin);
     }
@@ -82,8 +109,10 @@ export default class Permutation {
     return true;
   }
 
-  isClassicKnoten(comp) {
-    return comp instanceof KnotenJS && comp.valuePotentialSource === undefined;
+  isClassicKnoten (circuit, comp) {
+    if (comp instanceof KnotenJS) {
+      return comp.valuePotentialSource === undefined && circuit.getCountConnection(comp) === 2
+    } else { return false }
   }
 
   /**
@@ -94,7 +123,7 @@ export default class Permutation {
    * @param {*} coordParentPin
    * @returns
    */
-  nextJump(circuit, fromComp, parentComp, coordParentPin) {
+  nextJumpWithKn (circuit, fromComp, parentComp, coordParentPin) {
     for (let w2 of circuit.wires) {
       const fromComp2 = circuit.componentFromPin(w2.from);
       const toComp2 = circuit.componentFromPin(w2.to);
@@ -132,7 +161,7 @@ export default class Permutation {
     }
   }
 
-  assignAttributes(
+  assignAttributes (
     circuit,
     simpleKnoten,
     compA,
@@ -165,10 +194,16 @@ export default class Permutation {
     for (let w3 of circuit.wires) {
       const fromComp3 = circuit.componentFromPin(w3.from);
       const toComp3 = circuit.componentFromPin(w3.to);
+      let insideCompForA;
+      if (simpleKnoten) {
+        insideCompForA = simpleKnoten
+      } else {
+        insideCompForA = this.compB
+      }
       if (
         fromComp3.uniqueID === compA.uniqueID &&
         w3.from === compA.pins[this.futurePinInA] &&
-        toComp3 !== simpleKnoten
+        toComp3.uniqueID !== insideCompForA.uniqueID
       ) {
         this.neighborA = toComp3;
         this.neighborAPin = circuit.pinIndexFromComponent(toComp3, w3.to);
@@ -176,16 +211,23 @@ export default class Permutation {
       if (
         toComp3.uniqueID === compA.uniqueID &&
         w3.to === compA.pins[this.futurePinInA] &&
-        fromComp3 !== simpleKnoten
+        fromComp3.uniqueID !== insideCompForA.uniqueID
       ) {
         this.neighborA = fromComp3;
         this.neighborAPin = circuit.pinIndexFromComponent(fromComp3, w3.from);
       }
 
+      /*---*/
+      let insideCompForB;
+      if (simpleKnoten) {
+        insideCompForB = simpleKnoten
+      } else {
+        insideCompForB = this.compA
+      }
       if (
         fromComp3.uniqueID === compB.uniqueID &&
         w3.from === compB.pins[this.futurePinInB] &&
-        toComp3 !== simpleKnoten
+        toComp3.uniqueID !== insideCompForB.uniqueID
       ) {
         this.neighborB = toComp3;
         this.neighborBPin = circuit.pinIndexFromComponent(toComp3, w3.to);
@@ -193,7 +235,7 @@ export default class Permutation {
       if (
         toComp3.uniqueID === compB.uniqueID &&
         w3.to === compB.pins[this.futurePinInB] &&
-        fromComp3 !== simpleKnoten
+        fromComp3.uniqueID !== insideCompForB.uniqueID
       ) {
         this.neighborB = fromComp3;
         this.neighborBPin = circuit.pinIndexFromComponent(fromComp3, w3.from);
@@ -204,8 +246,8 @@ export default class Permutation {
   /**
    * permutation
    */
-  conversion(selectedComp_array, circuit) {
-    this.isInSerieWithKn(selectedComp_array, circuit);
+  conversion (selectedComp_array, circuit) {
+    this.twoAreInSerie(selectedComp_array, circuit);
     //STEP 1) delete 4 Wires : neighborA--compA--simpleKnoten--compB--neighborB
     for (let index = circuit.wires.length - 1; index >= 0; index--) {
       let wire = circuit.wires[index];
@@ -219,26 +261,38 @@ export default class Permutation {
             fromComp.uniqueID === this.compA.uniqueID)
         ) {
           //neighborA--compA
-          circuit.deleteOneWire(wire, index);
+          circuit.deleteOneWire(wire);
         }
       }
-      if (
-        (fromComp.uniqueID === this.compA.uniqueID &&
-          toComp.uniqueID === this.simpleKnoten.uniqueID) ||
-        (toComp.uniqueID === this.compA.uniqueID &&
-          fromComp.uniqueID === this.simpleKnoten.uniqueID)
-      ) {
-        //compA--simpleKnoten
-        circuit.deleteOneWire(wire, index);
-      }
-      if (
-        (fromComp.uniqueID === this.simpleKnoten.uniqueID &&
-          toComp.uniqueID === this.compB.uniqueID) ||
-        (toComp.uniqueID === this.simpleKnoten.uniqueID &&
-          fromComp.uniqueID === this.compB.uniqueID)
-      ) {
-        //simpleKnoten--compB
-        circuit.deleteOneWire(wire, index);
+      if (this.simpleKnoten) {
+        if (
+          (fromComp.uniqueID === this.compA.uniqueID &&
+            toComp.uniqueID === this.simpleKnoten.uniqueID) ||
+          (toComp.uniqueID === this.compA.uniqueID &&
+            fromComp.uniqueID === this.simpleKnoten.uniqueID)
+        ) {
+          //compA--simpleKnoten
+          circuit.deleteOneWire(wire);
+        }
+        if (
+          (fromComp.uniqueID === this.simpleKnoten.uniqueID &&
+            toComp.uniqueID === this.compB.uniqueID) ||
+          (toComp.uniqueID === this.simpleKnoten.uniqueID &&
+            fromComp.uniqueID === this.compB.uniqueID)
+        ) {
+          //simpleKnoten--compB
+          circuit.deleteOneWire(wire);
+        }
+      } else {
+        if (
+          (fromComp.uniqueID === this.compA.uniqueID &&
+            toComp.uniqueID === this.compB.uniqueID) ||
+          (toComp.uniqueID === this.compA.uniqueID &&
+            fromComp.uniqueID === this.compB.uniqueID)
+        ) {
+          //compA--compB
+          circuit.deleteOneWire(wire);
+        }
       }
       if (this.neighborB) {
         if (
@@ -248,10 +302,11 @@ export default class Permutation {
             fromComp.uniqueID === this.neighborB.uniqueID)
         ) {
           //compB--neighborB
-          circuit.deleteOneWire(wire, index);
+          circuit.deleteOneWire(wire);
         }
       }
     }
+
     //STEP 2) swap coord (top and left) btw compA and compB
     const compAx = this.compA.x;
     const compAy = this.compA.y;
@@ -269,8 +324,12 @@ export default class Permutation {
     //STEP 3) create deleted Wires again : neighborA--compB--simpleKnoten--compA--neighborB
     //model: neighborA*neighborAPin--futurePinOutB*compB*futurePinInB--simpleKnoten--futurePinInA*compA*futurePinOutA--neighborBPin*neighborB
 
-    circuit.createOneWire(this.compB, this.futurePinInB, this.simpleKnoten, 0);
-    circuit.createOneWire(this.simpleKnoten, 0, this.compA, this.futurePinInA);
+    if (this.simpleKnoten) {
+      circuit.createOneWire(this.compB, this.futurePinInB, this.simpleKnoten, 0);
+      circuit.createOneWire(this.simpleKnoten, 0, this.compA, this.futurePinInA);
+    } else {
+      circuit.createOneWire(this.compB, this.futurePinInB, this.compA, this.futurePinInA);
+    }
 
     if (this.neighborA && this.neighborB) {
       if (

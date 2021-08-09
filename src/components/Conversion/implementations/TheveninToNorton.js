@@ -46,7 +46,7 @@ export default class TheveninToNorton {
    * -isInstanceCorrect()
    * -isInSerie()
    */
-  isPossible(onReal, selectedComp_array, circuit) {
+  isPossible (onReal, selectedComp_array, circuit) {
     console.log('---------TheveninToNorton---------');
     let isInstanceCorrect_bool = false;
     let isInSerie_bool = false;
@@ -58,7 +58,7 @@ export default class TheveninToNorton {
     return isInstanceCorrect_bool && isInSerie_bool;
   }
 
-  isInstanceCorrect(selectedComp_array) {
+  isInstanceCorrect (selectedComp_array) {
     let oneResistor = false;
     let oneVoltageSrc = false;
     selectedComp_array.forEach(comp => {
@@ -74,7 +74,7 @@ export default class TheveninToNorton {
     return oneResistor && oneVoltageSrc;
   }
 
-  isInSerie(onReal, selectedComp_array, circuit) {
+  isInSerie (onReal, selectedComp_array, circuit) {
     circuit.components.map(comp => (comp.flagConversion = false));
     this.ext1in_maincomp.flagConversion = true;
     console.log(this.ext1in_maincomp.symbol, 'fflagConversion = true');
@@ -118,7 +118,7 @@ export default class TheveninToNorton {
     return result;
   }
 
-  gotoNextCompWith(circuit, comp) {
+  gotoNextCompWith (circuit, comp) {
     for (let wire of circuit.wires) {
       const compFrom = circuit.componentFromPin(wire.from);
       const compTo = circuit.componentFromPin(wire.to);
@@ -139,7 +139,7 @@ export default class TheveninToNorton {
       }
     }
   }
-  getNextCompWith(circuit, origin, comp) {
+  getNextCompWith (circuit, origin, comp) {
     for (let wire of circuit.wires) {
       const compFrom = circuit.componentFromPin(wire.from);
       const compTo = circuit.componentFromPin(wire.to);
@@ -152,7 +152,7 @@ export default class TheveninToNorton {
     }
   }
 
-  nextNeighbor(circuit, origin, comp) {
+  nextNeighbor (circuit, origin, comp) {
     console.log(comp.symbol, 'is under test');
     if (comp.flagConversion === true) {
       console.log(comp.symbol, ' flagConversion is already true A LOOP');
@@ -217,14 +217,14 @@ export default class TheveninToNorton {
         if (
           this.ext1in_maincomp.uniqueID === compFrom.uniqueID &&
           circuit.pinIndexFromComponent(this.ext1in_maincomp, wire.from) ===
-            this.ext1in_pinID_start
+          this.ext1in_pinID_start
         ) {
           pinID = circuit.pinIndexFromComponent(compTo, wire.to);
           extremity = compTo;
         } else if (
           this.ext1in_maincomp.uniqueID === compTo.uniqueID &&
           circuit.pinIndexFromComponent(this.ext1in_maincomp, wire.to) ===
-            this.ext1in_pinID_start
+          this.ext1in_pinID_start
         ) {
           pinID = circuit.pinIndexFromComponent(comp, wire.from);
           extremity = compFrom;
@@ -235,7 +235,7 @@ export default class TheveninToNorton {
     }
   }
 
-  conversion(circuit) {
+  conversion (circuit) {
     // delete Knoten btw VoltageSrc and Resistor
     for (var i = circuit.components.length - 1; i >= 0; i--) {
       let kn = circuit.components[i];
@@ -250,14 +250,14 @@ export default class TheveninToNorton {
     const dirI = this.ext1in_maincomp.directionI;
     circuit.deleteOneComponent(this.ext1in_maincomp);
     // delete wire from Resistor
-    circuit.wires.forEach((wire, index) => {
+    circuit.wires.forEach((wire) => {
       const compFrom = circuit.componentFromPin(wire.from);
       const compTo = circuit.componentFromPin(wire.to);
       if (
         this.rComp.uniqueID === compFrom.uniqueID ||
         this.rComp.uniqueID === compTo.uniqueID
       ) {
-        circuit.deleteOneWire(wire, index);
+        circuit.deleteOneWire(wire);
       }
     });
     this.rComp.selected = false;

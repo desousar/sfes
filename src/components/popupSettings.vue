@@ -116,7 +116,6 @@ export default {
       EventBus.$emit('PUSpredVal', this.withPredVal);
     },
     close() {
-      console.log('close PUS');
       this.$emit('close');
     }
   }

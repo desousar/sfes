@@ -184,7 +184,7 @@
             />
             <div>W</div>
           </slot>
-          <slot  v-if="isResistor()">
+          <slot v-if="isResistor()">
             <div></div>
             <div>({{ verLeistung[getCurrentLanguage] }})</div>
           </slot>
@@ -307,7 +307,7 @@ export default {
       },
       source_data: { en: 'Source', de: 'Quelle' },
       erzLeistung: { en: 'generated power', de: 'erzeugte Leistung' },
-      verLeistung: { en: 'consume power', de: 'verbrauchte Leistung' },
+      verLeistung: { en: 'consumed power', de: 'verbrauchte Leistung' },
       current_data: { en: 'current', de: 'strom' },
       voltage_data: { en: 'voltage', de: 'spannung' },
       checkboxArrow_data: {
@@ -320,13 +320,11 @@ export default {
     isPopupCompVisible: function(newVal) {
       if (newVal) {
         //graphical aspect
-        this.compoToPass.directionI === 0
-          ? (this.compoToPass.showIdir0 = true)
-          : (this.compoToPass.showIdir1 = true);
-
-        this.compoToPass.directionU === 0
-          ? (this.compoToPass.showUdir0 = true)
-          : (this.compoToPass.showUdir1 = true);
+        this.attributionTemp();
+        /**
+         * TODO
+         * add grey arrow (play local with grey arrow and before close, give value to real black arrow)
+         */
       }
     }
   },
@@ -336,6 +334,14 @@ export default {
     }
   },
   methods: {
+    attributionTemp() {
+      this.compoToPass.directionI === 0
+        ? (this.compoToPass.showIdir0Temp = true)
+        : (this.compoToPass.showIdir1Temp = true);
+      this.compoToPass.directionU === 0
+        ? (this.compoToPass.showUdir0Temp = true)
+        : (this.compoToPass.showUdir1Temp = true);
+    },
     outsideClick() {
       this.close();
     },
@@ -421,12 +427,18 @@ export default {
         if (document.getElementById('displayDirI').checked) {
           this.compoToPass.showIdir0 = false;
           this.compoToPass.showIdir1 = true;
+        } else {
+          this.compoToPass.showIdir0Temp = false;
+          this.compoToPass.showIdir1Temp = true;
         }
       } else if (this.compoToPass.directionI === 1) {
         this.compoToPass.directionI = 0;
         if (document.getElementById('displayDirI').checked) {
           this.compoToPass.showIdir0 = true;
           this.compoToPass.showIdir1 = false;
+        } else {
+          this.compoToPass.showIdir0Temp = true;
+          this.compoToPass.showIdir1Temp = false;
         }
       }
       document.getElementById('alertHint').style.color = 'green';
@@ -444,6 +456,12 @@ export default {
         this.compoToPass.showIdir0 = !this.compoToPass.showIdir0;
       } else if (this.compoToPass.directionI === 1) {
         this.compoToPass.showIdir1 = !this.compoToPass.showIdir1;
+      }
+      if (this.controlDirI()) {
+        this.compoToPass.showIdir0Temp = false;
+        this.compoToPass.showIdir1Temp = false;
+      } else {
+        this.attributionTemp();
       }
     },
     controlDirI() {
@@ -471,12 +489,18 @@ export default {
         if (document.getElementById('displayDirU').checked) {
           this.compoToPass.showUdir0 = false;
           this.compoToPass.showUdir1 = true;
+        } else {
+          this.compoToPass.showUdir0Temp = false;
+          this.compoToPass.showUdir1Temp = true;
         }
       } else if (this.compoToPass.directionU === 1) {
         this.compoToPass.directionU = 0;
         if (document.getElementById('displayDirU').checked) {
           this.compoToPass.showUdir0 = true;
           this.compoToPass.showUdir1 = false;
+        } else {
+          this.compoToPass.showUdir0Temp = true;
+          this.compoToPass.showUdir1Temp = false;
         }
       }
       document.getElementById('alertHint').style.color = 'green';
@@ -494,6 +518,12 @@ export default {
         this.compoToPass.showUdir0 = !this.compoToPass.showUdir0;
       } else if (this.compoToPass.directionU === 1) {
         this.compoToPass.showUdir1 = !this.compoToPass.showUdir1;
+      }
+      if (this.controlDirU()) {
+        this.compoToPass.showUdir0Temp = false;
+        this.compoToPass.showUdir1Temp = false;
+      } else {
+        this.attributionTemp();
       }
     },
     controlDirU() {
@@ -642,6 +672,10 @@ export default {
           });
         }
         this.valueIsModified = false;
+        this.compoToPass.showIdir0Temp = false;
+        this.compoToPass.showIdir1Temp = false;
+        this.compoToPass.showUdir0Temp = false;
+        this.compoToPass.showUdir1Temp = false;
         this.$emit('close');
       }
     },

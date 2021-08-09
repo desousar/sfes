@@ -26,7 +26,7 @@ export default class Resistor extends Component {
     this.valueP = undefined;
   }
 
-  calculatePower() {
+  calculatePower () {
     /**
      * directionU = 0 => pin0 -> pin1
      * directionI = 0 => pin0 -> pin1
@@ -38,7 +38,7 @@ export default class Resistor extends Component {
     this.valueP = this.valueU * dU * this.valueI * dI;
   }
 
-  assertMainValueStr() {
+  assertMainValueStr () {
     if (this.valueR == undefined) {
       return 'missing resistance value on ' + this.symbol;
     } else {
@@ -53,7 +53,7 @@ export default class Resistor extends Component {
    * @param {number subschaltung} nb
    * @param {*} rowCounter
    */
-  bauteilEqu(A, b, listModel, nb, rowCounter) {
+  bauteilEqu (A, b, listModel, nb, rowCounter) {
     if (this.directionI === this.directionU) {
       //falls beide Pfeile in selben Richtung
       //1*U+(-R)*I=0
@@ -73,7 +73,7 @@ export default class Resistor extends Component {
     }
   }
 
-  resetCalculatedValues() {
+  resetCalculatedValues () {
     this.valueU = undefined;
     this.valueI = undefined;
     this.potentialPin0 = undefined;
@@ -81,24 +81,26 @@ export default class Resistor extends Component {
   }
 
   //Tooltip
-  getString() {
+  getString () {
     if (this.valueP) {
+      return `
+    ${this.symbol} = ${this.valueR} &#8486<br>
+    U_${this.symbol} = ${this.valueU} V<br>
+    I_${this.symbol} = ${this.valueI} A<br>
+    P_${this.symbol} = ${this.valueP} W<br>
+    consumed power
+    `;
+    } else {
       return `
     ${this.symbol} = ${this.valueR} &#8486<br>
     U_${this.symbol} = ${this.valueU} V<br>
     I_${this.symbol} = ${this.valueI} A<br>
     P_${this.symbol} = ${this.valueP} W
     `;
-    } else {
-      return `
-    ${this.symbol} = ${this.valueR} &#8486<br>
-    U_${this.symbol} = ${this.valueU} V<br>
-    I_${this.symbol} = ${this.valueI} A
-    `;
     }
   }
 
-  getExportString() {
+  getExportString () {
     let data =
       this.symbol +
       '(' +
@@ -115,8 +117,12 @@ export default class Resistor extends Component {
     return data;
   }
 
+  selection () {
+    this.selected = !this.selected
+  }
+
   //Pop Up Result
-  getPopupResultRow(table) {
+  getPopupResultRow (table) {
     let tr = document.createElement('tr');
     /**
      * left column

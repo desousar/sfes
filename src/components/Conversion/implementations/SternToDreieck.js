@@ -1,5 +1,4 @@
 import KnotenJS from '../../jsFolder/constructorComponent/jsComponents/Knoten';
-import KlemmeJS from '../../jsFolder/constructorComponent/jsComponents/Klemme';
 import ResistorJS from '../../jsFolder/constructorComponent/jsComponents/Resistor';
 
 import { dropComp } from '../../jsFolder/dropComponent';
@@ -12,10 +11,11 @@ export default class SternToStern {
     this.extremity1_pinID = undefined;
     this.extremity2_pinID = undefined;
     this.extremity3_pinID = undefined;
-    this.errorInMiddle = false;
     this.inside1_pinID = undefined;
     this.inside2_pinID = undefined;
     this.inside3_pinID = undefined;
+    this.centralKnoten = undefined;
+    // this.extremity1_comp-this.extremity1_pinID---sel_array[0](R)-this.inside1_pinID---centralKnoten
   }
 
   /**
@@ -39,7 +39,8 @@ export default class SternToStern {
     if (!isAllSameInstance_bool) {
       return false;
     }
-    isInStern_bool = this.isInStern(circuit);
+    const circuitProject = circuit.project();
+    isInStern_bool = this.isInStern(circuitProject);
     return isAllSameInstance_bool && isInStern_bool;
   }
 
@@ -51,211 +52,249 @@ export default class SternToStern {
     }
   }
 
-  isInStern(circuitOriginal) {
-    let circuit = circuitOriginal.project();
+  isInStern(circuit) {
     let selectedComp_array = circuit.getSelectedComponents();
     for (let c of selectedComp_array) {
       if (c.showPin1 && c.showPin2) {
         return false;
       }
-      if (c.showPin1) {
+      const addKnotenOnPin = pinId => {
         const kn = dropComp({
           c_id: 'Knoten',
-          valueLeft: c.pins[0].x + 40,
-          valueTop: c.pins[0].y + 40
+          valueLeft: c.pins[0].x + 30,
+          valueTop: c.pins[0].y + 20
         });
         circuit.components.push(kn);
-        circuit.createOneWire(c, 0, kn, 0);
+        circuit.createOneWire(c, pinId, kn, 0);
         if (c === selectedComp_array[1]) {
           this.extremity2_comp = c;
-          this.extremity2_pinID = 0;
+          this.extremity2_pinID = pinId;
         }
         if (c === selectedComp_array[2]) {
           this.extremity3_comp = c;
-          this.extremity3_pinID = 0;
+          this.extremity3_pinID = pinId;
         }
+      };
+      if (c.showPin1) {
+        addKnotenOnPin(0);
       }
       if (c.showPin2) {
-        const kn = dropComp({
-          c_id: 'Knoten',
-          valueLeft: c.pins[0].x + 40,
-          valueTop: c.pins[0].y + 40
-        });
-        circuit.components.push(kn);
-        circuit.createOneWire(c, 1, kn, 0);
-        if (c === selectedComp_array[1]) {
-          this.extremity2_comp = c;
-          this.extremity2_pinID = 1;
-        }
-        if (c === selectedComp_array[2]) {
-          this.extremity3_comp = c;
-          this.extremity3_pinID = 1;
-        }
+        addKnotenOnPin(1);
       }
     }
     let bool_data1 = this.is2MultiPinNeighbors(circuit);
     if (!bool_data1) {
       return false;
     }
+    /*-extremity Knoten neighbor structure is OK-*/
     let firstComp = selectedComp_array[0];
+    selectedComp_array[0].checked = true;
     console.log('firstComp', firstComp.symbol);
-    let res1 = false;
-    let res2 = false;
     for (let w of circuit.wires) {
       const fromComp = circuit.componentFromPin(w.from);
       const toComp = circuit.componentFromPin(w.to);
-      if (firstComp.uniqueID === fromComp.uniqueID) {
-        this.errorInMiddle = false;
-        const pinNb = circuit.pinIndexFromComponent(firstComp, w.from);
-        console.log('find firstComp on fromComp, start pin', pinNb);
-        const origin = { firstComp, pinNb };
-        firstComp.flag = true;
-        this.nextNeighbor(circuit, origin, w.from, w.to);
-        console.log(!this.errorInMiddle);
-        console.log('&&');
-        console.log(
-          selectedComp_array,
-          selectedComp_array.every(c => c.flag === true)
-        );
-        if (
-          !this.errorInMiddle &&
-          selectedComp_array.every(c => c.flag === true)
-        ) {
-          res1 = true;
-          console.log('res1', res1, 'startPoint', firstComp.symbol, pinNb);
-          this.inside1_pinID = pinNb;
-        } else {
-          res1 = false;
-          console.log('res1', res1, 'extremity is', toComp.symbol);
-          this.extremity1_comp = toComp;
-          this.extremity1_pinID = circuit.pinIndexFromComponent(toComp, w.to);
-        }
-
-        circuit.components.map(c => (c.visited = false));
-        selectedComp_array.map(c => (c.flag = false));
+      if (
+        firstComp.uniqueID === fromComp.uniqueID &&
+        this.isClassicKnoten(toComp)
+      ) {
+        //firstComp = R && toComp = Knoten
+        this.findPathToAll(circuit, firstComp, toComp);
       }
-      if (firstComp.uniqueID === toComp.uniqueID) {
-        this.errorInMiddle = false;
-        const pinNb = circuit.pinIndexFromComponent(firstComp, w.to);
-        console.log('find firstComp on toComp, start pin', pinNb);
-        const origin = firstComp;
-        firstComp.flag = true;
-        this.nextNeighbor(circuit, origin, w.to, w.from);
-        console.log(!this.errorInMiddle);
-        console.log('&&');
-        console.log(
-          selectedComp_array,
-          selectedComp_array.every(c => c.flag === true)
-        );
-        if (
-          !this.errorInMiddle &&
-          selectedComp_array.every(c => c.flag === true)
-        ) {
-          res2 = true;
-          console.log('res2', res2, 'startPoint', firstComp.symbol, pinNb);
-          this.inside1_pinID = pinNb;
-        } else {
-          res2 = false;
-          console.log('res2', res2, 'extremity is', fromComp.symbol);
-          this.extremity1_comp = fromComp;
-          this.extremity1_pinID = circuit.pinIndexFromComponent(
-            fromComp,
-            w.from
-          );
-        }
-        circuit.components.map(c => (c.visited = false));
-        selectedComp_array.map(c => (c.flag = false));
+      if (
+        firstComp.uniqueID === toComp.uniqueID &&
+        this.isClassicKnoten(fromComp)
+      ) {
+        this.findPathToAll(circuit, firstComp, fromComp);
       }
     }
-
-    if (!res1 && !res2) {
-      console.log('NOT OK By FIRST COMP TESTED');
+    //check if all selected comp are checked = true
+    console.log('****DATA****');
+    selectedComp_array[0].checked
+      ? console.log(selectedComp_array[0].symbol)
+      : console.log('ext1 undef');
+    selectedComp_array[2].checked
+      ? console.log(selectedComp_array[2].symbol)
+      : console.log('ext3 undef');
+    selectedComp_array[1].checked
+      ? console.log(selectedComp_array[1].symbol)
+      : console.log('ext2 undef');
+    for (let sc of selectedComp_array) {
+      if (!sc.checked) {
+        selectedComp_array.map(c => (c.checked = false));
+        return false;
+      } else {
+        sc.checked = false;
+      }
+    }
+    //after merging all Knoten, the R must have different neighbors
+    let bool_data2 = this.is2MultiPinNeighbors(circuit);
+    if (!bool_data2) {
       return false;
     }
+    //detect central Knoten
+    for (let w of circuit.wires) {
+      const fromComp = circuit.componentFromPin(w.from);
+      const toComp = circuit.componentFromPin(w.to);
 
-    console.log(
-      this.inside1_pinID,
-      this.inside2_pinID,
-      this.inside3_pinID,
-      this.extremity1_comp.symbol,
-      this.extremity1_pinID,
-      this.extremity2_comp,
-      this.extremity2_pinID,
-      this.extremity3_comp,
-      this.extremity3_pinID
-    );
-    //second comp pour trouver extremity2_comp
-    if (!this.extremity2_comp) {
-      //voisin de sel_arr[1] sur pin inverse inside2_pinID
-      let targetPin;
-      this.inside2_pinID === 0 ? (targetPin = 1) : (targetPin = 0);
-      console.log('search on', targetPin);
-      // forloop wire + pinIndexFromComponent(component, pin)
-      for (let w of circuit.wires) {
-        const fromComp = circuit.componentFromPin(w.from);
-        const toComp = circuit.componentFromPin(w.to);
-        if (fromComp.uniqueID === selectedComp_array[1].uniqueID) {
-          const tempPinNb = circuit.pinIndexFromComponent(fromComp, w.from);
-          if (tempPinNb === targetPin) {
-            console.log('extremity', toComp.symbol);
-            this.extremity2_comp = toComp;
-            this.extremity2_pinID = 0;
+      const isCentralKnoten = kn => {
+        console.log('let me test', kn.symbol);
+        //central Knoten can just have 3 connections
+        if (circuit.getCountConnection(kn) !== 3) {
+          return false;
+        }
+        //central Knoten must be connected to the 3 selected R
+        const isEqualToASelectedR = c => {
+          console.log('isEqualToASelectedR', c.symbol);
+          if (
+            c.uniqueID === selectedComp_array[0].uniqueID ||
+            c.uniqueID === selectedComp_array[1].uniqueID ||
+            c.uniqueID === selectedComp_array[2].uniqueID
+          ) {
+            return true;
+          } else {
+            return false;
+          }
+        };
+        for (let w of circuit.wires) {
+          const fComp = circuit.componentFromPin(w.from);
+          const tComp = circuit.componentFromPin(w.to);
+          if (kn.uniqueID === fComp.uniqueID) {
+            if (!isEqualToASelectedR(tComp)) {
+              return false;
+            }
+          }
+          if (kn.uniqueID === tComp.uniqueID) {
+            if (!isEqualToASelectedR(fComp)) {
+              return false;
+            }
           }
         }
-        if (toComp.uniqueID === selectedComp_array[1].uniqueID) {
-          const tempPinNb = circuit.pinIndexFromComponent(toComp, w.to);
-          if (tempPinNb === targetPin) {
-            console.log('extremity', fromComp.symbol);
-            this.extremity2_comp = fromComp;
-            this.extremity2_pinID = 0;
-          }
+        this.centralKnoten = kn;
+      };
+      if (selectedComp_array[0].uniqueID === fromComp.uniqueID) {
+        isCentralKnoten(toComp);
+      }
+      if (selectedComp_array[0].uniqueID === toComp.uniqueID) {
+        isCentralKnoten(fromComp);
+      }
+    }
+    if (this.centralKnoten === undefined) {
+      return false;
+    }
+    console.log('central Knoten', this.centralKnoten.symbol);
+    /**
+     * Calculate
+     *      this.extremity1 2 3_comp,
+     *      this.inside1 2 3_pinID,
+     *      this.extremity1 2 3_pinID,
+     *  this.extremity1_comp-this.extremity1_pinID---R-this.inside1_pinID---centralKnoten
+     */
+    for (let w of circuit.wires) {
+      const fComp = circuit.componentFromPin(w.from);
+      const tComp = circuit.componentFromPin(w.to);
+
+      const find_extC_extP_insP = (selComp, selCompPin, ngb, ngbPin, id) => {
+        if (this.centralKnoten.uniqueID === ngb.uniqueID) {
+          this['inside' + id + '_pinID'] = circuit.pinIndexFromComponent(
+            selComp,
+            selCompPin
+          );
+        } else {
+          this['extremity' + id + '_comp'] = ngb;
+          this['extremity' + id + '_pinID'] = circuit.pinIndexFromComponent(
+            ngb,
+            ngbPin
+          );
+        }
+      };
+      for (let index = 0; index < selectedComp_array.length; index++) {
+        const selC = selectedComp_array[index];
+        if (selC.uniqueID === fComp.uniqueID) {
+          find_extC_extP_insP(fComp, w.from, tComp, w.to, index + 1);
+        }
+        if (selC.uniqueID === tComp.uniqueID) {
+          find_extC_extP_insP(tComp, w.to, fComp, w.from, index + 1);
         }
       }
     }
-    //third comp pour trouver extremity3_comp
-    if (!this.extremity3_comp) {
-      //voisin de sel_arr[2] sur pin inverse inside3_pinID
-      let targetPin;
-      this.inside3_pinID === 0 ? (targetPin = 1) : (targetPin = 0);
-      console.log('search on', targetPin);
-      // forloop wire + pinIndexFromComponent(component, pin)
-      for (let w of circuit.wires) {
-        const fromComp = circuit.componentFromPin(w.from);
-        const toComp = circuit.componentFromPin(w.to);
-        if (fromComp.uniqueID === selectedComp_array[2].uniqueID) {
-          const tempPinNb = circuit.pinIndexFromComponent(fromComp, w.from);
-          if (tempPinNb === targetPin) {
-            console.log('extremity', toComp.symbol);
-            this.extremity3_comp = toComp;
-            this.extremity3_pinID = 0;
-          }
-        }
-        if (toComp.uniqueID === selectedComp_array[2].uniqueID) {
-          const tempPinNb = circuit.pinIndexFromComponent(toComp, w.to);
-          if (tempPinNb === targetPin) {
-            console.log('extremity', fromComp.symbol);
-            this.extremity3_comp = fromComp;
-            this.extremity3_pinID = 0;
-          }
-        }
-      }
-    }
-
-    console.log(
-      this.inside1_pinID,
-      this.inside2_pinID,
-      this.inside3_pinID,
-      this.extremity1_comp.symbol,
-      this.extremity1_pinID,
-      this.extremity2_comp.symbol,
-      this.extremity2_pinID,
-      this.extremity3_comp.symbol,
-      this.extremity3_pinID
-    );
-
-    console.log('END SUCCESSFUL TEST isPossible');
     return true;
   }
+
+  /**
+   * @param {*} circuit
+   * @param {a R} originC
+   * @param {a Knoten} destC
+   */
+  findPathToAll(circuit, originC, destC) {
+    console.log('call findPathToAll');
+    const searchExtremities = compUT => {
+      //either compUT is a sKnoten or selected
+      if (this.isClassicKnoten(compUT)) {
+        console.log('1)', compUT.symbol);
+        //simplify Knoten : merge destC and compUT : originC--destC--compUT--rest => originC--destC--rest
+        this.fusion2NeighborsKnoten(circuit, destC, compUT);
+        //call nextNbs again -> after a while, it will no longer fit in this condition
+        return false;
+      } else if (compUT.selected) {
+        // find a R from selected array
+        console.log('2)', compUT.symbol);
+        let sel_array = circuit.getSelectedComponents();
+        if (compUT.uniqueID === sel_array[1].uniqueID) {
+          console.log('equal to 1 from sel');
+          sel_array[1].checked = true;
+        } else if (compUT.uniqueID === sel_array[2].uniqueID) {
+          console.log('equal to 2 from sel');
+          sel_array[2].checked = true;
+        }
+      }
+      return true;
+    };
+    for (let w of circuit.wires) {
+      const fromComp2 = circuit.componentFromPin(w.from);
+      const toComp2 = circuit.componentFromPin(w.to);
+      console.log(fromComp2.symbol, '-', toComp2.symbol);
+      if (
+        destC.uniqueID === fromComp2.uniqueID &&
+        originC.uniqueID !== toComp2.uniqueID
+      ) {
+        let res = searchExtremities(toComp2);
+        if (!res) {
+          this.findPathToAll(circuit, originC, destC);
+        }
+      }
+      if (
+        destC.uniqueID === toComp2.uniqueID &&
+        originC.uniqueID !== fromComp2.uniqueID
+      ) {
+        let res = searchExtremities(fromComp2);
+        if (!res) {
+          this.findPathToAll(circuit, originC, destC);
+        }
+      }
+    }
+  }
+
+  //simplify Knoten : merge KnAlive and KnDead : originC--KnAlive--KnDead--rest => originC--KnAlive--rest
+  fusion2NeighborsKnoten(circuit, KnAlive, KnDead) {
+    //transfer all connections from KnDead to KnAlive
+    for (let wire of circuit.wires) {
+      const compFrom = circuit.componentFromPin(wire.from);
+      const compTo = circuit.componentFromPin(wire.to);
+      if (KnDead.uniqueID === compFrom.uniqueID) {
+        if (compTo.uniqueID !== KnAlive.uniqueID) {
+          wire.from = KnAlive.pins[0];
+        }
+      }
+      if (KnDead.uniqueID === compTo.uniqueID) {
+        if (compFrom.uniqueID !== KnAlive.uniqueID) {
+          wire.to = KnAlive.pins[0];
+        }
+      }
+    }
+    //KnDead will be destoyed
+    circuit.deleteOneComponent(KnDead);
+  }
+
   is2MultiPinNeighbors(circuit) {
     let selArray = circuit.getSelectedComponents();
     for (let comp of selArray) {
@@ -265,26 +304,25 @@ export default class SternToStern {
         const fromComp = circuit.componentFromPin(w.from);
         const toComp = circuit.componentFromPin(w.to);
         if (comp.uniqueID === fromComp.uniqueID) {
-          console.log('find1', comp.symbol);
+          console.log('find1', comp.symbol, 'co to ', toComp.symbol);
           if (!toComp.isMultiPin) {
-            console.log('STOP1');
-            return false;
+            console.log('ADD Knoten one Wire1');
+            this.addKnotenBtw2Comp(circuit, w, fromComp, w.from, toComp, w.to);
           } else {
             comp.find.push(toComp.uniqueID);
           }
         }
         if (comp.uniqueID === toComp.uniqueID) {
-          console.log('find2', comp.symbol);
+          console.log('find2', comp.symbol, 'co to ', fromComp.symbol);
           if (!fromComp.isMultiPin) {
-            console.log('STOP2');
-            return false;
+            console.log('ADD Knoten one Wire2');
+            this.addKnotenBtw2Comp(circuit, w, toComp, w.to, fromComp, w.from);
           } else {
             comp.find.push(fromComp.uniqueID);
           }
         }
       }
-    }
-    for (let comp of selArray) {
+
       if (comp.find.length !== 2 || comp.find[0] === comp.find[1]) {
         console.log('Problem With Connection', comp.symbol);
         comp.find = undefined;
@@ -295,221 +333,30 @@ export default class SternToStern {
     return true;
   }
 
+  addKnotenBtw2Comp(circuit, w, compA, pinA, compB, pinB) {
+    circuit.deleteOneWire(w);
+
+    const pinAId = circuit.pinIndexFromComponent(compA, pinA);
+    const pinBId = circuit.pinIndexFromComponent(compB, pinB);
+    let kn1 = dropComp({
+      c_id: 'Knoten',
+      valueLeft: compA.pins[pinAId].x + 30,
+      valueTop: compA.pins[pinAId].y + 20
+    });
+    circuit.components.push(kn1);
+
+    circuit.createOneWire(compA, pinAId, kn1, 0);
+    circuit.createOneWire(compB, pinBId, kn1, 0);
+  }
+
   isClassicKnoten(comp) {
     return comp instanceof KnotenJS && comp.valuePotentialSource === undefined;
   }
 
-  nextNeighbor(circuit, origin, parentPin, compPin) {
-    const comp = circuit.componentFromPin(compPin);
-    console.log(comp.symbol, 'is under test');
-    if (this.isClassicKnoten(comp)) {
-      console.log('comp is ClassicKnoten and visited', comp.symbol);
-      comp.visited = true;
-      this.getNextCompWith(circuit, origin, parentPin, compPin);
-    } else if (comp.selected) {
-      console.log('FLAG ON', comp.symbol);
-      comp.flag = true;
-      for (let a of circuit.getSelectedComponents()) {
-        console.log(a.symbol, 'FLAG', a.flag);
-      }
-      console.log('SELECTED COMP', origin);
-      if (origin.uniqueID === comp.uniqueID) {
-        console.log('LOOP Not Allowed');
-        this.errorInMiddle = true;
-      } else {
-        console.log('find an other R', comp.symbol);
-        const whichPin = circuit.pinIndexFromComponent(comp, compPin);
-        console.log('*/*/*/extremity inside', whichPin);
-        const selected_array = circuit.getSelectedComponents();
-        if (comp.uniqueID === selected_array[1].uniqueID) {
-          this.inside2_pinID = whichPin;
-        }
-        if (comp.uniqueID === selected_array[2].uniqueID) {
-          this.inside3_pinID = whichPin;
-        }
-      }
-    } else {
-      console.log('comp inside middle Not Allowed', comp.symbol);
-      this.errorInMiddle = true;
-    }
-  }
-
-  getNextCompWith(circuit, origin, parentPin, compPin) {
-    const parent = circuit.componentFromPin(parentPin);
-    const comp = circuit.componentFromPin(compPin);
-    if (!this.errorInMiddle) {
-      console.log('##getNextCompWith##', comp.symbol);
-      for (let wire of circuit.wires) {
-        const compFrom = circuit.componentFromPin(wire.from);
-        const compTo = circuit.componentFromPin(wire.to);
-        if (comp.uniqueID === compFrom.uniqueID) {
-          console.log('ENTER 10:', compTo.symbol);
-          if (compTo.uniqueID !== parent.uniqueID && compTo.visited !== true) {
-            console.log('ENTER 10!');
-            this.nextNeighbor(circuit, origin, wire.from, wire.to);
-          }
-        } else if (comp.uniqueID === compTo.uniqueID) {
-          console.log('ENTER 20:', compFrom.symbol);
-          if (
-            compFrom.uniqueID !== parent.uniqueID &&
-            compFrom.visited !== true
-          ) {
-            console.log('ENTER 20!');
-            this.nextNeighbor(circuit, origin, wire.to, wire.from);
-          }
-        }
-      }
-    } else {
-      console.log('this.errorInMiddle');
-    }
-  }
-
   conversion(selectedComp_array, circuit) {
     console.log('###CONVERSION###');
-    //Knoten fusion before all to simplify circuits part
-    for (let comp of selectedComp_array) {
-      for (let w of circuit.wires) {
-        const fromComp = circuit.componentFromPin(w.from);
-        const toComp = circuit.componentFromPin(w.to);
-        if (comp.uniqueID === fromComp.uniqueID) {
-          const result = this.fusionNeighborsKnoten(
-            circuit,
-            comp,
-            w.from,
-            w.to
-          );
-          if (!result) {
-            return false;
-          }
-        }
-        if (comp.uniqueID === toComp.uniqueID) {
-          const result = this.fusionNeighborsKnoten(
-            circuit,
-            comp,
-            w.to,
-            w.from
-          );
-          if (!result) {
-            return false;
-          }
-        }
-      }
-    }
-    console.log('Simplication done');
-    for (let c of selectedComp_array) {
-      if (c.showPin1 && c.showPin2) {
-        return;
-      }
-      if (c.showPin1) {
-        const kn = dropComp({
-          c_id: 'Knoten',
-          valueLeft: c.pins[0].x + 40,
-          valueTop: c.pins[0].y + 40
-        });
-        circuit.components.push(kn);
-        circuit.createOneWire(c, 0, kn, 0);
-        if (c === selectedComp_array[1]) {
-          this.extremity2_comp = c;
-          this.extremity2_pinID = 0;
-        }
-        if (c === selectedComp_array[2]) {
-          this.extremity3_comp = c;
-          this.extremity3_pinID = 0;
-        }
-      }
-      if (c.showPin2) {
-        const kn = dropComp({
-          c_id: 'Knoten',
-          valueLeft: c.pins[0].x + 40,
-          valueTop: c.pins[0].y + 40
-        });
-        circuit.components.push(kn);
-        circuit.createOneWire(c, 1, kn, 0);
-        if (c === selectedComp_array[1]) {
-          this.extremity2_comp = c;
-          this.extremity2_pinID = 1;
-        }
-        if (c === selectedComp_array[2]) {
-          this.extremity3_comp = c;
-          this.extremity3_pinID = 1;
-        }
-      }
-    }
-    //find center Knoten
-    const comp1 = selectedComp_array[0];
-    let centerKnoten = undefined;
-    for (let w of circuit.wires) {
-      const fromComp = circuit.componentFromPin(w.from);
-      const toComp = circuit.componentFromPin(w.to);
-      if (comp1.uniqueID === fromComp.uniqueID && toComp instanceof KnotenJS) {
-        if (this.nextJump(circuit, toComp, fromComp)) {
-          centerKnoten = this.nextJump(circuit, toComp, fromComp);
-        }
-      }
-      if (comp1.uniqueID === toComp.uniqueID && fromComp instanceof KnotenJS) {
-        if (this.nextJump(circuit, fromComp, toComp)) {
-          centerKnoten = this.nextJump(circuit, fromComp, toComp);
-        }
-      }
-    }
-    console.log('center Knoten', centerKnoten);
-    // define attibuts with centerKnoten
-    for (let w of circuit.wires) {
-      const fComp = circuit.componentFromPin(w.from);
-      const tComp = circuit.componentFromPin(w.to);
-      if (centerKnoten.uniqueID === fComp.uniqueID) {
-        if (tComp.uniqueID === selectedComp_array[0].uniqueID) {
-          this.inside1_pinID = circuit.pinIndexFromComponent(tComp, w.to);
-          this.extremity1_comp = this.nextCompOnOtherPin(
-            circuit,
-            tComp,
-            this.inside1_pinID
-          );
-        }
-        if (tComp.uniqueID === selectedComp_array[1].uniqueID) {
-          this.inside2_pinID = circuit.pinIndexFromComponent(tComp, w.to);
-          this.extremity2_comp = this.nextCompOnOtherPin(
-            circuit,
-            tComp,
-            this.inside2_pinID
-          );
-        }
-        if (tComp.uniqueID === selectedComp_array[2].uniqueID) {
-          this.inside3_pinID = circuit.pinIndexFromComponent(tComp, w.to);
-          this.extremity3_comp = this.nextCompOnOtherPin(
-            circuit,
-            tComp,
-            this.inside3_pinID
-          );
-        }
-      }
-      if (centerKnoten.uniqueID === tComp.uniqueID) {
-        if (fComp.uniqueID === selectedComp_array[0].uniqueID) {
-          this.inside1_pinID = circuit.pinIndexFromComponent(fComp, w.from);
-          this.extremity1_comp = this.nextCompOnOtherPin(
-            circuit,
-            fComp,
-            this.inside1_pinID
-          );
-        }
-        if (fComp.uniqueID === selectedComp_array[1].uniqueID) {
-          this.inside2_pinID = circuit.pinIndexFromComponent(fComp, w.from);
-          this.extremity2_comp = this.nextCompOnOtherPin(
-            circuit,
-            fComp,
-            this.inside2_pinID
-          );
-        }
-        if (fComp.uniqueID === selectedComp_array[2].uniqueID) {
-          this.inside3_pinID = circuit.pinIndexFromComponent(fComp, w.from);
-          this.extremity3_comp = this.nextCompOnOtherPin(
-            circuit,
-            fComp,
-            this.inside3_pinID
-          );
-        }
-      }
-    }
+    this.isInStern(circuit);
+    //The circuit is simplified and ready for the mathematical step
 
     //new valueR
     let sum = 0;
@@ -534,122 +381,24 @@ export default class SternToStern {
     selectedComp_array[2].valueR = thirdValueR;
 
     //graphical changes
-    circuit.deleteOneComponent(centerKnoten);
+    circuit.deleteOneComponent(this.centralKnoten);
     circuit.createOneWire(
       selectedComp_array[0],
       this.inside1_pinID,
       this.extremity2_comp,
-      0
+      this.extremity2_pinID
     );
     circuit.createOneWire(
       selectedComp_array[1],
       this.inside2_pinID,
       this.extremity3_comp,
-      0
+      this.extremity3_pinID
     );
     circuit.createOneWire(
       selectedComp_array[2],
       this.inside3_pinID,
       this.extremity1_comp,
-      0
+      this.extremity1_pinID
     );
-    circuit.components.map(c => (c.flag = false));
-    circuit.components.map(comp => (comp.visited = false));
-  }
-
-  nextJump(circuit, fromComp, toComp) {
-    for (let w of circuit.wires) {
-      const fromComp2 = circuit.componentFromPin(w.from);
-      const toComp2 = circuit.componentFromPin(w.to);
-      if (
-        fromComp.uniqueID === fromComp2.uniqueID &&
-        toComp.uniqueID !== toComp2.uniqueID &&
-        toComp2.selected
-      ) {
-        return fromComp2;
-      }
-      if (
-        fromComp.uniqueID === toComp2.uniqueID &&
-        toComp.uniqueID !== fromComp2.uniqueID &&
-        fromComp2.selected
-      ) {
-        return toComp2;
-      }
-    }
-  }
-
-  nextCompOnOtherPin(circuit, comp, pinID) {
-    for (let w of circuit.wires) {
-      const fromComp = circuit.componentFromPin(w.from);
-      const toComp = circuit.componentFromPin(w.to);
-      if (comp.uniqueID === fromComp.uniqueID) {
-        const tempPin = circuit.pinIndexFromComponent(comp, w.from);
-        if (pinID !== tempPin) {
-          console.log('extremity Comp', toComp.symbol);
-          return toComp;
-        }
-      }
-      if (comp.uniqueID === toComp.uniqueID) {
-        const tempPin = circuit.pinIndexFromComponent(comp, w.to);
-        if (pinID !== tempPin) {
-          console.log('extremity Comp', fromComp.symbol);
-          return fromComp;
-        }
-      }
-    }
-  }
-
-  fusionNeighborsKnoten(circuit, origin, fromC, toC) {
-    let localKnoten = [];
-    this.errorInMiddle = false;
-    console.log('origin', origin.symbol);
-    this.nextNeighbor(circuit, origin, fromC, toC);
-    console.log('nextNeighbor done');
-    circuit.components.forEach(c => {
-      if (c.visited) {
-        localKnoten.push(c);
-      }
-    });
-
-    circuit.components.map(comp => (comp.visited = false));
-    // for fusion keep One, transfer only connection (circuit.wires) to One and delete other
-    console.log('GO LK');
-    let keepAlive;
-    localKnoten.forEach(k => console.log(k.symbol));
-    localKnoten.forEach((lk, index) => {
-      if (
-        lk instanceof KlemmeJS ||
-        (lk instanceof KnotenJS && lk.valuePotentialSource !== undefined)
-      ) {
-        console.log('find keepAlive');
-        [keepAlive] = localKnoten.splice(index, 1);
-      }
-    });
-    if (keepAlive === undefined) {
-      [keepAlive] = localKnoten.splice(0, 1);
-    }
-    console.log('keepAlive', keepAlive.symbol);
-    localKnoten.forEach(lk => {
-      for (let i = 0; i < circuit.wires.length; i++) {
-        let wire = circuit.wires[i];
-        const compFrom = circuit.componentFromPin(wire.from);
-        const compTo = circuit.componentFromPin(wire.to);
-        if (lk.uniqueID === compFrom.uniqueID) {
-          if (compTo.uniqueID !== keepAlive.uniqueID) {
-            wire.from = keepAlive.pins[0];
-          }
-        }
-        if (lk.uniqueID === compTo.uniqueID) {
-          if (compFrom.uniqueID !== keepAlive.uniqueID) {
-            wire.to = keepAlive.pins[0];
-          }
-        }
-      }
-    });
-    // Delete Other
-    localKnoten.forEach(lk => {
-      circuit.deleteOneComponent(lk);
-    });
-    return true;
   }
 }

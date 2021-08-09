@@ -163,7 +163,7 @@ export default {
       isPopupEquivalentSrcVisible: false,
       isPopupHelpVisible: false,
 
-      withPredefinedValue: false,
+      withPredefinedValue: true,
       compoToPass: null
     };
   },

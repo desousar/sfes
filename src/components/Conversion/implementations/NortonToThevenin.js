@@ -41,7 +41,7 @@ export default class TheveninToNorton {
    * -isInstanceCorrect()
    * -isInParallel()
    */
-  isPossible(onReal, selectedComp_array, circuit) {
+  isPossible (onReal, selectedComp_array, circuit) {
     console.log('---------NortonToThevenin---------');
     let isInstanceCorrect_bool = false;
     let isInParallel_bool = false;
@@ -53,7 +53,7 @@ export default class TheveninToNorton {
     return isInstanceCorrect_bool && isInParallel_bool;
   }
 
-  isInstanceCorrect(selectedComp_array) {
+  isInstanceCorrect (selectedComp_array) {
     let oneResistor = false;
     let oneCurrentSrc = false;
     selectedComp_array.forEach(comp => {
@@ -69,7 +69,7 @@ export default class TheveninToNorton {
     return oneResistor && oneCurrentSrc;
   }
 
-  isInParallel(onReal, selectedComp_array, circuitOriginal) {
+  isInParallel (onReal, selectedComp_array, circuitOriginal) {
     let circuit;
     if (onReal) {
       circuit = circuitOriginal;
@@ -123,7 +123,7 @@ export default class TheveninToNorton {
     return true;
   }
 
-  is2MultiPinNeighbors(circuit, same) {
+  is2MultiPinNeighbors (circuit, same) {
     let selArray = circuit.getSelectedComponents();
     for (let comp of selArray) {
       comp.find = [];
@@ -184,7 +184,7 @@ export default class TheveninToNorton {
      |     |
      L-----kn----kl
      */
-  fusionNeighborsKnoten(circuit, origin, destination, compStorageID) {
+  fusionNeighborsKnoten (circuit, origin, destination, compStorageID) {
     let selArray = circuit.getSelectedComponents();
     let localKnoten = [];
     console.log('find', origin.symbol, destination.isMultiPin);
@@ -252,7 +252,7 @@ export default class TheveninToNorton {
     return true;
   }
 
-  isNotConnectedTogether(a, b, circuit) {
+  isNotConnectedTogether (a, b, circuit) {
     for (let wire of circuit.wires) {
       var compFrom = circuit.componentFromPin(wire.from);
       var compTo = circuit.componentFromPin(wire.to);
@@ -266,7 +266,7 @@ export default class TheveninToNorton {
     return true;
   }
 
-  getCountConnectionAsGroup(circuit, comp) {
+  getCountConnectionAsGroup (circuit, comp) {
     let count = 0;
     for (let wire of circuit.wires) {
       var compFrom = circuit.componentFromPin(wire.from);
@@ -287,7 +287,7 @@ export default class TheveninToNorton {
     return count;
   }
 
-  nextNeighbor(circuit, origin, comp, compStorageID) {
+  nextNeighbor (circuit, origin, comp, compStorageID) {
     var compStorage;
     compStorageID === 0 ? (compStorage = this.ext1) : (compStorage = this.ext2);
     const selArray = circuit.getSelectedComponents();
@@ -351,7 +351,7 @@ export default class TheveninToNorton {
     return true;
   }
 
-  conversion(circuit) {
+  conversion (circuit) {
     //we have a classical Norton circuit
     const valueIq = this.ext1in_maincomp.valueI;
     const dirU = this.ext1in_maincomp.directionU;
@@ -369,7 +369,7 @@ export default class TheveninToNorton {
       if (
         this.ext1in_maincomp.uniqueID === compFrom.uniqueID &&
         this.ext1in_pinID ===
-          circuit.pinIndexFromComponent(this.ext1in_maincomp, wire.from)
+        circuit.pinIndexFromComponent(this.ext1in_maincomp, wire.from)
       ) {
         this.ext1out_comp = compTo;
         this.ext1out_pinID = circuit.pinIndexFromComponent(compTo, wire.to);
@@ -378,7 +378,7 @@ export default class TheveninToNorton {
       if (
         this.ext1in_maincomp.uniqueID === compTo.uniqueID &&
         this.ext1in_pinID ===
-          circuit.pinIndexFromComponent(this.ext1in_maincomp, wire.to)
+        circuit.pinIndexFromComponent(this.ext1in_maincomp, wire.to)
       ) {
         this.ext1out_comp = compFrom;
         this.ext1out_pinID = circuit.pinIndexFromComponent(compFrom, wire.from);
@@ -387,8 +387,8 @@ export default class TheveninToNorton {
     }
   }
 
-  findR_middleConversion(circuit, valueIq, dirI, dirU) {
-    circuit.wires.forEach((wire2, index) => {
+  findR_middleConversion (circuit, valueIq, dirI, dirU) {
+    circuit.wires.forEach((wire2) => {
       const compFrom2 = circuit.componentFromPin(wire2.from);
       const compTo2 = circuit.componentFromPin(wire2.to);
       let pinRtoHold;
@@ -400,7 +400,6 @@ export default class TheveninToNorton {
         this.terminateTheConversion(
           circuit,
           wire2,
-          index,
           valueIq,
           dirI,
           dirU,
@@ -415,7 +414,6 @@ export default class TheveninToNorton {
         this.terminateTheConversion(
           circuit,
           wire2,
-          index,
           valueIq,
           dirI,
           dirU,
@@ -425,16 +423,15 @@ export default class TheveninToNorton {
     });
   }
 
-  terminateTheConversion(
+  terminateTheConversion (
     circuit,
     wire2,
-    index,
     valueIq,
     dirI,
     dirU,
     pinRtoHold
   ) {
-    circuit.deleteOneWire(wire2, index);
+    circuit.deleteOneWire(wire2);
     circuit.deleteOneComponent(this.ext1in_maincomp);
     this.rComp.selected = false;
     let vsrc = dropComp({

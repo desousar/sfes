@@ -86,6 +86,10 @@ export default class Component extends BaseComponent {
     this.showUdir1 = false;
     this.showIdir0 = false;
     this.showIdir1 = false;
+    this.showUdir0Temp = false;
+    this.showUdir1Temp = false;
+    this.showIdir0Temp = false;
+    this.showIdir1Temp = false;
   }
   rotateRight() {
     this.rotation += 90;
@@ -140,14 +144,14 @@ export default class Component extends BaseComponent {
   createElementTDvalueR() {
     let td = document.createElement('td');
     td.className = 'td';
-    td.innerHTML = 'valueR ' + this.valueR + ' &#8486;';
+    td.innerHTML = 'R = ' + this.valueR + ' &#8486;';
     td.style.backgroundColor = '#ffffff';
     return td;
   }
   createElementTDvalueI(calculated) {
     let td = document.createElement('td');
     td.className = 'td';
-    td.innerHTML = 'valueI ' + this.valueI + ' A';
+    td.innerHTML = 'I = ' + this.valueI + ' A';
     if (calculated) {
       td.style.backgroundColor = '#ddd';
     } else {
@@ -158,7 +162,7 @@ export default class Component extends BaseComponent {
   createElementTDvalueU(calculated) {
     let td = document.createElement('td');
     td.className = 'td';
-    td.innerHTML = 'valueU ' + this.valueU + ' V';
+    td.innerHTML = 'U = ' + this.valueU + ' V';
     if (calculated) {
       td.style.backgroundColor = '#ddd';
     } else {
@@ -172,17 +176,18 @@ export default class Component extends BaseComponent {
     td.className = 'td';
     if (this.directionU === 0) {
       td.innerHTML =
-        'Potential ' +
+        '\u03C6 = ' +
         this.potentialPin0 +
         " <span class='mdi mdi-arrow-right'></span> " +
         this.potentialPin1;
     }
     if (this.directionU === 1) {
       td.innerHTML =
-        'Potential ' +
+        '\u03C6 = ' +
         this.potentialPin0 +
-        " <span class='mdi mdi-arrow-left'></span> " +
-        this.potentialPin1;
+        "V <span class='mdi mdi-arrow-left'></span> " +
+        this.potentialPin1 +
+        'V';
     }
     td.style.backgroundColor = '#ddd';
     return td;

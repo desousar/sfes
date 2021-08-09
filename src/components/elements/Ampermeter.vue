@@ -71,7 +71,7 @@
     >
       <g
         id="UtoRight"
-        v-if="component.showUdir0"
+        v-if="component.showUdir0Temp || component.showUdir0"
         transform="translate(0.65481216,1.3096236)"
       >
         <rect
@@ -133,7 +133,7 @@
       </g>
       <g
         id="UtoLeft"
-        v-if="component.showUdir1"
+        v-if="component.showUdir1Temp || component.showUdir1"
         transform="translate(-0.19843819,18.855771)"
       >
         <rect
@@ -195,7 +195,7 @@
       </g>
       <g
         id="ItoLeft"
-        v-if="component.showIdir1"
+        v-if="component.showIdir1Temp || component.showIdir1"
         transform="translate(0.57050781,9.7881856)"
       >
         <rect
@@ -240,7 +240,7 @@
       <g
         id="ItoRight"
         transform="rotate(-180,45.911158,24.361321)"
-        v-if="component.showIdir0"
+        v-if="component.showIdir0Temp || component.showIdir0"
       >
         <rect
           transform="rotate(45)"

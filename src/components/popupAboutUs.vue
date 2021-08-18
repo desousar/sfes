@@ -40,19 +40,21 @@
           {{ content_data5[getCurrentLanguage] }}<br />
           {{ content_data6[getCurrentLanguage] }}
         </section>
-        Version 1.0.4
+        Version {{ appVersion }}
       </div>
     </div>
   </transition>
 </template>
 
 <script>
+import { version } from '../../package.json';
 export default {
   props: {
     currentLanguage: String
   },
   data() {
     return {
+      appVersion: version,
       onDraggable: false,
       shiftX: undefined,
       shiftY: undefined,

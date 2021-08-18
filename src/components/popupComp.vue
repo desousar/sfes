@@ -335,12 +335,16 @@ export default {
   },
   methods: {
     attributionTemp() {
-      this.compoToPass.directionI === 0
-        ? (this.compoToPass.showIdir0Temp = true)
-        : (this.compoToPass.showIdir1Temp = true);
-      this.compoToPass.directionU === 0
-        ? (this.compoToPass.showUdir0Temp = true)
-        : (this.compoToPass.showUdir1Temp = true);
+      if (!this.compoToPass.showIdir0 && !this.compoToPass.showIdir1) {
+        this.compoToPass.directionI === 0
+          ? (this.compoToPass.showIdir0Temp = true)
+          : (this.compoToPass.showIdir1Temp = true);
+      }
+      if (!this.compoToPass.showUdir0 && !this.compoToPass.showUdir1) {
+        this.compoToPass.directionU === 0
+          ? (this.compoToPass.showUdir0Temp = true)
+          : (this.compoToPass.showUdir1Temp = true);
+      }
     },
     outsideClick() {
       this.close();

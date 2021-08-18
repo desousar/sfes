@@ -96,6 +96,8 @@ import EventBus from './components/jsFolder/event-bus';
 
 import Circuit from './components/jsFolder/constructorComponent/Circuit.js';
 
+import { resetNbFromComp } from './components/jsFolder/dropComponent';
+
 export default {
   name: 'App',
   components: {
@@ -183,6 +185,8 @@ export default {
         this.circuit = newCir;
       } else {
         this.circuit = new Circuit([], []);
+        //** Restart all nb drop on 0
+        resetNbFromComp();
       }
     },
     /**

@@ -47,7 +47,7 @@ export default class Knoten extends MultiPinComponent {
     this.showPotential = false;
     this.showGround = false;
   }
-  recalculatePins () {
+  recalculatePins() {
     let [pinx, piny] = this.pins;
     pinx = this.x + valueLeftPinKnoten;
     piny = this.y + valueTopPinKnoten;
@@ -56,12 +56,12 @@ export default class Knoten extends MultiPinComponent {
     this.pins[0].y = piny;
   }
 
-  resetCalculatedValues () {
+  resetCalculatedValues() {
     this.valuePhi = undefined;
     this.valueI = undefined;
   }
 
-  getString () {
+  getString() {
     if (this.valuePotentialSource !== undefined) {
       return `
     Potential_${this.symbol} = ${this.valuePotentialSource} V<br>
@@ -72,8 +72,9 @@ export default class Knoten extends MultiPinComponent {
     }
   }
 
-  selection () {
-    this.selected = !this.selected
-
+  selection() {
+    if (this.valuePotentialSource !== undefined) {
+      this.selected = !this.selected;
+    }
   }
 }

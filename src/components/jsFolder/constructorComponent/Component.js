@@ -178,16 +178,17 @@ export default class Component extends BaseComponent {
       td.innerHTML =
         '\u03C6 = ' +
         this.potentialPin0 +
-        " <span class='mdi mdi-arrow-right'></span> " +
-        this.potentialPin1;
+        " V <span class='mdi mdi-arrow-right'></span> " +
+        this.potentialPin1 +
+        ' V';
     }
     if (this.directionU === 1) {
       td.innerHTML =
         '\u03C6 = ' +
-        this.potentialPin0 +
-        "V <span class='mdi mdi-arrow-left'></span> " +
         this.potentialPin1 +
-        'V';
+        " V <span class='mdi mdi-arrow-right'></span> " +
+        this.potentialPin0 +
+        ' V';
     }
     td.style.backgroundColor = '#ddd';
     return td;

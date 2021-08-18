@@ -71,7 +71,7 @@
     >
       <g
         id="UtoRight"
-        v-if="component.showUdir0Temp || component.showUdir0"
+        v-if="component.showUdir0"
         transform="translate(0.65481216,1.3096236)"
       >
         <rect
@@ -132,8 +132,70 @@
         />
       </g>
       <g
+        id="UtoRightTemp"
+        v-if="component.showUdir0Temp"
+        transform="translate(0.65481216,1.3096236)"
+      >
+        <rect
+          y="3.6401412"
+          x="23.557274"
+          height="1.8520833"
+          width="43.97583"
+          id="rect3742"
+          class="fillgrey"
+          style="
+            opacity: 1;
+            fill-opacity: 1;
+            stroke: none;
+            stroke-width: 0.81537193;
+            stroke-linecap: butt;
+            stroke-miterlimit: 4;
+            stroke-dasharray: none;
+            stroke-opacity: 1;
+          "
+        />
+        <rect
+          transform="rotate(45)"
+          y="-45.179146"
+          x="43.327084"
+          height="1.8520833"
+          width="7"
+          id="rect3742-7"
+          class="fillgrey"
+          style="
+            opacity: 1;
+            fill-opacity: 1;
+            stroke: none;
+            stroke-width: 0.43177572;
+            stroke-linecap: butt;
+            stroke-miterlimit: 4;
+            stroke-dasharray: none;
+            stroke-opacity: 1;
+          "
+        />
+        <rect
+          transform="rotate(-45)"
+          y="49.784618"
+          x="36.869526"
+          height="1.8520833"
+          width="7"
+          id="rect3742-7-1"
+          class="fillgrey"
+          style="
+            opacity: 1;
+            fill-opacity: 1;
+            stroke: none;
+            stroke-width: 0.43177575;
+            stroke-linecap: butt;
+            stroke-miterlimit: 4;
+            stroke-dasharray: none;
+            stroke-opacity: 1;
+          "
+        />
+      </g>
+      <g
         id="UtoLeft"
-        v-if="component.showUdir1Temp || component.showUdir1"
+        v-if="component.showUdir1"
         transform="translate(-0.19843819,18.855771)"
       >
         <rect
@@ -194,8 +256,70 @@
         />
       </g>
       <g
+        id="UtoLeftTemp"
+        v-if="component.showUdir1Temp"
+        transform="translate(-0.19843819,18.855771)"
+      >
+        <rect
+          y="-13.906006"
+          x="24.410524"
+          height="1.8520833"
+          width="43.97583"
+          id="rect3742-4"
+          class="fillgrey"
+          style="
+            opacity: 1;
+            fill-opacity: 1;
+            stroke: none;
+            stroke-width: 0.81537193;
+            stroke-linecap: butt;
+            stroke-miterlimit: 4;
+            stroke-dasharray: none;
+            stroke-opacity: 1;
+          "
+        />
+        <rect
+          transform="rotate(45)"
+          y="-27.636343"
+          x="8.7374372"
+          height="1.8520833"
+          width="7"
+          id="rect3742-7-7"
+          class="fillgrey"
+          style="
+            opacity: 1;
+            fill-opacity: 1;
+            stroke: none;
+            stroke-width: 0.43177572;
+            stroke-linecap: butt;
+            stroke-miterlimit: 4;
+            stroke-dasharray: none;
+            stroke-opacity: 1;
+          "
+        />
+        <rect
+          transform="rotate(-45)"
+          y="7.4278164"
+          x="27.093878"
+          height="1.8520833"
+          width="7"
+          id="rect3742-7-1-6"
+          class="fillgrey"
+          style="
+            opacity: 1;
+            fill-opacity: 1;
+            stroke: none;
+            stroke-width: 0.43177575;
+            stroke-linecap: butt;
+            stroke-miterlimit: 4;
+            stroke-dasharray: none;
+            stroke-opacity: 1;
+          "
+        />
+      </g>
+      <g
         id="ItoLeft"
-        v-if="component.showIdir1Temp || component.showIdir1"
+        v-if="component.showIdir1"
         transform="translate(0.57050781,9.7881856)"
       >
         <rect
@@ -238,9 +362,53 @@
         />
       </g>
       <g
+        id="ItoLeftTemp"
+        v-if="component.showIdir1Temp"
+        transform="translate(0.57050781,9.7881856)"
+      >
+        <rect
+          transform="rotate(45)"
+          y="2.9347496"
+          x="24.053604"
+          height="1.8520833"
+          width="7"
+          id="rect3742-7-7-9"
+          class="fillgrey"
+          style="
+            opacity: 1;
+            fill-opacity: 1;
+            stroke: none;
+            stroke-width: 0.43177572;
+            stroke-linecap: butt;
+            stroke-miterlimit: 4;
+            stroke-dasharray: none;
+            stroke-opacity: 1;
+          "
+        />
+        <rect
+          transform="rotate(-45)"
+          y="22.743984"
+          x="-3.4772148"
+          height="1.8520833"
+          width="7"
+          id="rect3742-7-1-6-0"
+          class="fillgrey"
+          style="
+            opacity: 1;
+            fill-opacity: 1;
+            stroke: none;
+            stroke-width: 0.43177575;
+            stroke-linecap: butt;
+            stroke-miterlimit: 4;
+            stroke-dasharray: none;
+            stroke-opacity: 1;
+          "
+        />
+      </g>
+      <g
         id="ItoRight"
         transform="rotate(-180,45.911158,24.361321)"
-        v-if="component.showIdir0Temp || component.showIdir0"
+        v-if="component.showIdir0"
       >
         <rect
           transform="rotate(45)"
@@ -271,6 +439,50 @@
           style="
             opacity: 1;
             fill: #000000;
+            fill-opacity: 1;
+            stroke: none;
+            stroke-width: 0.43177575;
+            stroke-linecap: butt;
+            stroke-miterlimit: 4;
+            stroke-dasharray: none;
+            stroke-opacity: 1;
+          "
+        />
+      </g>
+      <g
+        id="ItoRightTemp"
+        transform="rotate(-180,45.911158,24.361321)"
+        v-if="component.showIdir0Temp"
+      >
+        <rect
+          transform="rotate(45)"
+          y="2.9347496"
+          x="24.053604"
+          height="1.8520833"
+          width="7"
+          id="rect3742-7-7-9-7"
+          class="fillgrey"
+          style="
+            opacity: 1;
+            fill-opacity: 1;
+            stroke: none;
+            stroke-width: 0.43177572;
+            stroke-linecap: butt;
+            stroke-miterlimit: 4;
+            stroke-dasharray: none;
+            stroke-opacity: 1;
+          "
+        />
+        <rect
+          transform="rotate(-45)"
+          y="22.743984"
+          x="-3.4772148"
+          height="1.8520833"
+          width="7"
+          id="rect3742-7-1-6-0-2"
+          class="fillgrey"
+          style="
+            opacity: 1;
             fill-opacity: 1;
             stroke: none;
             stroke-width: 0.43177575;

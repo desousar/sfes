@@ -26,7 +26,7 @@ export default class VoltageSource extends Component {
     this.valueP = undefined;
   }
 
-  calculatePower () {
+  calculatePower() {
     /**
      * directionU = 0 => pin0 -> pin1
      * directionI = 0 => pin0 -> pin1
@@ -38,7 +38,7 @@ export default class VoltageSource extends Component {
     this.valueP = -1 * this.valueU * dU * this.valueI * dI;
   }
 
-  assertMainValueStr () {
+  assertMainValueStr() {
     if (this.valueU == undefined) {
       return 'missing voltage value on ' + this.symbol;
     } else {
@@ -46,21 +46,21 @@ export default class VoltageSource extends Component {
     }
   }
 
-  bauteilEqu (A, b, listModel, nb, rowCounter) {
+  bauteilEqu(A, b, listModel, nb, rowCounter) {
     //1*U=value of src
     let indexU = this.addValueUinListModelANDgetIndex(listModel, nb);
     A[nb].set(rowCounter, indexU, 1); //-> 1*U
     b[nb].set(rowCounter, 0, this.valueU); //-> value of src
   }
 
-  resetCalculatedValues () {
+  resetCalculatedValues() {
     this.valueR = undefined;
     this.valueI = undefined;
     this.potentialPin0 = undefined;
     this.potentialPin1 = undefined;
   }
 
-  getString () {
+  getString() {
     if (this.valueP) {
       return `
     ${this.symbol} = ${this.valueU} V<br>
@@ -77,7 +77,7 @@ export default class VoltageSource extends Component {
     }
   }
 
-  getExportString () {
+  getExportString() {
     let data =
       this.symbol +
       '(' +
@@ -92,11 +92,11 @@ export default class VoltageSource extends Component {
     return data;
   }
 
-  selection () {
-    this.selected = !this.selected
+  selection() {
+    this.selected = !this.selected;
   }
 
-  getPopupResultRow (table) {
+  getPopupResultRow(table) {
     let tr = document.createElement('tr');
     /**
      * left column
@@ -107,7 +107,7 @@ export default class VoltageSource extends Component {
     tdg.rowSpan = 3;
     var textg = document.createTextNode(this.symbol);
     const breakLine = document.createElement('br');
-    const type = document.createTextNode('VoltageSource');
+    const type = document.createTextNode('Voltage source');
     tdg.appendChild(textg);
     tdg.appendChild(breakLine);
     tdg.appendChild(type);

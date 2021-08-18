@@ -25,7 +25,7 @@ export default class Ampermeter extends Component {
     });
   }
 
-  assertMainValueStr () {
+  assertMainValueStr() {
     if (this.valueU == undefined) {
       return 'missing voltage value on ' + this.symbol;
     } else {
@@ -33,28 +33,28 @@ export default class Ampermeter extends Component {
     }
   }
 
-  bauteilEqu (A, b, listModel, nb, rowCounter) {
+  bauteilEqu(A, b, listModel, nb, rowCounter) {
     //1*U=value of src
     let indexI = this.addValueUinListModelANDgetIndex(listModel, nb);
     A[nb].set(rowCounter, indexI, 1); //-> 1*U
     b[nb].set(rowCounter, 0, this.valueU); //-> value of src
   }
 
-  resetCalculatedValues () {
+  resetCalculatedValues() {
     this.valueR = undefined;
     this.valueI = undefined;
     this.potentialPin0 = undefined;
     this.potentialPin1 = undefined;
   }
 
-  getString () {
+  getString() {
     return `
     I_${this.symbol} = ${this.valueI} A<br>
     U_${this.symbol} = ${this.valueU} V
     `;
   }
 
-  getExportString () {
+  getExportString() {
     let data =
       this.symbol +
       '(' +
@@ -67,11 +67,11 @@ export default class Ampermeter extends Component {
     return data;
   }
 
-  selection () {
-    this.selected = !this.selected
+  selection() {
+    this.selected = !this.selected;
   }
 
-  getPopupResultRow (table) {
+  getPopupResultRow(table) {
     let tr = document.createElement('tr');
     /**
      * left column
@@ -82,7 +82,7 @@ export default class Ampermeter extends Component {
     tdg.rowSpan = 1;
     var textg = document.createTextNode(this.symbol);
     const breakLine = document.createElement('br');
-    const type = document.createTextNode('Ampermeter');
+    const type = document.createTextNode('Amper meter');
     tdg.appendChild(textg);
     tdg.appendChild(breakLine);
     tdg.appendChild(type);

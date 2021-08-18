@@ -96,7 +96,9 @@
           @pin="nr => pinClicked(component, nr)"
           @pinMouseUp="nr => pinMoveEnd(component, nr)"
           @mousedown="moveStart($event, component)"
-          @mousemove="showTooltip($event, component)"
+          @mousemove="
+            showTooltip($event, component), pointerComp($event, component)
+          "
           @mouseout="hideTooltip()"
         ></svg>
         <div
@@ -120,7 +122,7 @@
       >
         <template v-for="(wire, idx) in circuit.wires">
           <line
-            style="cursor: pointer; stroke: black; stroke-width: 2"
+            style="stroke: black; stroke-width: 2"
             :key="'line-' + idx"
             :x1="wire.from.x"
             :x2="wire.to.x"
@@ -128,7 +130,8 @@
             :y2="wire.to.y"
           />
           <line
-            style="cursor: pointer; stroke: transparent; stroke-width: 10"
+            style="stroke: transparent; stroke-width: 10"
+            @mouseover="pointerWire($event)"
             :key="'shadow-line-' + idx"
             :x1="wire.from.x"
             :x2="wire.to.x"
@@ -197,6 +200,7 @@ import Voltmeter from './elements/Voltmeter.vue';
 
 import WireJS from './jsFolder/constructorComponent/Wire.js';
 import KnotenJS from './jsFolder/constructorComponent/jsComponents/Knoten.js';
+import KlemmeJS from './jsFolder/constructorComponent/jsComponents/Klemme.js';
 
 import { hasMainVal } from './Conversion/util/hasMainValue';
 import { distanceBtw2Points } from './Conversion/util/mathFunction';
@@ -309,6 +313,30 @@ export default {
     }
   },
   methods: {
+    pointerComp(e, c) {
+      if (
+        this.selectedTool === this.toolState.TOOL_ROTATE &&
+        (c instanceof KnotenJS || c instanceof KlemmeJS)
+      ) {
+        e.target.style.cursor = 'auto';
+      } else if (
+        this.selectedTool === this.toolState.TOOL_SELECT &&
+        c instanceof KnotenJS
+      ) {
+        if (c.valuePotentialSource === undefined) {
+          e.target.style.cursor = 'auto';
+        }
+      } else {
+        e.target.style.cursor = 'pointer';
+      }
+    },
+    pointerWire(e) {
+      if (this.selectedTool === this.toolState.TOOL_ROTATE) {
+        e.target.style.cursor = 'pointer';
+      } else {
+        e.target.style.cursor = 'auto';
+      }
+    },
     showTooltip: function(e, comp) {
       if (this.selectedTool === this.toolState.STATE_IDLE) {
         let tooltip = document.getElementById('tooltip');
@@ -535,6 +563,7 @@ export default {
     },
     resetAndSaveAfterConversion() {
       this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
+      this.components.map(c => (c.selected = false));
       this.closeMenu();
       EventBus.$emit('BBSave');
     },

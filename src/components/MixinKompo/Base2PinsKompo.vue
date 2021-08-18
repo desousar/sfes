@@ -45,4 +45,10 @@ export default {
   transform-origin: center center;
   transform: rotate(270deg);
 }
+
+/* CSS inside SVG */
+
+.fillgrey {
+  fill: #9e9e9e;
+}
 </style>

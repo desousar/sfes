@@ -26,7 +26,7 @@ export default class Resistor extends Component {
     this.valueP = undefined;
   }
 
-  calculatePower () {
+  calculatePower() {
     /**
      * directionU = 0 => pin0 -> pin1
      * directionI = 0 => pin0 -> pin1
@@ -38,7 +38,7 @@ export default class Resistor extends Component {
     this.valueP = this.valueU * dU * this.valueI * dI;
   }
 
-  assertMainValueStr () {
+  assertMainValueStr() {
     if (this.valueR == undefined) {
       return 'missing resistance value on ' + this.symbol;
     } else {
@@ -53,7 +53,7 @@ export default class Resistor extends Component {
    * @param {number subschaltung} nb
    * @param {*} rowCounter
    */
-  bauteilEqu (A, b, listModel, nb, rowCounter) {
+  bauteilEqu(A, b, listModel, nb, rowCounter) {
     if (this.directionI === this.directionU) {
       //falls beide Pfeile in selben Richtung
       //1*U+(-R)*I=0
@@ -73,7 +73,7 @@ export default class Resistor extends Component {
     }
   }
 
-  resetCalculatedValues () {
+  resetCalculatedValues() {
     this.valueU = undefined;
     this.valueI = undefined;
     this.potentialPin0 = undefined;
@@ -81,7 +81,7 @@ export default class Resistor extends Component {
   }
 
   //Tooltip
-  getString () {
+  getString() {
     if (this.valueP) {
       return `
     ${this.symbol} = ${this.valueR} &#8486<br>
@@ -100,7 +100,7 @@ export default class Resistor extends Component {
     }
   }
 
-  getExportString () {
+  getExportString() {
     let data =
       this.symbol +
       '(' +
@@ -117,12 +117,12 @@ export default class Resistor extends Component {
     return data;
   }
 
-  selection () {
-    this.selected = !this.selected
+  selection() {
+    this.selected = !this.selected;
   }
 
   //Pop Up Result
-  getPopupResultRow (table) {
+  getPopupResultRow(table) {
     let tr = document.createElement('tr');
     /**
      * left column
@@ -130,7 +130,7 @@ export default class Resistor extends Component {
     const tdg = document.createElement('td');
     tdg.style.backgroundColor = '#ffffff';
     tdg.className = 'td';
-    tdg.rowSpan = 4;
+    tdg.rowSpan = 5;
     const textg = document.createTextNode(this.symbol);
     const breakLine = document.createElement('br');
     const type = document.createTextNode('Resistor');
@@ -163,5 +163,19 @@ export default class Resistor extends Component {
     let tdvaluePotentials = this.createElementTDvaluePotentials();
     tr4.appendChild(tdvaluePotentials);
     table.appendChild(tr4);
+
+    /*other line power valueP*/
+    let tr5 = document.createElement('tr');
+    let tdvaluePower = this.createElementTDvaluePower();
+    tr5.appendChild(tdvaluePower);
+    table.appendChild(tr5);
+  }
+
+  createElementTDvaluePower() {
+    let td = document.createElement('td');
+    td.className = 'td';
+    td.innerHTML = 'P = ' + this.valueP + ' W (consume power)';
+    td.style.backgroundColor = '#ddd';
+    return td;
   }
 }

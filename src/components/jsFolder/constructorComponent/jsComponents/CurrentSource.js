@@ -104,7 +104,7 @@ export default class CurrentSource extends Component {
     var tdg = document.createElement('td');
     tdg.style.backgroundColor = '#ffffff';
     tdg.className = 'td';
-    tdg.rowSpan = 3;
+    tdg.rowSpan = 4;
     var textg = document.createTextNode(this.symbol);
     const breakLine = document.createElement('br');
     const type = document.createTextNode('Current source');
@@ -131,5 +131,19 @@ export default class CurrentSource extends Component {
     let tdvaluePotentials = this.createElementTDvaluePotentials();
     tr4.appendChild(tdvaluePotentials);
     table.appendChild(tr4);
+
+    /*other line power valueP*/
+    let tr5 = document.createElement('tr');
+    let tdvaluePower = this.createElementTDvaluePower();
+    tr5.appendChild(tdvaluePower);
+    table.appendChild(tr5);
+  }
+
+  createElementTDvaluePower() {
+    let td = document.createElement('td');
+    td.className = 'td';
+    td.innerHTML = 'P = ' + this.valueP + ' W (generated power)';
+    td.style.backgroundColor = '#ddd';
+    return td;
   }
 }

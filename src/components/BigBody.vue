@@ -222,10 +222,10 @@ const componentsItem = [
   { name: 'Resistor', src: srcPath('Resistor.svg') },
   /*{ name: "Inductor", src: srcPath("Inductor.svg") },
   { name: "Capacitor", src: srcPath("Capacitor.svg") },*/
-  { name: 'CurrentSource', src: srcPath('CurrentSource.svg') },
   { name: 'VoltageSource', src: srcPath('VoltageSource.svg') },
-  { name: 'Ampermeter', src: srcPath('Ampermeter.svg') },
-  { name: 'Voltmeter', src: srcPath('Voltmeter.svg') }
+  { name: 'CurrentSource', src: srcPath('CurrentSource.svg') },
+  { name: 'Voltmeter', src: srcPath('Voltmeter.svg') },
+  { name: 'Ampermeter', src: srcPath('Ampermeter.svg') }
 ];
 
 export default {

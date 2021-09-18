@@ -196,7 +196,7 @@ export default {
           try {
             solver.solve(this.circuitcomplet);
           } catch (e) {
-            console.log('Error is found on simpleSolv');
+            console.log('Error is found on simpleSolve');
             this.solveSimple = e;
             console.log(
               'CHECK solve InconsistentMatrixError',
@@ -288,6 +288,9 @@ export default {
               this.solveIqe instanceof Ampermeter &&
               this.solveUqe instanceof Voltmeter
             ) {
+              //Check if valueU !== 0 && valueI !== 0 => Schritt Gaulocher
+              //WARNING valueU quand null = 0.000000
+              //suivre exemple/structure CircuitSolver().solveUqe()
               let valueRqe = this.solveUqe.valueU / this.solveIqe.valueI;
               const valuePav =
                 (this.solveUqe.valueU * this.solveUqe.valueU) / (4 * valueRqe);

@@ -62,7 +62,7 @@ class CircuitSolver {
 
     this.checkAndSolveCircuit(projection);
 
-    projection.getOne2PinsComponent(ampermeter);
+    projection.attributeUItoOne2PinsComponent(ampermeter);
     return ampermeter;
   }
 
@@ -87,7 +87,7 @@ class CircuitSolver {
 
     this.checkAndSolveCircuit(projection);
 
-    projection.getOne2PinsComponent(voltmeter);
+    projection.attributeUItoOne2PinsComponent(voltmeter);
     return voltmeter;
   }
 

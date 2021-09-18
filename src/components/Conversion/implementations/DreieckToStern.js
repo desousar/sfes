@@ -169,7 +169,6 @@ export default class DreieckToStern {
       this.extremity2_comp,
       this.extremity3_comp
     ];
-    tempExtr.map(e => (e.find = []));
     //chaque extremity doit être connecté à uniquement 2 selComp
     for (let extr of tempExtr) {
       for (let w of circuit.wires) {

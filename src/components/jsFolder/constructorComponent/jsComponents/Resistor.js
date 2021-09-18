@@ -174,7 +174,7 @@ export default class Resistor extends Component {
   createElementTDvaluePower() {
     let td = document.createElement('td');
     td.className = 'td';
-    td.innerHTML = 'P = ' + this.valueP + ' W (consume power)';
+    td.innerHTML = 'P = ' + this.valueP + ' W (consumed power)';
     td.style.backgroundColor = '#ddd';
     return td;
   }

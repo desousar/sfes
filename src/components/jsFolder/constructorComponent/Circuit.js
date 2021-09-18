@@ -25,10 +25,10 @@ export default class Circuit {
   /*
    * very important method: given pin, return component in global components Array
    */
-  componentFromPin (pin) {
+  componentFromPin(pin) {
     return this.components.find(c => c.pins.some(p => p === pin));
   }
-  componentFromPinWithXY (pin) {
+  componentFromPinWithXY(pin) {
     return this.components.find(c =>
       c.pins.some(p => p.x === pin.x && p.y === pin.y)
     );
@@ -36,13 +36,13 @@ export default class Circuit {
   /*
    * very important method: given pin, return component in specific SubCircuit Array
    */
-  componentFromPinInSubC (pin, nb) {
+  componentFromPinInSubC(pin, nb) {
     return this.listOfSubCircuit[nb].find(c => c.pins.some(p => p === pin));
   }
   /*
    * very important method: given component and pin, return index of pin
    */
-  pinIndexFromComponent (component, pin) {
+  pinIndexFromComponent(component, pin) {
     for (let i = 0; i < component.pins.length; i++) {
       if (component.pins[i] === pin) {
         return i;
@@ -50,7 +50,7 @@ export default class Circuit {
     }
     return -1;
   }
-  pinIndexFromComponentWithXY (component, pin) {
+  pinIndexFromComponentWithXY(component, pin) {
     for (let i = 0; i < component.pins.length; i++) {
       if (component.pins[i].x === pin.x && component.pins[i].y === pin.y) {
         return i;
@@ -65,7 +65,7 @@ export default class Circuit {
   // getflagConversionComponents() {
   //   return this.components.filter((item) => item.flagConversion);
   // }
-  getSelectedComponents () {
+  getSelectedComponents() {
     return this.components.filter(item => item.selected);
   }
 
@@ -74,7 +74,7 @@ export default class Circuit {
    * @param {*} componentToDelete
    * @param {index of comp in circuit.components array} index
    */
-  deleteOneComponent (componentToDelete) {
+  deleteOneComponent(componentToDelete) {
     let index = undefined; // used for graphical
     this.components.forEach((comp, i) => {
       if (componentToDelete.uniqueID === comp.uniqueID) {
@@ -112,7 +112,7 @@ export default class Circuit {
     });
   }
 
-  deleteOneWire (wireToDelete) {
+  deleteOneWire(wireToDelete) {
     for (
       let compIndex = this.components.length - 1;
       compIndex >= 0;
@@ -137,10 +137,10 @@ export default class Circuit {
         }
       }
     }
-    let index = -1
+    let index = -1;
     this.wires.forEach((wire, i) => {
       if (wireToDelete === wire) {
-        index = i
+        index = i;
       }
     });
     this.wires.splice(index, 1); //delete line graphical
@@ -149,7 +149,7 @@ export default class Circuit {
     });
   }
 
-  createOneWire (compA, compAPinId, compB, compBPinId) {
+  createOneWire(compA, compAPinId, compB, compBPinId) {
     const wire = new Wire({
       from: compA.pins[compAPinId],
       to: compB.pins[compBPinId]
@@ -174,7 +174,7 @@ export default class Circuit {
   /**
    * @returns a deep project on which we can work (add/remove comp) without to change original circuit
    */
-  project () {
+  project() {
     const components = this.components.map(c =>
       Object.assign(Object.create(Object.getPrototypeOf(c)), c)
     ); //Deep copy
@@ -187,7 +187,7 @@ export default class Circuit {
 
   /*--------------------STEP 1--------------------*/
 
-  isCircuitOpen () {
+  isCircuitOpen() {
     this.components.forEach(comp => {
       if (comp.isMultiPin) {
         if (this.getCountConnection(comp) === 0) {
@@ -232,7 +232,7 @@ export default class Circuit {
   /**
    * purpose: check that there is a Knoten between two 2-Pins-components. If not add one
    */
-  verifyOneKnotenBetweenTwo2PinsKomp () {
+  verifyOneKnotenBetweenTwo2PinsKomp() {
     this.components.forEach(comp => {
       for (let wire of this.wires) {
         const compFrom = this.componentFromPin(wire.from);
@@ -305,12 +305,12 @@ export default class Circuit {
    * purpose: split global components array into multiples SubCircuits
    * a the end: components array is empty
    */
-  getSubCircuit (startComp) {
+  getSubCircuit(startComp) {
     console.log('DEBUG SESSION');
     this.getOneSubCircuit(startComp);
   }
 
-  getOneSubCircuit (startComp) {
+  getOneSubCircuit(startComp) {
     console.log('\n-----SESSION-----\n');
 
     startComp.visitedPin0 = true;
@@ -397,7 +397,7 @@ export default class Circuit {
     }
   }
 
-  getNextCompWith (pin) {
+  getNextCompWith(pin) {
     for (let wire of this.wires) {
       const compFrom = this.componentFromPin(wire.from);
       const compTo = this.componentFromPin(wire.to);
@@ -421,7 +421,7 @@ export default class Circuit {
     }
   }
 
-  nextNeighbor (origin, comp) {
+  nextNeighbor(origin, comp) {
     if (comp.isMultiPin === false && (!comp.visitedPin0 || !comp.visitedPin1)) {
       let pin;
       if (comp.visitedPin0) {
@@ -438,7 +438,6 @@ export default class Circuit {
         let kSTEP3 = dropComp({
           c_id: 'Knoten'
         });
-        kSTEP3.visitedPin0;
         console.log('-------Warning: Circuit open, ADD', kSTEP3.symbol);
         this.components.push(kSTEP3);
         kSTEP3.visitedPin0 = true;
@@ -503,7 +502,7 @@ export default class Circuit {
     }
   }
 
-  getCountConnection (comp) {
+  getCountConnection(comp) {
     let count = 0;
     for (let wire of this.wires) {
       var compFrom = this.componentFromPin(wire.from);
@@ -523,7 +522,7 @@ export default class Circuit {
   /**
    * purpose: check that there is at least one Knoten per SubCircuit that has a Potential value. If not add one equals 0 to the first Knoten
    */
-  verifyPotential () {
+  verifyPotential() {
     for (let i = 0; i < this.listOfSubCircuit.length; i++) {
       console.log('---SubCircuit---');
 
@@ -548,7 +547,7 @@ export default class Circuit {
   /**
    * purpose: check that there is a Wire between two Knoten. If not add one
    */
-  addOneWireBetweenTwoMultiPinKomp () {
+  addOneWireBetweenTwoMultiPinKomp() {
     for (let i = 0; i < this.listOfSubCircuit.length; i++) {
       console.log('---SubCircuit---');
       this.listOfSubCircuit[i].forEach(comp => {
@@ -596,7 +595,7 @@ export default class Circuit {
   }
 
   /*---------------Knotenpotentialverfahren---------------*/
-  numberMultiPinKomp (nb) {
+  numberMultiPinKomp(nb) {
     let count = 0;
     this.listOfSubCircuit[nb].forEach(comp => {
       if (comp.isMultiPin) {
@@ -605,7 +604,7 @@ export default class Circuit {
     });
     return count;
   }
-  number2PinsKomp (nb) {
+  number2PinsKomp(nb) {
     let count = 0;
     this.listOfSubCircuit[nb].forEach(comp => {
       if (!comp.isMultiPin) {
@@ -616,7 +615,7 @@ export default class Circuit {
     });
     return count;
   }
-  createAndSolveMatrix () {
+  createAndSolveMatrix() {
     //every Sub-Circuit will have his own matrix
     this.A = [];
     this.b = [];
@@ -664,23 +663,23 @@ export default class Circuit {
           this.result[i] = undefined;
           throw new ConsistentMatrixInfiniteError(
             'on SubCircuit ' +
-            i +
-            ' matrix consistent but infinite solutions (ex. two voltage sources parallel with same value)'
+              i +
+              ' matrix consistent but infinite solutions (ex. two voltage sources parallel with same value)'
           );
         }
       } else {
         this.result[i] = undefined;
         throw new InconsistentMatrixError(
           'on SubCircuit ' +
-          i +
-          ' matrix inconsistent (see possible causes in help)'
+            i +
+            ' matrix inconsistent (see possible causes in help)'
         );
       }
     }
   }
 
   /*-------------------StepA: KnotenGleichungen----------------------*/
-  knotenEquation (nb) {
+  knotenEquation(nb) {
     //by KnotenEquation all equations are always equal to 0, thus the default value for matrix b
     let rowCounter = 0;
     this.listOfSubCircuit[nb].forEach(comp => {
@@ -740,7 +739,7 @@ export default class Circuit {
     this.b[nb].print('b');
   }
   /*-------------------StepB: BauteilGleichungen----------------------*/
-  bauteilEquation (nb) {
+  bauteilEquation(nb) {
     let rowCounter = this.numberMultiPinKomp(nb);
     console.log(nb, this.listOfSubCircuit);
     this.listOfSubCircuit[nb].forEach(comp => {
@@ -753,7 +752,7 @@ export default class Circuit {
     this.b[nb].print('b');
   }
   /*-------------------StepC: PotenzialGleichungen----------------------*/
-  potenzialEquation (nb) {
+  potenzialEquation(nb) {
     let rowCounter = this.numberMultiPinKomp(nb) + this.number2PinsKomp(nb);
     this.listOfSubCircuit[nb].forEach(comp => {
       if (!comp.isMultiPin || comp.valuePotentialSource !== undefined) {
@@ -831,7 +830,7 @@ export default class Circuit {
    * all the components of the original circuit take the values they have obtained in the projection
    * @param {original} circuit
    */
-  attributionToOriginal (circuit) {
+  attributionToOriginal(circuit) {
     for (let i = 0; i < this.listOfSubCircuit.length; i++) {
       console.log('---TEST attribution projection nb', i, '-> original---');
       if (this.result[i] === undefined) {
@@ -867,7 +866,7 @@ export default class Circuit {
       });
     }
   }
-  contains (comp, nb) {
+  contains(comp, nb) {
     let booleanValue = false;
     this.listOfSubCircuit[nb].forEach(c => {
       if (c.uniqueID == comp.uniqueID) {
@@ -876,7 +875,7 @@ export default class Circuit {
     });
     return booleanValue;
   }
-  findNeighbor (c, nb) {
+  findNeighbor(c, nb) {
     this.wires.forEach(wire => {
       const compTo = this.componentFromPinInSubC(wire.to, nb);
       const compFrom = this.componentFromPinInSubC(wire.from, nb);
@@ -890,19 +889,19 @@ export default class Circuit {
       }
     });
   }
-  attributeValuePhi (theComp, theCompPin, otherComp, nb) {
+  attributeValuePhi(theComp, theCompPin, otherComp, nb) {
     this.pinIndexFromComponent(theComp, theCompPin) === 0
       ? (theComp.potentialPin0 = this.result[nb].get(
-        this.listModel[nb].indexOf('valuePhi' + otherComp.uniqueID),
-        0
-      ))
+          this.listModel[nb].indexOf('valuePhi' + otherComp.uniqueID),
+          0
+        ))
       : (theComp.potentialPin1 = this.result[nb].get(
-        this.listModel[nb].indexOf('valuePhi' + otherComp.uniqueID),
-        0
-      ));
+          this.listModel[nb].indexOf('valuePhi' + otherComp.uniqueID),
+          0
+        ));
   }
 
-  loadNewCircuit (obj) {
+  loadNewCircuit(obj) {
     this.components = undefined;
     // TODO load circuit from String / JSON
     console.log('obj before comp:', obj);
@@ -936,7 +935,7 @@ export default class Circuit {
     });
     this.components = obj.components;
   }
-  loadWireOfNewCircuit (obj) {
+  loadWireOfNewCircuit(obj) {
     this.wires = [];
     obj.wires.forEach(w => {
       const fromComp = this.componentFromPinWithXY(w.from);
@@ -953,7 +952,7 @@ export default class Circuit {
    * this function will be use by the equivalent source
    * @param {will be an Ampermeter or Voltmeter} comp
    */
-  getOne2PinsComponent (comp) {
+  attributeUItoOne2PinsComponent(comp) {
     for (let i = 0; i < this.listOfSubCircuit.length; i++) {
       let booleanValue = this.contains(comp, i);
       if (booleanValue === true) {

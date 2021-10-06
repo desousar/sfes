@@ -587,12 +587,6 @@ export default {
             this.compoToPass.showPotential = true;
             this.compoToPass.showGround = false;
           }
-          if (tempValuePotential < 0) {
-            document.getElementById('alertHint').style.color = 'red';
-            document.getElementById('alertHint').innerText =
-              "Potential can't be negative";
-            return false;
-          }
         }
         if (tempValuePotential != this.compoToPass.valuePotentialSource) {
           this.valueIsModified = true;

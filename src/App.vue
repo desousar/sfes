@@ -155,7 +155,7 @@ export default {
         // state history [older,...,younger]
         history: [new Circuit([], [])], //1st state in history written manual
         position: 0,
-        historyMaxLength: 10
+        historyMaxLength: 100
       },
 
       isPopupAboutUsVisible: false,

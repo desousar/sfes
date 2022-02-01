@@ -1,6 +1,5 @@
 module.exports = {
   publicPath: '/sfes/',
-  outputDir: 'docs',
   pwa: {
     themeColor: '#17a2b8',
     msTileColor: '#000000',

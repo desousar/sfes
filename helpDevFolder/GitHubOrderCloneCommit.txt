@@ -13,9 +13,12 @@ Open a terminal, go to the sfes folder and write the following order:
 	npm run serve
 
 PUSH new code
-	sfes (main)$ npm run build  (for me the first time fails every time and the second time works)
+	sfes (main)$ npm run deploy  (to deploy app on GitHub Page)
+
+	OR just push new code
+
 	git add .
 	git status      (to be sure)
-	git commit -am "your commentar"
+	git commit -m "your commentar"
 	git branch -M main      (only if sfes(master)is written instead of sfes(main) !!)
 	git push -u origin main

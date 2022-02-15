@@ -1,5 +1,4 @@
 <template>
-  <!--@mousedown="(e) => $emit('mousedown', e)" comme ca pas besoin de $ à envent-->
   <svg
     class="component"
     v-bind:class="horizontalOrVerticalClass()"
@@ -9,23 +8,25 @@
       position: 'absolute',
       border: component.selected ? '1px solid red' : ''
     }"
-    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    width="92.4002mm"
+    height="58.510792mm"
+    viewBox="0 0 92.400199 58.510792"
+    sodipodi:docname="Resistor.svg"
+  >
+    <!-- xmlns:dc="http://purl.org/dc/elements/1.1/"
     xmlns:cc="http://creativecommons.org/ns#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:svg="http://www.w3.org/2000/svg"
     xmlns="http://www.w3.org/2000/svg"
     xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
     xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-    width="92.4002mm"
-    height="58.510792mm"
-    viewBox="0 0 92.400199 58.510792"
+    
     version="1.1"
     id="svg8"
     inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-    sodipodi:docname="Resistor.svg"
-  >
-    <defs id="defs2" />
-    <sodipodi:namedview
+     -->
+    <!-- <defs id="defs2" /> -->
+    <!-- <sodipodi:namedview
       id="base"
       pagecolor="#ffffff"
       borderColor="#666666"
@@ -47,8 +48,8 @@
       fit-margin-left="0"
       fit-margin-right="0"
       fit-margin-bottom="0"
-    />
-    <metadata id="metadata5">
+    /> -->
+    <!-- <metadata id="metadata5">
       <rdf:RDF>
         <cc:Work rdf:about>
           <dc:format>image/svg+xml</dc:format>
@@ -56,7 +57,7 @@
           <dc:title />
         </cc:Work>
       </rdf:RDF>
-    </metadata>
+    </metadata> -->
     <g
       class="cursorPointer"
       draggable="false"
@@ -614,8 +615,33 @@
 </template>
 
 <script>
-import BaseComp from '../MixinKompo/Base2PinsKompo';
 export default {
-  mixins: [BaseComp]
+  props: {
+    component: Object
+  },
+  emits: [
+    'simpleClick',
+    'doubleClick',
+    'mouseup',
+    'mousedown',
+    'mousemove',
+    'mouseout',
+    'pin',
+    'pinMouseUp'
+  ],
+  methods: {
+    horizontalOrVerticalClass: function() {
+      return {
+        componentDeg0: this.component.rotation === 0,
+        componentDeg90: this.component.rotation === 90,
+        componentDeg180: this.component.rotation === 180,
+        componentDeg270: this.component.rotation === 270
+      };
+    }
+  }
 };
 </script>
+
+<style scoped>
+@import './../cssFolder/comp.css';
+</style>

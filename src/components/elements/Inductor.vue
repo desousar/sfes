@@ -6,7 +6,7 @@
       left: component.x,
       top: component.y,
       position: 'absolute',
-      border: component.selected ? '1px solid red' : '',
+      border: component.selected ? '1px solid red' : ''
     }"
     draggable="false"
     @click="$emit('simpleClick')"
@@ -141,7 +141,7 @@
         cy="287"
         r="2.3447022"
         class="pin"
-        @click="(ev) => $emit('pin', 'pin1', 0, ev)"
+        @click="ev => $emit('pin', 'pin1', 0, ev)"
       />
       <circle
         v-if="component.showPin2"
@@ -161,7 +161,7 @@
         "
         r="2.3447022"
         class="pin"
-        @click="(ev) => $emit('pin', 'pin2', 1, ev)"
+        @click="ev => $emit('pin', 'pin2', 1, ev)"
       />
       <g
         id="g3971"
@@ -243,11 +243,36 @@
       </g>
     </g>
   </svg>
-</template> 
+</template>
 
 <script>
-import BaseComp from "../MixinKompo/Base2PinsKompo";
 export default {
-  mixins: [BaseComp],
+  props: {
+    component: Object
+  },
+  emits: [
+    'simpleClick',
+    'dblclick',
+    'mouseup',
+    'mousedown',
+    'mousemove',
+    'mouseout',
+    'pin',
+    'pinMouseUp'
+  ],
+  methods: {
+    horizontalOrVerticalClass: function() {
+      return {
+        componentDeg0: this.component.rotation === 0,
+        componentDeg90: this.component.rotation === 90,
+        componentDeg180: this.component.rotation === 180,
+        componentDeg270: this.component.rotation === 270
+      };
+    }
+  }
 };
 </script>
+
+<style scoped>
+@import './../cssFolder/comp.css';
+</style>

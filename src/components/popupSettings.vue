@@ -70,6 +70,7 @@ export default {
     locales: Array,
     withPredefinedValue: Boolean
   },
+  emits: ['click', 'mousedown', 'mouseup', 'mousemove', 'change', 'close'],
   data() {
     return {
       onDraggable: false,
@@ -110,10 +111,10 @@ export default {
       this.onDraggable = false;
     },
     changeLanguage() {
-      EventBus.$emit('PUSchangeLanguage', this.getCurrentLanguage);
+      EventBus.emit('PUSchangeLanguage', this.getCurrentLanguage);
     },
     predefinedValues() {
-      EventBus.$emit('PUSpredVal', this.withPredVal);
+      EventBus.emit('PUSpredVal', this.withPredVal);
     },
     close() {
       this.$emit('close');

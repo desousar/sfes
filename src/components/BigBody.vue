@@ -42,7 +42,7 @@
       @mousemove.prevent="moveMotion($event)"
       @contextmenu="openMenu"
     >
-      <template v-for="(component, idx) in circuit.components">
+      <template v-for="(component, idx) in circuit.components" :key="idx">
         <span :key="'complabel-' + idx" v-if="component.showSymbol">
           <span
             v-if="!component.isMultiPin"
@@ -82,8 +82,7 @@
           </span>
         </span>
         <svg
-          :is="component.name"
-          :key="'component-' + idx"
+          v-is="component.name"
           :alt="component.name"
           :component="component"
           :style="{
@@ -102,7 +101,6 @@
           @mouseout="hideTooltip()"
         ></svg>
         <div
-          :key="'tooltip' + idx"
           id="tooltip"
           display="none"
           style="position: absolute; display: none"
@@ -120,10 +118,9 @@
           gridLine: setGridLine
         }"
       >
-        <template v-for="(wire, idx) in circuit.wires">
+        <template v-for="(wire, idx) in circuit.wires" :key="idx">
           <line
             style="stroke: black; stroke-width: 2"
-            :key="'line-' + idx"
             :x1="wire.from.x"
             :x2="wire.to.x"
             :y1="wire.from.y"
@@ -132,7 +129,6 @@
           <line
             style="stroke: transparent; stroke-width: 10"
             @mouseover="pointerWire($event)"
-            :key="'shadow-line-' + idx"
             :x1="wire.from.x"
             :x2="wire.to.x"
             :y1="wire.from.y"
@@ -244,33 +240,51 @@ export default {
     currentLanguage: String,
     withPredefinedValue: Boolean,
     selectedTool: Number,
-    circuit: Object, //circuit with components and wires array
+    theCircuit: Object, //circuit with components and wires array
     undoRedoData: Object
   },
+  emits: [
+    'simpleClick',
+    'doubleClick',
+    'dragstart',
+    'dragenter',
+    'dragover',
+    'drop',
+    'mouseover',
+    'mousedown',
+    'mousemove',
+    'mouseup',
+    'mouseout',
+    'contextmenu',
+    'pin',
+    'pinMouseUp',
+    'tool-state-changed',
+    'set-circuit'
+  ],
   mounted: function() {
-    EventBus.$on('MBcapture', () => {
+    EventBus.on('MBcapture', () => {
       this.MBcapture();
     });
-    EventBus.$on('MBa4Format', newA4Bool => {
+    EventBus.on('MBa4Format', newA4Bool => {
       this.inA4Format = newA4Bool;
     });
-    EventBus.$on('MBsetGridPoint', bool => {
+    EventBus.on('MBsetGridPoint', bool => {
       this.setGridPoint = bool;
     });
-    EventBus.$on('MBsetGridLine', bool => {
+    EventBus.on('MBsetGridLine', bool => {
       this.setGridLine = bool;
     });
-    EventBus.$on('MBsolve', () => {
+    EventBus.on('MBsolve', () => {
       this.MBsolve();
     });
-    EventBus.$on('MBopenFile', () => {
+    EventBus.on('MBopenFile', () => {
       this.MBopenFile();
     });
-    EventBus.$on('MBsaveFile', () => {
+    EventBus.on('MBsaveFile', () => {
       this.MBsaveFile();
     });
 
-    EventBus.$on('MBgetEmptyCircuit', () => {
+    EventBus.on('MBgetEmptyCircuit', () => {
       this.MBgetEmptyCircuit();
     });
   },
@@ -304,7 +318,8 @@ export default {
       sternToDreieck_data: false,
       permutation_data: false,
 
-      compToDD: undefined
+      compToDD: undefined,
+      circuit: this.theCircuit
     };
   },
   computed: {
@@ -563,9 +578,9 @@ export default {
     },
     resetAndSaveAfterConversion() {
       this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
-      this.components.map(c => (c.selected = false));
+      this.circuit.components.map(c => (c.selected = false));
       this.closeMenu();
-      EventBus.$emit('BBSave');
+      EventBus.emit('BBSave');
     },
 
     doubleClick: function(component) {
@@ -578,7 +593,7 @@ export default {
       }
 
       if (this.selectedTool === this.toolState.STATE_IDLE) {
-        EventBus.$emit('BBcomp', component);
+        EventBus.emit('BBcomp', component);
       }
     },
 
@@ -620,7 +635,7 @@ export default {
 
         this.circuit.components.push(c);
         if (saveAfterDrop === true) {
-          EventBus.$emit('BBSave');
+          EventBus.emit('BBSave');
         }
         return c;
       }
@@ -689,7 +704,7 @@ export default {
       ) {
         this.moveMotion(e);
         this.selectedComponent = null;
-        EventBus.$emit('BBSave');
+        EventBus.emit('BBSave');
       }
       if (
         this.selectedTool === this.toolState.TOOL_CREATE_WIRE &&
@@ -710,7 +725,7 @@ export default {
           this.toComponentPin = nr;
           this.toComponent = component;
           this.drawWire();
-          EventBus.$emit('BBSave');
+          EventBus.emit('BBSave');
         } else if (
           this.fromComponent !== null &&
           this.toComponent === null &&
@@ -741,7 +756,7 @@ export default {
           };
           createWire(this.fromComponent, 0, kn, 0);
           createWire(this.fromComponent, 1, kn, 0);
-          EventBus.$emit('BBSave');
+          EventBus.emit('BBSave');
         } else {
           alert('You can choose same pin of the same component');
         }
@@ -760,13 +775,13 @@ export default {
         component.recalculatePins();
       } else if (this.selectedTool === this.toolState.TOOL_DELETE) {
         this.circuit.deleteOneComponent(component); //call the function delete
-        EventBus.$emit('BBSave');
+        EventBus.emit('BBSave');
       } else if (
         this.selectedTool === this.toolState.TOOL_ROTATE &&
         component.isMultiPin === false
       ) {
         component.rotateRight();
-        EventBus.$emit('BBSave');
+        EventBus.emit('BBSave');
       }
     },
     /**
@@ -814,7 +829,7 @@ export default {
     selectedWire: function(line) {
       if (this.selectedTool === this.toolState.TOOL_DELETE) {
         this.circuit.deleteOneWire(line);
-        EventBus.$emit('BBSave');
+        EventBus.emit('BBSave');
       }
     },
 
@@ -851,7 +866,7 @@ export default {
                 this.circuit.createOneWire(comp, 0, toComp, toPin);
               }
             }
-            EventBus.$emit('BBSave');
+            EventBus.emit('BBSave');
           }
         });
       } else {
@@ -906,8 +921,8 @@ export default {
         let solver = new CircuitSolver();
         try {
           solver.solveWithAttribution(this.circuit);
-          EventBus.$emit('BBresult');
-          EventBus.$emit('BBSave');
+          EventBus.emit('BBresult');
+          EventBus.emit('BBSave');
         } catch (e) {
           alert('*****ERROR*****\n' + e.message);
         }
@@ -932,7 +947,7 @@ export default {
         self.circuit.loadWireOfNewCircuit(obj);
         console.log('CIRCUIT LOADED', self.circuit);
       };
-      EventBus.$emit('BBSave');
+      EventBus.emit('BBSave');
     },
     MBsaveFile() {
       let data = this.circuit;
@@ -961,7 +976,7 @@ export default {
         )
       ) {
         this.$emit('set-circuit');
-        EventBus.$emit('BBSave');
+        EventBus.emit('BBSave');
       }
     }
   }

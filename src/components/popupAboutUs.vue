@@ -52,6 +52,7 @@ export default {
   props: {
     currentLanguage: String
   },
+  emits: ['click', 'mousedown', 'mouseup', 'mousemove', 'close'],
   data() {
     return {
       appVersion: version,

@@ -94,6 +94,7 @@ export default {
     circuitcomplet: Object,
     currentLanguage: String
   },
+  emits: ['click', 'mousedown', 'mouseup', 'mousemove', 'close'],
   data() {
     return {
       onDraggable: false,

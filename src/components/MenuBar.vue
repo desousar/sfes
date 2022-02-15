@@ -92,6 +92,7 @@ export default {
     //I need to give the type, after that I can us it into html part like {{...}}
     currentLanguage: String
   },
+  emits: ['click'],
   data() {
     return {
       file: { en: 'File', de: 'Datei' },
@@ -143,30 +144,30 @@ export default {
   },
   methods: {
     capture() {
-      EventBus.$emit('MBcapture');
+      EventBus.emit('MBcapture');
     },
     a4Format() {
       this.a4FormatBool_data = !this.a4FormatBool_data;
-      EventBus.$emit('MBa4Format', this.a4FormatBool_data);
+      EventBus.emit('MBa4Format', this.a4FormatBool_data);
     },
     gridPoint() {
       this.gridPointBool_data = !this.gridPointBool_data;
-      EventBus.$emit('MBsetGridPoint', this.gridPointBool_data);
+      EventBus.emit('MBsetGridPoint', this.gridPointBool_data);
       if (this.gridLineBool_data) {
         this.gridLineBool_data = !this.gridLineBool_data;
-        EventBus.$emit('MBsetGridLine', this.gridLineBool_data);
+        EventBus.emit('MBsetGridLine', this.gridLineBool_data);
       }
     },
     gridLine() {
       this.gridLineBool_data = !this.gridLineBool_data;
-      EventBus.$emit('MBsetGridLine', this.gridLineBool_data);
+      EventBus.emit('MBsetGridLine', this.gridLineBool_data);
       if (this.gridPointBool_data) {
         this.gridPointBool_data = !this.gridPointBool_data;
-        EventBus.$emit('MBsetGridPoint', this.gridPointBool_data);
+        EventBus.emit('MBsetGridPoint', this.gridPointBool_data);
       }
     },
     solve() {
-      EventBus.$emit('MBsolve');
+      EventBus.emit('MBsolve');
     },
 
     openFile() {
@@ -176,7 +177,7 @@ export default {
         )
       ) {
         console.log('openFile');
-        EventBus.$emit('MBopenFile');
+        EventBus.emit('MBopenFile');
       }
     },
     onInputClick() {
@@ -185,22 +186,22 @@ export default {
     },
 
     saveFile() {
-      EventBus.$emit('MBsaveFile');
+      EventBus.emit('MBsaveFile');
     },
     equivalentSource() {
-      EventBus.$emit('MBequivalentSource');
+      EventBus.emit('MBequivalentSource');
     },
     getEmptyCircuit() {
-      EventBus.$emit('MBgetEmptyCircuit');
+      EventBus.emit('MBgetEmptyCircuit');
     },
     settings() {
-      EventBus.$emit('MBsettings');
+      EventBus.emit('MBsettings');
     },
     help() {
-      EventBus.$emit('MBhelp');
+      EventBus.emit('MBhelp');
     },
     aboutUs() {
-      EventBus.$emit('MBaboutUs');
+      EventBus.emit('MBaboutUs');
     }
   }
 };

@@ -84,9 +84,9 @@ export default {
     //I need to give the type, after that I can us it into html part like {{...}}
     currentLanguage: String,
     selectedTool: Number,
-    circuit: Object,
     undoRedoData: Object
   },
+  emits: ['click', 'tool-state-changed', 'set-position', 'set-circuit'],
   data() {
     return {
       neu: { en: 'New', de: 'Neu' },

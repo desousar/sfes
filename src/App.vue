@@ -12,7 +12,6 @@ https://medium.com/fbbd/intro-to-writing-undo-redo-systems-in-javascript-af17148
       :currentLanguage="currentLanguage"
       :selectedTool="tool"
       @tool-state-changed="onToolStateChanged"
-      :circuit="circuit"
       @set-circuit="setCircuit"
       :undoRedoData="undoRedoData"
       @set-position="setPosition"
@@ -22,7 +21,7 @@ https://medium.com/fbbd/intro-to-writing-undo-redo-systems-in-javascript-af17148
       :withPredefinedValue="withPredefinedValue"
       :selectedTool="tool"
       @tool-state-changed="onToolStateChanged"
-      :circuit="circuit"
+      :theCircuit="theCircuit"
       @set-circuit="setCircuit"
       :undoRedoData="undoRedoData"
       @set-position="setPosition"
@@ -50,8 +49,8 @@ https://medium.com/fbbd/intro-to-writing-undo-redo-systems-in-javascript-af17148
     <popupComp
       v-show="isPopupCompVisible"
       @close="openClosePopupComp"
-      :compoToPass.sync="compoToPass"
-      :arrayComponents="circuit.components"
+      :theCompoToPass="theCompoToPass"
+      :arrayComponents="theCircuit.components"
       :currentLanguage="currentLanguage"
       :isPopupCompVisible="isPopupCompVisible"
     />
@@ -59,7 +58,7 @@ https://medium.com/fbbd/intro-to-writing-undo-redo-systems-in-javascript-af17148
     <popupResult
       v-show="isPopupResultVisible"
       @close="openClosePopupResult"
-      :arrayComponents="circuit.components"
+      :arrayComponents="theCircuit.components"
       :currentLanguage="currentLanguage"
       :isPopupResultVisible="isPopupResultVisible"
     />
@@ -67,7 +66,7 @@ https://medium.com/fbbd/intro-to-writing-undo-redo-systems-in-javascript-af17148
     <popupEquivalentSrc
       v-show="isPopupEquivalentSrcVisible"
       @close="openClosePopupEquivalentSrc"
-      :circuitcomplet="circuit"
+      :circuitcomplet="theCircuit"
       :currentLanguage="currentLanguage"
     />
 
@@ -112,33 +111,35 @@ export default {
     popupEquivalentSrc,
     popupHelp
   },
+  emits: ['tool-state-changed'],
   mounted: function() {
-    EventBus.$on('PUSchangeLanguage', newL => {
+    EventBus.on('PUSchangeLanguage', newL => {
       this.updateLanguage(newL);
     });
-    EventBus.$on('MBaboutUs', () => {
+    EventBus.on('MBaboutUs', () => {
       this.openClosePopupAboutUs();
     });
-    EventBus.$on('MBsettings', () => {
+    EventBus.on('MBsettings', () => {
       this.openClosePopupSettings();
     });
-    EventBus.$on('MBequivalentSource', () => {
+    EventBus.on('MBequivalentSource', () => {
       this.openClosePopupEquivalentSrc();
     });
-    EventBus.$on('MBhelp', () => {
+    EventBus.on('MBhelp', () => {
       this.openClosePopupHelp();
     });
-    EventBus.$on('PUSpredVal', predValue => {
+    EventBus.on('PUSpredVal', predValue => {
       this.withPredefinedValue = predValue;
     });
-    EventBus.$on('BBcomp', compToPass => {
-      this.compoToPass = compToPass;
+    EventBus.on('BBcomp', compToPass => {
+      console.log('modif', compToPass.name);
+      this.theCompoToPass = compToPass;
       this.openClosePopupComp();
     });
-    EventBus.$on('BBresult', () => {
+    EventBus.on('BBresult', () => {
       this.openClosePopupResult();
     });
-    EventBus.$on('BBSave', () => {
+    EventBus.on('BBSave', () => {
       this.save();
     });
   },
@@ -150,7 +151,7 @@ export default {
         { id: 'de', name: 'Deutsch' }
       ],
       tool: toolStates.STATE_IDLE, //default first state
-      circuit: new Circuit([], []), //init a circuit
+      theCircuit: new Circuit([], []), //init a circuit
       undoRedoData: {
         // state history [older,...,younger]
         history: [new Circuit([], [])], //1st state in history written manual
@@ -166,7 +167,7 @@ export default {
       isPopupHelpVisible: false,
 
       withPredefinedValue: true,
-      compoToPass: null
+      theCompoToPass: null
     };
   },
   methods: {
@@ -182,9 +183,9 @@ export default {
     },
     setCircuit(newCir) {
       if (newCir) {
-        this.circuit = newCir;
+        this.theCircuit = newCir;
       } else {
-        this.circuit = new Circuit([], []);
+        this.theCircuit = new Circuit([], []);
         //** Restart all nb drop on 0
         resetNbFromComp();
       }
@@ -193,7 +194,7 @@ export default {
      * #region Undo Redo function
      */
     save() {
-      const deepCopy = this.circuit.project();
+      const deepCopy = this.theCircuit.project();
       this.setValue(deepCopy);
     },
     setValue(value) {

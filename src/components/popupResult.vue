@@ -57,6 +57,7 @@ export default {
     currentLanguage: String,
     isPopupResultVisible: Boolean
   },
+  emits: ['click', 'mousedown', 'mouseup', 'mousemove', 'close'],
   data() {
     return {
       onDraggable: false,

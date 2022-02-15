@@ -10,6 +10,7 @@ IMPORT GitHub Repo
 Folder structur .../myFolder/sfes
 
 Open a terminal, go to the sfes folder and write the following order:
+	npm install
 	npm run serve
 
 PUSH new code

@@ -289,13 +289,15 @@ import {
 
 export default {
   props: {
-    compoToPass: Object,
+    theCompoToPass: Object,
     arrayComponents: Array,
     currentLanguage: String,
     isPopupCompVisible: Boolean
   },
+  emits: ['click', 'mouseup', 'mousedown', 'mousemove', 'close'],
   data() {
     return {
+      compoToPass: null,
       onDraggable: false,
       shiftX: undefined,
       shiftY: undefined,
@@ -319,12 +321,9 @@ export default {
   watch: {
     isPopupCompVisible: function(newVal) {
       if (newVal) {
+        this.compoToPass = this.theCompoToPass;
         //graphical aspect
         this.attributionTemp();
-        /**
-         * TODO
-         * add grey arrow (play local with grey arrow and before close, give value to real black arrow)
-         */
       }
     }
   },
@@ -335,6 +334,7 @@ export default {
   },
   methods: {
     attributionTemp() {
+      console.log(this.compoToPass);
       if (!this.compoToPass.showIdir0 && !this.compoToPass.showIdir1) {
         this.compoToPass.directionI === 0
           ? (this.compoToPass.showIdir0Temp = true)

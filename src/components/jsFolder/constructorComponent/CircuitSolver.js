@@ -39,6 +39,7 @@ class CircuitSolver {
     // TODO solve the circuit and call method from Circuit.js
     const projection = circuit.project();
     this.checkAndSolveCircuit(projection);
+    return projection;
   }
 
   solveIqe(circuit, fromKlemme, toKlemme) {

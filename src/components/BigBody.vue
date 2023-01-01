@@ -318,11 +318,13 @@ export default {
       sternToDreieck_data: false,
       permutation_data: false,
 
-      compToDD: undefined,
-      circuit: this.theCircuit
+      compToDD: undefined
     };
   },
   computed: {
+    circuit() {
+      return this.theCircuit;
+    },
     getWithPredefinedValue() {
       return this.withPredefinedValue;
     }

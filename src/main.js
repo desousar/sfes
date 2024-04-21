@@ -1,9 +1,7 @@
-import { createApp, h } from 'vue';
+import { createApp } from 'vue';
 import App from './App.vue';
 import './registerServiceWorker';
 
-const app = createApp({
-  render: () => h(App)
-});
+const app = createApp(App);
 
 app.mount('#app');

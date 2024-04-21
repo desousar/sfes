@@ -81,8 +81,8 @@
             {{ component.symbol }}
           </span>
         </span>
-        <svg
-          v-is="component.name"
+        <component
+          :is="component.name"
           :alt="component.name"
           :component="component"
           :style="{
@@ -92,14 +92,14 @@
           }"
           @simpleClick="simpleClick(component)"
           @doubleClick="doubleClick(component)"
-          @pin="nr => pinClicked(component, nr)"
-          @pinMouseUp="nr => pinMoveEnd(component, nr)"
+          @pin="(nr) => pinClicked(component, nr)"
+          @pinMouseUp="(nr) => pinMoveEnd(component, nr)"
           @mousedown="moveStart($event, component)"
           @mousemove="
             showTooltip($event, component), pointerComp($event, component)
           "
           @mouseout="hideTooltip()"
-        ></svg>
+        ></component>
         <div
           id="tooltip"
           display="none"
@@ -226,14 +226,21 @@ const componentsItem = [
 
 export default {
   components: {
+    // eslint-disable-next-line vue/no-unused-components
     Knoten,
+    // eslint-disable-next-line vue/no-unused-components
     Klemme,
+    // eslint-disable-next-line vue/no-unused-components
     Resistor,
     /*Inductor,
     Capacitor,*/
+    // eslint-disable-next-line vue/no-unused-components
     CurrentSource,
+    // eslint-disable-next-line vue/no-unused-components
     VoltageSource,
+    // eslint-disable-next-line vue/no-unused-components
     Ampermeter,
+    // eslint-disable-next-line vue/no-unused-components
     Voltmeter
   },
   props: {
@@ -265,13 +272,13 @@ export default {
     EventBus.on('MBcapture', () => {
       this.MBcapture();
     });
-    EventBus.on('MBa4Format', newA4Bool => {
+    EventBus.on('MBa4Format', (newA4Bool) => {
       this.inA4Format = newA4Bool;
     });
-    EventBus.on('MBsetGridPoint', bool => {
+    EventBus.on('MBsetGridPoint', (bool) => {
       this.setGridPoint = bool;
     });
-    EventBus.on('MBsetGridLine', bool => {
+    EventBus.on('MBsetGridLine', (bool) => {
       this.setGridLine = bool;
     });
     EventBus.on('MBsolve', () => {
@@ -441,7 +448,7 @@ export default {
         }.bind(this)
       );
       e.preventDefault();
-      this.circuit.components.forEach(c => {
+      this.circuit.components.forEach((c) => {
         if (this.isClassicKnoten(c) && c.selected) {
           c.selected = false; // a classic Knoten is useless
         }
@@ -580,7 +587,7 @@ export default {
     },
     resetAndSaveAfterConversion() {
       this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
-      this.circuit.components.map(c => (c.selected = false));
+      this.circuit.components.map((c) => (c.selected = false));
       this.closeMenu();
       EventBus.emit('BBSave');
     },
@@ -838,7 +845,7 @@ export default {
     dropOnWire(e, wire) {
       if (confirm('Do you want to insert this component on the Wire?')) {
         const comp = this.drop(e, false);
-        this.circuit.wires.forEach(w => {
+        this.circuit.wires.forEach((w) => {
           if (w === wire) {
             const fromComp = this.circuit.componentFromPin(w.from);
             const fromPin = this.circuit.pinIndexFromComponent(

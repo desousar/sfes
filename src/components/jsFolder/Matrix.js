@@ -46,7 +46,7 @@ export default class Matrix {
       if (this.column <= lead) {
         this.rank = this.row;
         for (let i = 0; i < this.row; i++) {
-          if (this.mtx[i].every(item => item === 0)) {
+          if (this.mtx[i].every((item) => item === 0)) {
             this.rank--;
           }
         }
@@ -61,7 +61,7 @@ export default class Matrix {
           if (this.column == lead) {
             this.rank = this.row;
             for (let i = 0; i < this.row; i++) {
-              if (this.mtx[i].every(item => item === 0)) {
+              if (this.mtx[i].every((item) => item === 0)) {
                 this.rank--;
               }
             }
@@ -180,7 +180,7 @@ export default class Matrix {
       ary: this.extractX()
     });
     console.log('*******************');
-    x.mtx.forEach(n => {
+    x.mtx.forEach((n) => {
       n[0] = parseFloat(n[0]).toFixed(6);
     });
     //x.print("x");

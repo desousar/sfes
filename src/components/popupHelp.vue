@@ -1,7 +1,10 @@
 <!-- src : https://www.digitalocean.com/community/tutorials/vuejs-vue-modal-component -->
 <template>
   <transition name="modal-fade">
-    <div class="modal-backdrop" @click="outsideClick">
+    <div
+      class="modal-backdrop"
+      @click="close()"
+    >
       <div
         class="modalHelp"
         id="modalHelpId"
@@ -10,19 +13,21 @@
         aria-describedby="modalHelpDescription"
         @mousemove="moveMotion($event)"
         @mouseup="moveEnd($event)"
-        @click.stop=""
+        @click.stop
       >
         <header
           class="modalHelp-header"
           id="modalHelpTitle"
           @mousedown="moveStart($event)"
         >
-          <slot name="header"> {{ help_data[getCurrentLanguage] }} </slot>
+          <slot name="header">
+            {{ language.help_data[getCurrentLanguage] }}
+          </slot>
           <button
-            style="float:right"
+            style="float: right"
             type="button"
             class="btn-green"
-            @click="close"
+            @click="close()"
             aria-label="Close modalSettings"
             @mousedown.stop=""
           >
@@ -30,11 +35,12 @@
           </button>
         </header>
         <hr />
-        <section class="modalHelp-body" id="modalHelpDescription">
+        <section
+          class="modalHelp-body"
+          id="modalHelpDescription"
+        >
           <h3>What is "matrix inconsistent" ?</h3>
-          <p>
-            This error can have several causes, among the most common are:
-          </p>
+          <p>This error can have several causes, among the most common are:</p>
 
           <ul>
             <li>2 voltage sources in parallel with different values</li>
@@ -70,9 +76,7 @@
           <h3>
             How to delete, rotate, move, select / activate an interaction ?
           </h3>
-          <p>
-            Interactions are symbolized by images.
-          </p>
+          <p>Interactions are symbolized by images.</p>
 
           <ul>
             <li>The trash can symbolizes the deletion</li>
@@ -95,9 +99,7 @@
             How to calculate the current and voltage of the components in my
             circuit ?
           </h3>
-          <p>
-            Create your circuit, then click on the "solve" button.
-          </p>
+          <p>Create your circuit, then click on the "solve" button.</p>
 
           <h3>How to calculate the equivalent sources of my circuit ?</h3>
           <p>
@@ -116,52 +118,56 @@
   </transition>
 </template>
 
-<script>
-export default {
-  props: {
-    currentLanguage: String
-  },
-  emits: ['click', 'mousedown', 'mouseup', 'mousemove', 'close'],
-  data() {
-    return {
-      onDraggable: false,
-      shiftX: undefined,
-      shiftY: undefined,
-      help_data: { en: 'Help', de: 'Hilfe' }
-    };
-  },
-  computed: {
-    getCurrentLanguage: function() {
-      return this.currentLanguage;
-    }
-  },
-  methods: {
-    outsideClick() {
-      this.close();
-    },
-    moveStart(e) {
-      this.onDraggable = true;
-      this.shiftX = e.offsetX; //where I click inside Component
-      this.shiftY = e.offsetY;
-    },
-    moveMotion(e) {
-      if (this.onDraggable) {
-        const modalDiv = document.getElementById('modalHelpId');
-        const valueLeft = e.clientX - this.shiftX;
-        const valueTop = e.clientY - this.shiftY;
-        modalDiv.style.left = valueLeft + 'px';
-        modalDiv.style.top = valueTop + 'px';
-      }
-    },
-    moveEnd(e) {
-      this.moveMotion(e);
-      this.onDraggable = false;
-    },
-    close() {
-      this.$emit('close');
-    }
+<script setup>
+import { reactive, computed, defineProps, defineEmits } from 'vue';
+
+const props = defineProps({
+  currentLanguage: String
+});
+
+const emit = defineEmits([
+  'click',
+  'mousedown',
+  'mouseup',
+  'mousemove',
+  'close'
+]);
+
+const state = reactive({
+  onDraggable: false,
+  shiftX: undefined,
+  shiftY: undefined
+});
+
+const language = reactive({
+  help_data: { en: 'Help', de: 'Hilfe' }
+});
+
+const getCurrentLanguage = computed(() => {
+  return props.currentLanguage;
+});
+
+function moveStart(e) {
+  state.onDraggable = true;
+  state.shiftX = e.offsetX; //where I click inside Component
+  state.shiftY = e.offsetY;
+}
+function moveMotion(e) {
+  if (state.onDraggable) {
+    const modalDiv = document.getElementById('modalHelpId');
+    const valueLeft = e.clientX - state.shiftX;
+    const valueTop = e.clientY - state.shiftY;
+    modalDiv.style.left = valueLeft + 'px';
+    modalDiv.style.top = valueTop + 'px';
   }
-};
+}
+function moveEnd(e) {
+  moveMotion(e);
+  state.onDraggable = false;
+}
+function close() {
+  emit('close');
+}
 </script>
 
 <style>

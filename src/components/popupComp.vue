@@ -1,8 +1,14 @@
 <!-- src : https://www.digitalocean.com/community/tutorials/vuejs-vue-modal-component -->
 
 <template>
-  <transition name="modal-fade" v-if="compoToPass">
-    <div class="modal-backdrop" @click="outsideClick">
+  <transition
+    name="modal-fade"
+    v-if="compoToPass"
+  >
+    <div
+      class="modal-backdrop"
+      @click="close()"
+    >
       <div
         class="popupComp"
         id="popupCompId"
@@ -20,7 +26,7 @@
         >
           <slot name="header"> {{ select_data[getCurrentLanguage] }} </slot>
           <button
-            style="float:right"
+            style="float: right"
             type="button"
             class="btn-green"
             @click="close()"
@@ -30,10 +36,17 @@
             X
           </button>
         </header>
-        <section class="popupComp-body-gridContainer" id="popupCompDescription">
+        <section
+          class="popupComp-body-gridContainer"
+          id="popupCompDescription"
+        >
           <slot>
             <div>Symbol =</div>
-            <input type="text" id="newID" :value="compoToPass.symbol" />
+            <input
+              type="text"
+              id="newID"
+              :value="compoToPass.symbol"
+            />
             <div></div>
           </slot>
 
@@ -88,9 +101,7 @@
           </slot>
 
           <slot v-if="isVoltageSource()">
-            <div>
-              U =
-            </div>
+            <div>U =</div>
             <input
               type="number"
               id="newValueU"
@@ -108,14 +119,12 @@
           <slot
             v-if="
               isResistor() ||
-                isKnotenWithPotentialSrc() ||
-                isVoltageSource() ||
-                isAmpermeter()
+              isKnotenWithPotentialSrc() ||
+              isVoltageSource() ||
+              isAmpermeter()
             "
           >
-            <div>
-              I =
-            </div>
+            <div>I =</div>
             <input
               disabled
               type="number"
@@ -131,9 +140,7 @@
           </slot>
 
           <slot v-if="isCurrentSource()">
-            <div>
-              I =
-            </div>
+            <div>I =</div>
             <input
               type="number"
               id="newValueI"
@@ -149,9 +156,7 @@
 
           <!--disabled input-->
           <slot v-if="isResistor() || isCurrentSource() || isVoltmeter()">
-            <div>
-              U =
-            </div>
+            <div>U =</div>
             <input
               disabled
               type="number"
@@ -168,9 +173,7 @@
 
           <!--disabled input-->
           <slot v-if="isResistor()">
-            <div>
-              P =
-            </div>
+            <div>P =</div>
             <input
               disabled
               type="number"
@@ -191,9 +194,7 @@
 
           <!--disabled input-->
           <slot v-if="isCurrentSource() || isVoltageSource()">
-            <div>
-              P =
-            </div>
+            <div>P =</div>
             <input
               disabled
               type="number"
@@ -214,17 +215,26 @@
         </section>
         <!--button as shortcut to delete value of Potential-->
         <section v-if="isKnoten()">
-          <button class="btn-width40pct" @click="deletePotentialvalue()">
+          <button
+            class="btn-width40pct"
+            @click="deletePotentialvalue()"
+          >
             delete Potential value
           </button>
         </section>
         <!--possibility to "play" with current and voltage only if component isn't MultiPin-->
         <section v-if="!compoToPass.isMultiPin">
           <section class="oneLine">
-            <button class="btn-width40pct" @click="flipdirU()">
+            <button
+              class="btn-width40pct"
+              @click="flipdirU()"
+            >
               flip {{ voltage_data[getCurrentLanguage] }} arrow
             </button>
-            <button class="btn-width40pct" @click="flipdirI()">
+            <button
+              class="btn-width40pct"
+              @click="flipdirI()"
+            >
               flip {{ current_data[getCurrentLanguage] }} arrow
             </button>
           </section>
@@ -268,9 +278,13 @@
             </div>
           </section>
         </section>
-        <span style="flex-grow:1"></span>
+        <span style="flex-grow: 1"></span>
         <!--this line (span block) will be used if a value is not conform-->
-        <span id="alertHint"></span>
+        <span
+          id="alertHint"
+          :style="'color:' + alertHint.color"
+          >{{ alertHint.message }}</span
+        >
       </div>
     </div>
   </transition>
@@ -302,6 +316,7 @@ export default {
       shiftX: undefined,
       shiftY: undefined,
       valueIsModified: false,
+      alertHint: { color: null, message: null },
 
       select_data: {
         en: 'You have selected a component',
@@ -319,7 +334,7 @@ export default {
     };
   },
   watch: {
-    isPopupCompVisible: function(newVal) {
+    isPopupCompVisible: function (newVal) {
       if (newVal) {
         this.compoToPass = this.theCompoToPass;
         //graphical aspect
@@ -328,7 +343,7 @@ export default {
     }
   },
   computed: {
-    getCurrentLanguage: function() {
+    getCurrentLanguage: function () {
       return this.currentLanguage;
     }
   },
@@ -345,9 +360,6 @@ export default {
           ? (this.compoToPass.showUdir0Temp = true)
           : (this.compoToPass.showUdir1Temp = true);
       }
-    },
-    outsideClick() {
-      this.close();
     },
     moveStart(e) {
       this.onDraggable = true;
@@ -445,8 +457,8 @@ export default {
           this.compoToPass.showIdir1Temp = false;
         }
       }
-      document.getElementById('alertHint').style.color = 'green';
-      document.getElementById('alertHint').innerText = `flip ${
+      this.alertHint.color = 'green';
+      this.alertHint.message = `flip ${
         this.current_data[this.getCurrentLanguage]
       } direction done`;
     },
@@ -507,8 +519,8 @@ export default {
           this.compoToPass.showUdir1Temp = false;
         }
       }
-      document.getElementById('alertHint').style.color = 'green';
-      document.getElementById('alertHint').innerText = `flip ${
+      this.alertHint.color = 'green';
+      this.alertHint.message = `flip ${
         this.voltage_data[this.getCurrentLanguage]
       } direction done`;
     },
@@ -554,9 +566,8 @@ export default {
         } else {
           tempValueR = parseFloat(tempValueR);
           if (tempValueR < 0) {
-            document.getElementById('alertHint').style.color = 'red';
-            document.getElementById('alertHint').innerText =
-              "Resistor can't be negative";
+            this.alertHint.color = 'red';
+            this.alertHint.message = "Resistor can't be negative";
             return false;
           }
         }
@@ -565,15 +576,15 @@ export default {
           this.valueIsModified = true;
         }
 
-        document.getElementById('alertHint').style.color = 'red';
-        document.getElementById('alertHint').innerText = '';
+        this.alertHint.color = 'red';
+        this.alertHint.message = '';
         this.compoToPass.valueR = tempValueR; //attribution valueR
       }
 
       //Knoten
       if (this.isKnoten()) {
-        var tempValuePotential = document.getElementById('newValuePotential')
-          .value;
+        var tempValuePotential =
+          document.getElementById('newValuePotential').value;
         if (tempValuePotential.length === 0) {
           tempValuePotential = undefined;
           this.compoToPass.showPotential = false;
@@ -592,8 +603,8 @@ export default {
           this.valueIsModified = true;
         }
 
-        document.getElementById('alertHint').style.color = 'red';
-        document.getElementById('alertHint').innerText = '';
+        this.alertHint.color = 'red';
+        this.alertHint.message = '';
         this.compoToPass.valuePotentialSource = tempValuePotential; //attribution valuePotentialSource
       }
 
@@ -637,20 +648,19 @@ export default {
               if (this.checkSymbolisUnique() == true) {
                 this.compoToPass.symbol = tempValueSymbol;
               } else {
-                document.getElementById('alertHint').style.color = 'red';
-                document.getElementById('alertHint').innerText =
+                this.alertHint.color = 'red';
+                this.alertHint.message =
                   'symbol ' + tempValueSymbol + ' exists already ';
-                document.getElementById(
-                  'newID'
-                ).value = this.compoToPass.symbol;
+                document.getElementById('newID').value =
+                  this.compoToPass.symbol;
                 return false;
               }
             }
           }
         }
       } else {
-        document.getElementById('alertHint').style.color = 'red';
-        document.getElementById('alertHint').innerText = "symbol can't be null";
+        this.alertHint.color = 'red';
+        this.alertHint.message = "symbol can't be null";
         document.getElementById('newID').value = this.compoToPass.symbol;
         return false;
       }
@@ -665,7 +675,7 @@ export default {
        */
       if (this.assertAttribution()) {
         if (this.valueIsModified) {
-          this.arrayComponents.forEach(comp => {
+          this.arrayComponents.forEach((comp) => {
             comp.resetCalculatedValues();
           });
         }
@@ -715,8 +725,8 @@ input::-webkit-inner-spin-button {
   resize: both;
   display: flex;
   flex-direction: column;
-  height: 410px;
-  width: 413px;
+  height: 430px;
+  width: 710px;
 }
 
 .popupComp-header {

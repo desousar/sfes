@@ -2,7 +2,10 @@
 
 <template>
   <transition name="modal-fade">
-    <div class="modal-backdrop" @click="outsideClick">
+    <div
+      class="modal-backdrop"
+      @click="close()"
+    >
       <div
         class="modalEquSrc"
         id="modalEquSrcId"
@@ -11,7 +14,7 @@
         aria-describedby="modalEquSrcDescription"
         @mousemove="moveMotion($event)"
         @mouseup="moveEnd($event)"
-        @click.stop=""
+        @click.stop
       >
         <header
           class="modalEquSrc-header"
@@ -20,17 +23,20 @@
         >
           <slot name="header"> {{ equSrc[getCurrentLanguage] }} </slot>
           <button
-            style="float:right"
+            style="float: right"
             type="button"
             class="btn-green"
             @click="close"
             aria-label="Close modalSettings"
-            @mousedown.stop=""
+            @mousedown.stop
           >
             X
           </button>
         </header>
-        <section class="modalEquSrc-body" id="modalEquSrcDescription">
+        <section
+          class="modalEquSrc-body"
+          id="modalEquSrcDescription"
+        >
           <section name="body">
             {{ instruction[getCurrentLanguage] }}
           </section>
@@ -63,15 +69,21 @@
                 {{ klemme.symbol }}
               </option>
             </select>
-            <button type="button" @click="calcule()">
+            <button
+              type="button"
+              id="solveBtn"
+              @click="calculate()"
+            >
               {{ solve[getCurrentLanguage] }}
             </button>
           </section>
         </section>
 
         <section style="flex-grow: 1">
-          <p v-if="warningBool_data" id="alertHint">{{ warning_data }}</p>
-          <p v-if="resultBool_data" id="resultBlock">
+          <p id="alertHint">
+            {{ warning_data }}
+          </p>
+          <p id="resultBlock">
             <span v-html="result_data"></span>
           </p>
         </section>
@@ -101,9 +113,7 @@ export default {
       shiftX: undefined,
       shiftY: undefined,
       warning_data: '',
-      warningBool_data: false,
       result_data: '',
-      resultBool_data: false,
 
       firstKlemme: undefined,
       secondKlemme: undefined,
@@ -113,23 +123,18 @@ export default {
 
       equSrc: { en: 'Equivalent Sources', de: 'Ersatzquellen' },
       instruction: {
-        en:
-          'In order to calculate the equivalent sources, please select 2 different terminals (Klemmen)',
-        de:
-          'Um die Ersatzquellen zu berechnen, wählen Sie bitte 2 verschiedene Klemmen'
+        en: 'In order to calculate the equivalent sources, please select 2 different terminals (Klemmen)',
+        de: 'Um die Ersatzquellen zu berechnen, wählen Sie bitte 2 verschiedene Klemmen'
       },
       solve: { en: 'Solve', de: 'Berechnen' }
     };
   },
   computed: {
-    getCurrentLanguage: function() {
+    getCurrentLanguage: function () {
       return this.currentLanguage;
     }
   },
   methods: {
-    outsideClick() {
-      this.close();
-    },
     moveStart(e) {
       this.onDraggable = true;
       this.shiftX = e.offsetX; //where I click inside Component
@@ -149,7 +154,7 @@ export default {
       this.onDraggable = false;
     },
     getKlemmeArray() {
-      let klemmeArray = this.circuitcomplet.components.filter(comp =>
+      let klemmeArray = this.circuitcomplet.components.filter((comp) =>
         isKlemme(comp)
       );
       return klemmeArray;
@@ -157,171 +162,165 @@ export default {
     selectKlemme1() {
       if (this.firstKlemme !== undefined) {
         console.log('first OK', this.firstKlemme.symbol);
+        this.warning_data = '';
         this.assert2DifferentsKlemmen();
       }
     },
     selectKlemme2() {
       if (this.secondKlemme !== undefined) {
         console.log('second OK', this.secondKlemme.symbol);
+        this.warning_data = '';
         this.assert2DifferentsKlemmen();
       }
     },
     assert2DifferentsKlemmen() {
-      this.resultBool_data = false;
-      if (this.firstKlemme !== undefined && this.secondKlemme !== undefined) {
-        if (this.firstKlemme.uniqueID === this.secondKlemme.uniqueID) {
-          this.warningBool_data = true;
-          this.warning_data =
-            'Warning: the 2 selected terminals must be different';
-        } else {
-          this.warningBool_data = false;
-        }
+      document.getElementById('solveBtn').disabled = true;
+      if (
+        this.firstKlemme === undefined ||
+        this.secondKlemme === undefined ||
+        this.firstKlemme.uniqueID === this.secondKlemme.uniqueID
+      ) {
+        return (this.warning_data =
+          'Warning: the 2 selected terminals must be different');
       }
-    },
-    calcule() {
-      if (this.firstKlemme === undefined || this.secondKlemme === undefined) {
-        this.warningBool_data = true;
-        this.warning_data =
-          'Warning: the 2 selected terminals must be selected and be different';
-        return;
+      if (
+        this.circuitcomplet.components.length <= 0 ||
+        this.circuitcomplet.wires.length <= 0
+      ) {
+        return (this.warning_data = 'Warning: you must have a circuit');
       }
-      if (this.firstKlemme !== this.secondKlemme) {
-        this.solveSimple = undefined;
-        this.solveIqe = undefined;
-        this.solveUqe = undefined;
-        if (
-          this.circuitcomplet.components.length > 0 &&
-          this.circuitcomplet.wires.length > 0
-        ) {
-          let solver = new CircuitSolver();
-          try {
-            solver.solve(this.circuitcomplet);
-          } catch (e) {
-            console.log('Error is found on simpleSolve');
-            this.solveSimple = e;
-            console.log(
-              'CHECK solve InconsistentMatrixError',
-              this.solveSimple instanceof InconsistentMatrixError
-            );
-            console.log(
-              'CHECK solve ConsistentMatrixInfiniteError',
-              this.solveSimple instanceof ConsistentMatrixInfiniteError
-            );
-          }
-          console.log('#############SolverI now#############');
-          let solverI = new CircuitSolver();
-          try {
-            this.solveIqe = solverI.solveIqe(
-              this.circuitcomplet,
-              this.firstKlemme,
-              this.secondKlemme
-            );
-          } catch (e) {
-            this.solveIqe = e;
-            console.log(
-              'CHECK solveIqe InconsistentMatrixError',
-              this.solveIqe instanceof InconsistentMatrixError
-            );
-            console.log(
-              'CHECK solveIqe ConsistentMatrixInfiniteError',
-              this.solveIqe instanceof ConsistentMatrixInfiniteError
-            );
-          }
-          console.log('#############SolverU now#############');
-          let solverU = new CircuitSolver();
-          try {
-            this.solveUqe = solverU.solveUqe(
-              this.circuitcomplet,
-              this.firstKlemme,
-              this.secondKlemme
-            );
-          } catch (e) {
-            this.solveUqe = e;
-            console.log(
-              'CHECK solveUqe InconsistentMatrixError',
-              this.solveUqe instanceof InconsistentMatrixError
-            );
-            console.log(
-              'CHECK solveUqe ConsistentMatrixInfiniteError',
-              this.solveUqe instanceof ConsistentMatrixInfiniteError
-            );
-          }
 
-          if (this.solveSimple instanceof ConsistentMatrixInfiniteError) {
-            this.resultBool_data = false;
-            this.warningBool_data = true;
-            this.warning_data =
-              'Warning: Consistent Matrix with Infinite Soution';
-          } else if (this.solveSimple instanceof InconsistentMatrixError) {
-            if (
-              this.solveIqe instanceof InconsistentMatrixError &&
-              this.solveUqe instanceof InconsistentMatrixError
-            ) {
-              this.resultBool_data = false;
-              this.warningBool_data = true;
-              this.warning_data =
-                'Warning: matrix inconsistent (z.B. zwei Spannungsquellen parallel mit unterschiedlichem Wert)';
-            } else if (
-              this.solveIqe instanceof Ampermeter &&
-              this.solveUqe instanceof InconsistentMatrixError
-            ) {
-              this.resultBool_data = true;
-              this.result_data = `ideale Stromquelle <br>
+      document.getElementById('solveBtn').disabled = false;
+      this.warning_data = '';
+    },
+    calculate() {
+      this.solveSimple = undefined;
+      this.solveIqe = undefined;
+      this.solveUqe = undefined;
+
+      let solver = new CircuitSolver();
+      try {
+        solver.solve(this.circuitcomplet);
+      } catch (e) {
+        console.log('Error is found on simpleSolve');
+        this.solveSimple = e;
+        console.log(
+          'CHECK solve InconsistentMatrixError',
+          this.solveSimple instanceof InconsistentMatrixError
+        );
+        console.log(
+          'CHECK solve ConsistentMatrixInfiniteError',
+          this.solveSimple instanceof ConsistentMatrixInfiniteError
+        );
+      }
+      console.log('#############SolverI now#############');
+      let solverI = new CircuitSolver();
+      try {
+        this.solveIqe = solverI.solveIqe(
+          this.circuitcomplet,
+          this.firstKlemme,
+          this.secondKlemme
+        );
+      } catch (e) {
+        this.solveIqe = e;
+        console.log(
+          'CHECK solveIqe InconsistentMatrixError',
+          this.solveIqe instanceof InconsistentMatrixError
+        );
+        console.log(
+          'CHECK solveIqe ConsistentMatrixInfiniteError',
+          this.solveIqe instanceof ConsistentMatrixInfiniteError
+        );
+      }
+      console.log('#############SolverU now#############');
+      let solverU = new CircuitSolver();
+      try {
+        this.solveUqe = solverU.solveUqe(
+          this.circuitcomplet,
+          this.firstKlemme,
+          this.secondKlemme
+        );
+      } catch (e) {
+        this.solveUqe = e;
+        console.log(
+          'CHECK solveUqe InconsistentMatrixError',
+          this.solveUqe instanceof InconsistentMatrixError
+        );
+        console.log(
+          'CHECK solveUqe ConsistentMatrixInfiniteError',
+          this.solveUqe instanceof ConsistentMatrixInfiniteError
+        );
+      }
+
+      if (this.solveSimple instanceof ConsistentMatrixInfiniteError) {
+        return (this.warning_data =
+          'Warning: Consistent Matrix with Infinite Soution');
+      }
+
+      if (this.solveSimple instanceof InconsistentMatrixError) {
+        if (
+          this.solveIqe instanceof InconsistentMatrixError &&
+          this.solveUqe instanceof InconsistentMatrixError
+        ) {
+          return (this.warning_data =
+            'Warning: matrix inconsistent (z.B. zwei Spannungsquellen parallel mit unterschiedlichem Wert)');
+        } else if (
+          this.solveIqe instanceof Ampermeter &&
+          this.solveUqe instanceof InconsistentMatrixError
+        ) {
+          return (this.result_data = `ideale Stromquelle <br>
               Iqe = ${this.solveIqe.valueI} A <br>
               Uqe = unendlich <br>
               Rqe = unendlich <br>
               Pav = unendlich
-            `;
-            }
-          } else if (this.solveSimple === undefined) {
-            if (
-              this.solveIqe instanceof InconsistentMatrixError &&
-              this.solveUqe instanceof Voltmeter
-            ) {
-              this.resultBool_data = true;
-              this.result_data = `ideale Spannungsquelle <br>
+            `);
+        }
+      }
+
+      if (this.solveSimple instanceof Error) {
+        return (this.warning_data = 'Warning: an error occured');
+      }
+
+      if (
+        this.solveIqe instanceof InconsistentMatrixError &&
+        this.solveUqe instanceof Voltmeter
+      ) {
+        return (this.result_data = `ideale Spannungsquelle <br>
               Iqe = unendlich <br>
               Uqe = ${this.solveUqe.valueU} V <br>
               Rqe = 0 &#8486 <br>
               Pav = unendlich
-            `;
-            } else if (
-              this.solveIqe instanceof Ampermeter &&
-              this.solveUqe instanceof Voltmeter
-            ) {
-              //Check if valueU !== 0 && valueI !== 0 => Schritt Gaulocher
-              //WARNING valueU quand null = 0.000000
-              //suivre exemple/structure CircuitSolver().solveUqe()
-              let valueRqe = this.solveUqe.valueU / this.solveIqe.valueI;
-              const valuePav =
-                (this.solveUqe.valueU * this.solveUqe.valueU) / (4 * valueRqe);
-              this.resultBool_data = true;
-              this.result_data = `
+            `);
+      }
+
+      if (
+        this.solveIqe instanceof Ampermeter &&
+        this.solveUqe instanceof Voltmeter
+      ) {
+        //Check if valueU !== 0 && valueI !== 0 => Schritt Gaulocher
+        //WARNING valueU when null = 0.000000
+        //follow example/structure CircuitSolver().solveUqe()
+        let valueRqe = this.solveUqe.valueU / this.solveIqe.valueI;
+        const valuePav =
+          (this.solveUqe.valueU * this.solveUqe.valueU) / (4 * valueRqe);
+        return (this.result_data = `
               Iqe = ${this.solveIqe.valueI} A <br>
               Uqe = ${this.solveUqe.valueU} V <br>
               Rqe = ${valueRqe} &#8486 <br>
               Pav = ${valuePav} W
-            `;
-            } else {
-              this.resultBool_data = false;
-              this.warningBool_data = true;
-              this.warning_data = 'Warning: there is an error in your circuit';
-            }
-          }
-        }
+            `);
       }
+      return (this.warning_data = 'Warning: there is an error in your circuit');
     },
-    /**
-     * function when Pop-Up is closed for attribution
-     */
+
     close() {
       this.firstKlemme = undefined;
       this.secondKlemme = undefined;
       this.solveSimple = undefined;
       this.solveIqe = undefined;
       this.solveUqe = undefined;
-      this.warningBool_data = false;
-      this.resultBool_data = false;
+      this.result_data = '';
+      this.warning_data = '';
       this.$emit('close');
     }
   }

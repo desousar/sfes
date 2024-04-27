@@ -1,11 +1,15 @@
-import KnotenJS from '../../jsFolder/constructorComponent/jsComponents/Knoten';
-import ResistorJS from '../../jsFolder/constructorComponent/jsComponents/Resistor';
-import KlemmeJS from '../../jsFolder/constructorComponent/jsComponents/Klemme';
+import KnotenJS from '@/components/jsFolder/constructorComponent/jsComponents/Knoten';
+import ResistorJS from '@/components/jsFolder/constructorComponent/jsComponents/Resistor';
+import KlemmeJS from '@/components/jsFolder/constructorComponent/jsComponents/Klemme';
+
+import log from '@/consoleLog';
 
 export default class MultipleRinParallel {
-  constructor() {
-    this.ext1 = undefined;
-    this.ext2 = undefined;
+  constructor(circuit) {
+    // circuit will be use to update the circuit
+    this.circuit = circuit;
+    // circuitCopy will be used to modify the circuit locally without modifying the true circuit => see setAsVisited()
+    this.circuitCopy = circuit.project();
   }
   /**
    * every Conversion Class has at least 2 importants functions:
@@ -14,306 +18,224 @@ export default class MultipleRinParallel {
    */
 
   /**
-   * @param {just comp with attribut selected === true} selectedComp_array
-   * @param {entire object} circuit
-   * @returns true if condition are met :
+   * @returns true if both conditions are met :
    * -isAllSameInstance()
    * -isInParallel()
    */
-  isPossible(selectedComp_array, circuit) {
-    console.log('---------Parallel---------');
-    let isAllSameInstance_bool = false;
-    let isInParallel_bool = false;
-    isAllSameInstance_bool = this.isAllSameInstance(selectedComp_array);
-    if (!isAllSameInstance_bool) {
-      return false;
-    }
-    isInParallel_bool = this.isInParallel(circuit);
-    return isAllSameInstance_bool && isInParallel_bool;
+  isPossible() {
+    log('---------Parallel---------');
+    const selectedComp_array = this.circuitCopy.getSelectedComponents();
+
+    return (
+      this.isAllSameInstance(selectedComp_array) &&
+      this.isInParallel(selectedComp_array)
+    );
   }
 
   isAllSameInstance(selectedComp_array) {
-    return selectedComp_array.every(comp => comp instanceof ResistorJS);
+    return selectedComp_array.every((comp) => comp instanceof ResistorJS);
   }
 
-  isInParallel(circuitOriginal) {
-    let circuit = circuitOriginal.project();
+  setAsVisited(comp) {
+    this.circuitCopy.components
+      .filter((c) => c.uniqueID === comp.uniqueID)
+      .map((comp) => {
+        comp.visited = true;
+      });
+    log('set visited', comp.symbol, comp.visited);
+  }
+  setOnPath(comp, bool) {
+    this.circuitCopy.components
+      .filter((c) => c.uniqueID === comp.uniqueID)
+      .map((comp) => {
+        comp.onPath = bool;
+      });
+    log('set onPath', comp.symbol, comp.onPath);
+  }
 
-    const selArray = circuit.getSelectedComponents();
-    // First Test: the selected components have the 2 neighbors and they are Knoten
-    // WARNING can't interrupt a ForEach loop with return => use for loop
-    let bool_data1 = this.is2MultiPinNeighbors(circuit, selArray);
-    if (!bool_data1) {
-      return false;
+  /**
+   * @param {Object if only one OR Array if multiple like MultiComp} pins
+   * @returns neighbor(s) as an Array of One Comp based on the given pin(s)
+   */
+  getNeighborsOfOneComp(realCircuit, pins) {
+    const compsToReturn = [];
+    if (!(pins instanceof Array)) {
+      pins = [pins];
     }
-    // find a path btw all selected comp
-    // flag twice comps that are neighbors
-    for (let sComp of selArray) {
-      console.log('---START---', sComp.symbol);
-      for (let pin of sComp.pins) {
-        console.log('---PIN---');
-        sComp.flagConversion = true;
-        sComp.visited = true;
-        sComp.onPath = true;
-        let localKnoten = [];
-        circuit.wires.forEach(w => {
-          const fromComp = circuit.componentFromPin(w.from);
-          const toComp = circuit.componentFromPin(w.to);
-          if (pin === w.from) {
-            console.log('find', sComp.symbol, 'on fromComp');
-            toComp.onPath = true;
-            this.nextNeighbor(circuit, fromComp, fromComp, toComp, localKnoten);
-            console.log('a', localKnoten);
-            if (selArray.every(comp => comp.flagConversion)) {
-              localKnoten = [];
-              circuit.components.map(comp => (comp.visited = false));
-              selArray.map(comp => (comp.flagConversion = false));
-              sComp.flagConversion = true;
-              sComp.visited = true;
-              sComp.onPath = true;
-              this.nextNeighbor(
-                circuit,
-                fromComp,
-                fromComp,
-                toComp,
-                localKnoten
-              );
-              console.log('a2', localKnoten);
-            }
+    if (realCircuit) {
+      for (const pin of pins) {
+        for (const wire of this.circuit.wires) {
+          if (pin === wire.from) {
+            const compTo = this.circuit.componentFromPin(wire.to);
+            compsToReturn.push(compTo);
           }
-          if (pin === w.to) {
-            console.log('find', sComp.symbol, 'on toComp');
-            fromComp.onPath = true;
-            this.nextNeighbor(circuit, toComp, toComp, fromComp, localKnoten);
-            console.log('b', localKnoten);
-            if (!selArray.every(comp => comp.flagConversion)) {
-              sComp.isConnected = false;
-              sComp.hasTooMuchNeighbor = false;
-              localKnoten = [];
-              circuit.components.map(comp => (comp.visited = false));
-              selArray.map(comp => (comp.flagConversion = false));
-              sComp.flagConversion = true;
-              sComp.visited = true;
-              sComp.onPath = true;
-              this.nextNeighbor(circuit, toComp, toComp, fromComp, localKnoten);
-              console.log('b2', localKnoten);
-            }
+          if (pin === wire.to) {
+            const compFrom = this.circuit.componentFromPin(wire.from);
+            compsToReturn.push(compFrom);
           }
-        });
+        }
+      }
+    } else {
+      for (const pin of pins) {
+        for (const wire of this.circuitCopy.wires) {
+          if (pin === wire.from) {
+            const compTo = this.circuitCopy.componentFromPin(wire.to);
+            compsToReturn.push(compTo);
+          }
+          if (pin === wire.to) {
+            const compFrom = this.circuitCopy.componentFromPin(wire.from);
+            compsToReturn.push(compFrom);
+          }
+        }
+      }
+    }
+    return compsToReturn;
+  }
 
-        let result = selArray.every(comp => comp.flagConversion);
-        console.log('***flagConversion***', result);
-        if (!result) {
+  /*
+    on the path btw 2 R, I can have 
+    - multiple Knoten || 
+    - 1 Klemme and multiple Knoten || 
+    - 1 Knoten with Potential and multiple Knoten
+  */
+  /*
+    For each R, I'll search for a path to at least one other selected R.
+    Among all these attempts, all that's needed is for one attempt to be valid for the 2 pins of the same R being tested (successPin) to know that the R's are parallel to each other (success).
+  */
+  isInParallel(selArray) {
+    let isShorCircuit = false;
+    let success = false;
+    for (const sComp of selArray) {
+      let successPin = [false, false];
+      let hasOneKlemme = false;
+      let hasOnePotentialKnoten = false;
+      log('---START---', sComp.symbol);
+      for (const [index, pin] of sComp.pins.entries()) {
+        log('---PIN---');
+        this.setAsVisited(sComp);
+
+        // get 1 neighbor from R on this pin
+        const [nComp] = this.getNeighborsOfOneComp(false, pin);
+        if (!nComp) {
           return false;
         }
-      }
-    }
-    return true;
-  }
+        log('nComp', nComp.symbol);
+        if (!nComp.isMultiPin) {
+          return false;
+        }
+        if (nComp instanceof KlemmeJS) {
+          hasOneKlemme = true;
+        }
+        if (nComp instanceof KnotenJS && nComp.valuePotentialSource) {
+          hasOnePotentialKnoten = true;
+        }
 
-  is2MultiPinNeighbors(circuit, selArray) {
-    for (let comp of selArray) {
-      comp.find = [];
-      console.log('comp under test', comp.symbol);
-      for (let w of circuit.wires) {
-        const fromComp = circuit.componentFromPin(w.from);
-        const toComp = circuit.componentFromPin(w.to);
-        if (comp.uniqueID === fromComp.uniqueID) {
-          console.log('find1', comp.symbol);
-          if (!toComp.isMultiPin) {
-            console.log('STOP1');
-            return false;
+        this.setAsVisited(nComp);
+
+        const explore = (nComp) => {
+          log('EXPLORE', nComp.symbol);
+          const comps = this.getNeighborsOfOneComp(false, nComp.pins);
+
+          log('comps', comps);
+          for (const icomp of comps) {
+            log('icomp', icomp.symbol, icomp.visited);
+
+            // find a short circuit
+            if (
+              icomp.selected &&
+              icomp.uniqueID !== sComp.uniqueID &&
+              icomp.onPath
+            ) {
+              isShorCircuit = true;
+              log('short circuit found BREAK');
+              break;
+            }
+
+            if (icomp.selected && icomp.uniqueID !== sComp.uniqueID) {
+              this.setOnPath(icomp, true);
+              continue;
+            }
+            if (
+              icomp.visited ||
+              (!icomp.isMultiPin && !icomp.selected) ||
+              (icomp instanceof KlemmeJS &&
+                (hasOneKlemme || hasOnePotentialKnoten)) ||
+              (icomp instanceof KnotenJS &&
+                icomp.valuePotentialSource &&
+                (hasOneKlemme || hasOnePotentialKnoten))
+            ) {
+              log('stop on', icomp.symbol);
+              this.setOnPath(icomp, false);
+              continue;
+            }
+            if (icomp instanceof KlemmeJS) {
+              hasOneKlemme = true;
+            }
+            if (icomp instanceof KnotenJS && icomp.valuePotentialSource) {
+              hasOnePotentialKnoten = true;
+            }
+
+            this.setAsVisited(icomp);
+
+            if (!icomp.selected) {
+              explore(icomp);
+            }
+          }
+
+          if (isShorCircuit) {
+            return;
+          }
+
+          const onPath = comps.filter((c) => c.onPath).length;
+          /*
+            if onPath === 0, it means I'm at a dead end
+            So I need to check whether I'm on a Klemme or Knoten with PS, and set it to false, so that I can continue searching after the path without these variables being set to true because they're not part of the path.
+          */
+          if (onPath === 0) {
+            if (nComp instanceof KlemmeJS) {
+              hasOneKlemme = false;
+            }
+            if (nComp instanceof KnotenJS && nComp.valuePotentialSource) {
+              hasOnePotentialKnoten = false;
+            }
           } else {
-            comp.find.push(toComp.uniqueID);
+            this.setOnPath(nComp, true);
           }
-        }
-        if (comp.uniqueID === toComp.uniqueID) {
-          console.log('find2', comp.symbol);
-          if (!fromComp.isMultiPin) {
-            console.log('STOP2');
-            return false;
-          } else {
-            comp.find.push(fromComp.uniqueID);
-          }
-        }
-      }
-    }
-    for (let comp of selArray) {
-      if (comp.find.length !== 2 || comp.find[0] === comp.find[1]) {
-        console.log('Problem With Connection', comp.symbol);
-        comp.find = undefined;
-        return false;
-      }
-      comp.find = undefined;
-    }
-    return true;
-  }
+        };
 
-  nextNeighbor(circuit, origin, parent, comp, localKnoten) {
-    console.log(comp.symbol, 'is under test');
-    if (comp.selected) {
-      console.log('comp is selected', comp.symbol);
-      comp.flagConversion = true;
-    }
-    if (comp.isMultiPin) {
-      console.log('comp isMultiPin and visited', comp.symbol);
-      comp.visited = true;
-      localKnoten.push(comp);
-      if (this.checkLocalKnoten(localKnoten)) {
-        console.log('***OK***');
-        comp.onPath = true;
-        this.getNextCompWith(circuit, origin, comp, localKnoten);
-      } else {
-        console.log('***STOP impasse***');
-        comp.onPath = undefined;
-        localKnoten.pop();
-        console.log('1pop', localKnoten);
-        for (let i = localKnoten.length - 1; i >= 0; i--) {
-          console.log(localKnoten[i].symbol);
-          if (
-            (circuit.getCountConnection(localKnoten[i]) === 1 ||
-              circuit.getCountConnection(localKnoten[i]) === 2) &&
-            i !== 0
-          ) {
-            console.log(localKnoten[i].symbol, 'to delete');
-            localKnoten[i].onPath = false;
-            localKnoten.splice(i, 1);
-          } else {
-            break;
-          }
+        explore(nComp);
+
+        if (isShorCircuit) {
+          return false;
         }
+
+        if (nComp.onPath) {
+          this.setOnPath(sComp, true);
+        }
+
         if (
-          !this.isOnPath(
-            circuit,
-            localKnoten[localKnoten.length - 1],
-            localKnoten
-          )
+          this.circuitCopy.components
+            .filter((c) => c.selected)
+            .every((c) => c.onPath)
         ) {
-          localKnoten.pop();
-          console.log('2pop', localKnoten);
-          console.log(parent.symbol, 'is not onPath');
-          parent.onPath = false;
+          successPin[index] = true;
+          log('TRUE');
+        } else {
+          log('FALSE');
         }
 
-        console.log('OK');
-        console.log(localKnoten);
+        this.circuitCopy.components.map((c) => {
+          c.visited = false;
+          c.onPath = false;
+        });
+      }
+      if (successPin[0] && successPin[1]) {
+        success = true;
       }
     }
-  }
 
-  checkLocalKnoten(localKnoten) {
-    //in localKnoten max 1 Klemme or 1 Knoten with potential value
-    let specificMultiPin = 0;
-    console.log('localKnoten', localKnoten);
-    localKnoten.forEach(lk => {
-      if (
-        lk instanceof KlemmeJS ||
-        (lk instanceof KnotenJS && lk.valuePotentialSource !== undefined)
-      ) {
-        specificMultiPin += 1;
-      }
-    });
-    if (specificMultiPin > 1) {
-      console.log('too much specificMultiPin');
-      return false;
-    } else {
-      return true;
-    }
-  }
-
-  getNextCompWith(circuit, origin, comp, localKnoten) {
-    console.log('##NEXT STEP##');
-    for (let wire of circuit.wires) {
-      const compFrom = circuit.componentFromPin(wire.from);
-      const compTo = circuit.componentFromPin(wire.to);
-      if (comp.uniqueID === compFrom.uniqueID && comp.onPath !== false) {
-        console.log('ENTER 10:', compTo.symbol);
-        if (
-          compTo !== origin &&
-          compTo.visited === false &&
-          compTo.onPath !== false
-        ) {
-          this.nextNeighbor(circuit, origin, compFrom, compTo, localKnoten);
-        }
-      } else if (comp.uniqueID === compTo.uniqueID && comp.onPath !== false) {
-        console.log('ENTER 20:', compFrom.symbol);
-        if (
-          compFrom !== origin &&
-          compFrom.visited === false &&
-          compFrom.onPath !== false
-        ) {
-          this.nextNeighbor(circuit, origin, compTo, compFrom, localKnoten);
-        }
-      }
-    }
-  }
-
-  isOnPath(circuit, parent, localKnoten) {
-    console.log('isOnPath');
-    if (parent.uniqueID === localKnoten[0].uniqueID) {
-      console.log('first comp always on path');
-      return true;
-    }
-    let count = 0;
-    for (let wire of circuit.wires) {
-      var compFrom = circuit.componentFromPin(wire.from);
-      var compTo = circuit.componentFromPin(wire.to);
-      if (parent.uniqueID === compFrom.uniqueID) {
-        if (this.isSimpleKnoten(compTo)) {
-          if (compTo.onPath !== false) {
-            count += 1;
-            console.log(compTo.symbol, '+1');
-          }
-        } else if (compTo.selected || compTo.onPath === true) {
-          count += 1;
-          console.log(compTo.symbol, '+1');
-        }
-      }
-      if (parent.uniqueID === compTo.uniqueID) {
-        if (this.isSimpleKnoten(compFrom)) {
-          if (compFrom.onPath !== false) {
-            count += 1;
-            console.log(compFrom.symbol, '+1');
-          }
-        } else if (compFrom.selected || compFrom.onPath === true) {
-          count += 1;
-          console.log(compFrom.symbol, '+1');
-        }
-      }
-    }
-    const counterCo = circuit.getCountConnection(parent);
-    let counterT = 0;
-    for (let wire of circuit.wires) {
-      var compFrom2 = circuit.componentFromPin(wire.from);
-      var compTo2 = circuit.componentFromPin(wire.to);
-      if (
-        parent.uniqueID === compFrom2.uniqueID &&
-        !this.isSimpleKnoten(compTo2) &&
-        !compTo2.selected
-      ) {
-        console.log('specific neignbors');
-        counterT += 1;
-      }
-      if (
-        parent.uniqueID === compTo2.uniqueID &&
-        !this.isSimpleKnoten(compFrom2) &&
-        !compFrom2.selected
-      ) {
-        console.log('specific neignbors');
-        counterT += 1;
-      }
-    }
-    if (counterCo === counterT) {
-      console.log('only specific neignbors');
-      return false;
-    }
-    if (count > 1) {
-      console.log('true');
-      return true;
-    } else {
-      console.log('false');
-      return false;
-    }
+    // For each component, I test the paths of the two pins, which should give me twice the number of selected components.
+    return success;
   }
 
   isSimpleKnoten(comp) {
@@ -324,66 +246,55 @@ export default class MultipleRinParallel {
    * modify value from one comp ~ keepAlive (R)
    * delete Other (R)
    */
-  conversion(circuit) {
-    const selectedComp_array = circuit.getSelectedComponents();
+  conversion() {
+    const selectedComp_array = this.circuit.getSelectedComponents();
     let sum = 0;
-    selectedComp_array.forEach(comp => {
+    selectedComp_array.forEach((comp) => {
       sum += 1 / comp.valueR;
     });
-    console.log('result', 1 / sum);
+    log('result', 1 / sum);
 
     let [keepAlive] = selectedComp_array.splice(0, 1);
     keepAlive.symbol += 'SUM';
     keepAlive.valueR = 1 / sum;
     keepAlive.selected = false;
-    selectedComp_array.forEach(component => {
-      circuit.deleteOneComponent(component);
+    selectedComp_array.forEach((component) => {
+      this.circuit.deleteOneComponent(component);
     });
-    // while a Knoten in the circuit has just 1 connection && this Knoten isn't a potentialSrc => delete this one
-    while (this.everyKnotenHas2CoMin_control(circuit) === false) {
-      this.everyKnotenHas2CoMin_function(circuit);
+
+    /*
+      on the path btw 2 R, I can have 
+      - multiple Knoten => ideally keepAlive only one Knoten
+      - 1 Klemme and multiple Knoten => ideally keepAlive the Klemme
+      - 1 Knoten with Potential and multiple Knoten => ideally keepAlive the Knoten with Potential
+    */
+    /*
+      CURRENTLY 
+      while (a Knoten in the circuit has just 1 connection to a MultiPin || a Knoten is alone) && this Knoten isn't a potentialSrc => delete this one
+     */
+    while (this.multiPinSimplification() === false) {
+      this.multiPinSimplification();
     }
   }
-  everyKnotenHas2CoMin_function(circuit) {
-    circuit.components.forEach(kn => {
+  multiPinSimplification() {
+    log('multiPinSimplification');
+    // this.circuit.components.forEach((kn) => {
+    for (const kn of this.circuit.components) {
       if (this.isSimpleKnoten(kn)) {
-        if (circuit.getCountConnection(kn) === 1) {
-          const tempComp = this.getNeighborFor1Co(circuit, kn);
-          if (this.isSimpleKnoten(tempComp)) {
-            circuit.deleteOneComponent(kn);
-          }
-        } else if (circuit.getCountConnection(kn) === 0) {
-          circuit.deleteOneComponent(kn);
-        }
-      }
-    });
-  }
-  everyKnotenHas2CoMin_control(circuit) {
-    for (let kn of circuit.components) {
-      if (this.isSimpleKnoten(kn)) {
-        if (circuit.getCountConnection(kn) === 1) {
-          const tempComp = this.getNeighborFor1Co(circuit, kn);
-          if (this.isSimpleKnoten(tempComp)) {
+        if (this.circuit.getCountConnection(kn) === 1) {
+          // case circuit--MultiPin--Kn
+          const [tempComp] = this.getNeighborsOfOneComp(true, kn.pins);
+          if (tempComp.isMultiPin) {
+            log('***', tempComp.symbol, 'delete', kn.symbol);
+            this.circuit.deleteOneComponent(kn);
             return false;
           }
-        } else if (circuit.getCountConnection(kn) === 0) {
+        } else if (this.circuit.getCountConnection(kn) === 0) {
+          // case Kn alone
+          this.circuit.deleteOneComponent(kn);
           return false;
         }
       }
     }
-  }
-  getNeighborFor1Co(circuit, comp) {
-    let compToReturn;
-    for (let wire of circuit.wires) {
-      var compFrom = circuit.componentFromPin(wire.from);
-      var compTo = circuit.componentFromPin(wire.to);
-      if (comp.uniqueID === compFrom.uniqueID) {
-        compToReturn = compTo;
-      }
-      if (comp.uniqueID === compTo.uniqueID) {
-        compToReturn = compFrom;
-      }
-    }
-    return compToReturn;
   }
 }

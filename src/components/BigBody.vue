@@ -42,8 +42,14 @@
       @mousemove.prevent="moveMotion($event)"
       @contextmenu="openMenu"
     >
-      <template v-for="(component, idx) in circuit.components" :key="idx">
-        <span :key="'complabel-' + idx" v-if="component.showSymbol">
+      <template
+        v-for="(component, idx) in circuit.components"
+        :key="idx"
+      >
+        <span
+          :key="'complabel-' + idx"
+          v-if="component.showSymbol"
+        >
           <span
             v-if="!component.isMultiPin"
             :key="'label-' + idx"
@@ -69,7 +75,7 @@
           <span
             v-if="
               component.isMultiPin &&
-                !(component.name === 'Knoten' && !component.showPotential)
+              !(component.name === 'Knoten' && !component.showPotential)
             "
             :key="'label-' + idx"
             :style="{
@@ -118,7 +124,10 @@
           gridLine: setGridLine
         }"
       >
-        <template v-for="(wire, idx) in circuit.wires" :key="idx">
+        <template
+          v-for="(wire, idx) in circuit.wires"
+          :key="idx"
+        >
           <line
             style="stroke: black; stroke-width: 2"
             :x1="wire.from.x"
@@ -149,7 +158,10 @@
         :style="{ top: top, left: left }"
       >
         <li>available conversions:</li>
-        <li v-if="multipleRinSerie_data" @click="multipleRinSerie_function">
+        <li
+          v-if="multipleRinSerie_data"
+          @click="multipleRinSerie_function"
+        >
           multiple R in Série
         </li>
         <li
@@ -158,19 +170,34 @@
         >
           multiple R in Parallel
         </li>
-        <li v-if="theveninToNorton_data" @click="theveninToNorton_function">
+        <li
+          v-if="theveninToNorton_data"
+          @click="theveninToNorton_function"
+        >
           Thevenin to Norton
         </li>
-        <li v-if="nortonToThevenin_data" @click="nortonToThevenin_function">
+        <li
+          v-if="nortonToThevenin_data"
+          @click="nortonToThevenin_function"
+        >
           Norton to Thevenin
         </li>
-        <li v-if="dreieckToStern_data" @click="dreieckToStern_function">
+        <li
+          v-if="dreieckToStern_data"
+          @click="dreieckToStern_function"
+        >
           Dreieck to Stern
         </li>
-        <li v-if="sternToDreieck_data" @click="sternToDreieck_function">
+        <li
+          v-if="sternToDreieck_data"
+          @click="sternToDreieck_function"
+        >
           Stern to Dreieck
         </li>
-        <li v-if="permutation_data" @click="permutation_function">
+        <li
+          v-if="permutation_data"
+          @click="permutation_function"
+        >
           Permutation
         </li>
       </ul>
@@ -268,7 +295,7 @@ export default {
     'tool-state-changed',
     'set-circuit'
   ],
-  mounted: function() {
+  mounted: function () {
     EventBus.on('MBcapture', () => {
       this.MBcapture();
     });
@@ -317,6 +344,9 @@ export default {
       viewMenu: false,
       top: '0px',
       left: '0px',
+
+      multiRinParallel_instance: undefined,
+
       multipleRinSerie_data: false,
       multipleRinParallel_data: false,
       theveninToNorton_data: false,
@@ -361,7 +391,7 @@ export default {
         e.target.style.cursor = 'auto';
       }
     },
-    showTooltip: function(e, comp) {
+    showTooltip: function (e, comp) {
       if (this.selectedTool === this.toolState.STATE_IDLE) {
         let tooltip = document.getElementById('tooltip');
         tooltip.innerHTML = comp.getString();
@@ -384,11 +414,11 @@ export default {
         }
       }
     },
-    hideTooltip: function() {
+    hideTooltip: function () {
       let tooltip = document.getElementById('tooltip');
       tooltip.style.display = 'none';
     },
-    dynamicWidth: function() {
+    dynamicWidth: function () {
       let targetDiv = this.$refs.targetDiv;
       if (targetDiv !== undefined) {
         if (this.inA4Format) {
@@ -401,7 +431,7 @@ export default {
         return width + 'px';
       }
     },
-    dynamicHeight: function() {
+    dynamicHeight: function () {
       let targetDiv = this.$refs.targetDiv;
       if (targetDiv !== undefined) {
         if (this.inA4Format) {
@@ -415,7 +445,7 @@ export default {
       }
     },
 
-    setMenu: function(top, left) {
+    setMenu: function (top, left) {
       let targetDiv = this.$refs.targetDiv;
       let tgt = targetDiv.getBoundingClientRect();
       let valueScrollTop = targetDiv.scrollTop; //if the srollcar is used, valueScrollTop and Left take this offset
@@ -428,7 +458,7 @@ export default {
       this.left = valueLeft + 'px';
     },
 
-    closeMenu: function() {
+    closeMenu: function () {
       this.viewMenu = false;
       this.multipleRinSerie_data = false;
       this.multipleRinParallel_data = false;
@@ -439,10 +469,10 @@ export default {
       this.permutation_data = false;
     },
 
-    openMenu: function(e) {
+    openMenu: function (e) {
       this.viewMenu = true;
       this.$nextTick(
-        function() {
+        function () {
           this.$refs.right.focus();
           this.setMenu(e.y, e.x);
         }.bind(this)
@@ -469,7 +499,7 @@ export default {
         comp instanceof KnotenJS && comp.valuePotentialSource === undefined
       );
     },
-    multipleRinSerie_openMenu: function(selectedComp) {
+    multipleRinSerie_openMenu: function (selectedComp) {
       let multiRinSerie = new MultipleRinSerie();
       this.multipleRinSerie_data = multiRinSerie.isPossible(
         false,
@@ -477,12 +507,10 @@ export default {
         this.circuit
       );
     },
-    multipleRinParallel_openMenu: function(selectedComp) {
-      let multiRinParallel = new MultipleRinParallel();
-      this.multipleRinParallel_data = multiRinParallel.isPossible(
-        selectedComp,
-        this.circuit
-      );
+    multipleRinParallel_openMenu: function () {
+      this.multiRinParallel_instance = new MultipleRinParallel(this.circuit);
+      this.multipleRinParallel_data =
+        this.multiRinParallel_instance.isPossible();
     },
     theveninToNorton_openMenu(selectedComp) {
       let theveninToNorton = new TheveninToNorton();
@@ -521,7 +549,7 @@ export default {
         this.circuit
       );
     },
-    multipleRinSerie_function: function() {
+    multipleRinSerie_function: function () {
       let multiRinSerie = new MultipleRinSerie();
       multiRinSerie.isPossible(
         true,
@@ -534,9 +562,8 @@ export default {
       );
       this.resetAndSaveAfterConversion();
     },
-    multipleRinParallel_function: function() {
-      let multiRinParallel = new MultipleRinParallel();
-      multiRinParallel.conversion(this.circuit);
+    multipleRinParallel_function: function () {
+      this.multiRinParallel_instance.conversion();
       this.resetAndSaveAfterConversion();
     },
     theveninToNorton_function() {
@@ -592,7 +619,7 @@ export default {
       EventBus.emit('BBSave');
     },
 
-    doubleClick: function(component) {
+    doubleClick: function (component) {
       // clear if some text is selected by double click
       if (document.selection && document.selection.empty) {
         document.selection.empty();
@@ -609,7 +636,7 @@ export default {
     /**
      * #region Drag&Drop
      */
-    dragStart: function(e) {
+    dragStart: function (e) {
       this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
       this.resetbyfalseCreationWire(false);
       this.resetCompFromWire();
@@ -622,7 +649,7 @@ export default {
 
       this.compToDD = e.target.alt; // target.alt is the correct name of the component
     },
-    drop: function(e, saveAfterDrop) {
+    drop: function (e, saveAfterDrop) {
       const c_id = this.compToDD;
       if (c_id != '') {
         //security
@@ -656,14 +683,14 @@ export default {
     /**
      * #region Movement
      */
-    moveStart: function(event, component) {
+    moveStart: function (event, component) {
       if (this.selectedTool === this.toolState.TOOL_MOVE) {
         this.selectedComponent = component;
         this.shiftX = event.offsetX; //where I click inside Component
         this.shiftY = event.offsetY;
       }
     },
-    moveMotion: function(e) {
+    moveMotion: function (e) {
       if (
         this.selectedComponent &&
         this.selectedTool === this.toolState.TOOL_MOVE
@@ -706,7 +733,7 @@ export default {
         line.setAttribute('y2', valTop);
       }
     },
-    moveEnd: function(e) {
+    moveEnd: function (e) {
       if (
         this.selectedComponent &&
         this.selectedTool === this.toolState.TOOL_MOVE
@@ -778,7 +805,7 @@ export default {
      * #endregion
      */
 
-    simpleClick: function(component) {
+    simpleClick: function (component) {
       if (this.selectedTool === this.toolState.TOOL_SELECT) {
         component.selection();
         component.recalculatePins();
@@ -796,7 +823,7 @@ export default {
     /**
      * #region Wire
      */
-    creationWire: function() {
+    creationWire: function () {
       if (this.selectedTool === this.toolState.TOOL_CREATE_WIRE) {
         this.resetbyfalseCreationWire(false);
       } else {
@@ -805,7 +832,7 @@ export default {
       this.resetCompFromWire();
     },
 
-    pinClicked: function(component, nr) {
+    pinClicked: function (component, nr) {
       if (this.selectedTool !== this.toolState.TOOL_CREATE_WIRE) {
         return;
       }
@@ -825,7 +852,7 @@ export default {
       newLine.setAttribute('y2', component.pins[nr].y);
       document.getElementById('svgArea').append(newLine);
     },
-    resetbyfalseCreationWire: function(bool) {
+    resetbyfalseCreationWire: function (bool) {
       if (bool === true) {
         this.$emit('tool-state-changed', this.toolState.TOOL_CREATE_WIRE);
       } else if (bool === false) {
@@ -833,9 +860,13 @@ export default {
       }
     },
     resetCompFromWire() {
-      this.fromComponent = this.fromComponentPin = this.toComponent = this.toComponentPin = null;
+      this.fromComponent =
+        this.fromComponentPin =
+        this.toComponent =
+        this.toComponentPin =
+          null;
     },
-    selectedWire: function(line) {
+    selectedWire: function (line) {
       if (this.selectedTool === this.toolState.TOOL_DELETE) {
         this.circuit.deleteOneWire(line);
         EventBus.emit('BBSave');
@@ -882,7 +913,7 @@ export default {
         this.drop(e, true);
       }
     },
-    drawWire: function() {
+    drawWire: function () {
       let wire = new WireJS({
         from: this.fromComponent.pins[this.fromComponentPin],
         to: this.toComponent.pins[this.toComponentPin]
@@ -891,7 +922,7 @@ export default {
       this.pinOpacity0(wire);
     },
 
-    pinOpacity0: function(wire) {
+    pinOpacity0: function (wire) {
       const showHidePin = (c, pinNB) => {
         if (c.isMultiPin === false) {
           if (pinNB === 0) {
@@ -944,12 +975,12 @@ export default {
       var obj;
       var self = this;
 
-      fr.onload = function() {
+      fr.onload = function () {
         obj = JSON.parse(fr.result);
         console.log('JSON.parse(fr.result)\n', obj);
       };
       fr.readAsText(blob);
-      fr.onloadend = function() {
+      fr.onloadend = function () {
         console.log('START Load');
         self.circuit.loadNewCircuit(obj);
         console.log('Comp Ok, Wire load start');

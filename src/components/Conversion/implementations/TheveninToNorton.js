@@ -7,8 +7,6 @@ import {
   centerY2PinsComp
 } from '../../jsFolder/constructorComponent/Component';
 
-import { dropComp } from '../../jsFolder/dropComponent';
-
 export default class TheveninToNorton {
   /**
    * ext1out_comp : extern extremity on VoltageSrc side (neighbor)
@@ -46,7 +44,7 @@ export default class TheveninToNorton {
    * -isInstanceCorrect()
    * -isInSerie()
    */
-  isPossible (onReal, selectedComp_array, circuit) {
+  isPossible(onReal, selectedComp_array, circuit) {
     console.log('---------TheveninToNorton---------');
     let isInstanceCorrect_bool = false;
     let isInSerie_bool = false;
@@ -58,10 +56,10 @@ export default class TheveninToNorton {
     return isInstanceCorrect_bool && isInSerie_bool;
   }
 
-  isInstanceCorrect (selectedComp_array) {
+  isInstanceCorrect(selectedComp_array) {
     let oneResistor = false;
     let oneVoltageSrc = false;
-    selectedComp_array.forEach(comp => {
+    selectedComp_array.forEach((comp) => {
       if (comp instanceof ResistorJS) {
         oneResistor = true;
         this.rComp = comp;
@@ -74,11 +72,11 @@ export default class TheveninToNorton {
     return oneResistor && oneVoltageSrc;
   }
 
-  isInSerie (onReal, selectedComp_array, circuit) {
-    circuit.components.map(comp => (comp.flagConversion = false));
+  isInSerie(onReal, selectedComp_array, circuit) {
+    circuit.components.map((comp) => (comp.flagConversion = false));
     this.ext1in_maincomp.flagConversion = true;
     console.log(this.ext1in_maincomp.symbol, 'fflagConversion = true');
-    circuit.wires.forEach(w => {
+    circuit.wires.forEach((w) => {
       const fromComp = circuit.componentFromPin(w.from);
       const toComp = circuit.componentFromPin(w.to);
       if (this.ext1in_maincomp.uniqueID === fromComp.uniqueID) {
@@ -108,17 +106,17 @@ export default class TheveninToNorton {
     });
     console.log('FINISH');
     const result = selectedComp_array.every(
-      comp => comp.flagConversion === true
+      (comp) => comp.flagConversion === true
     );
-    circuit.components.map(comp => (comp.flagConversion = false));
+    circuit.components.map((comp) => (comp.flagConversion = false));
     if (!onReal) {
-      circuit.components.map(comp => (comp.visited = false));
+      circuit.components.map((comp) => (comp.visited = false));
     }
     console.log('extremity', this.ext1out_comp, this.ext2out_comp);
     return result;
   }
 
-  gotoNextCompWith (circuit, comp) {
+  gotoNextCompWith(circuit, comp) {
     for (let wire of circuit.wires) {
       const compFrom = circuit.componentFromPin(wire.from);
       const compTo = circuit.componentFromPin(wire.to);
@@ -139,7 +137,7 @@ export default class TheveninToNorton {
       }
     }
   }
-  getNextCompWith (circuit, origin, comp) {
+  getNextCompWith(circuit, origin, comp) {
     for (let wire of circuit.wires) {
       const compFrom = circuit.componentFromPin(wire.from);
       const compTo = circuit.componentFromPin(wire.to);
@@ -152,7 +150,7 @@ export default class TheveninToNorton {
     }
   }
 
-  nextNeighbor (circuit, origin, comp) {
+  nextNeighbor(circuit, origin, comp) {
     console.log(comp.symbol, 'is under test');
     if (comp.flagConversion === true) {
       console.log(comp.symbol, ' flagConversion is already true A LOOP');
@@ -174,7 +172,7 @@ export default class TheveninToNorton {
         console.log('destination', destination.symbol);
         destination.flagConversion = true;
       }
-      circuit.components.forEach(kn => {
+      circuit.components.forEach((kn) => {
         if (kn.tempVisited === true) {
           console.log('is visited', kn.symbol);
           kn.visited = true;
@@ -208,7 +206,7 @@ export default class TheveninToNorton {
       this.gotoNextCompWith(circuit, comp);
     } else {
       console.log('this is an extremity');
-      circuit.components.map(c => (c.tempVisited = false));
+      circuit.components.map((c) => (c.tempVisited = false));
       let pinID = undefined;
       let extremity = undefined;
       for (let wire of circuit.wires) {
@@ -217,14 +215,14 @@ export default class TheveninToNorton {
         if (
           this.ext1in_maincomp.uniqueID === compFrom.uniqueID &&
           circuit.pinIndexFromComponent(this.ext1in_maincomp, wire.from) ===
-          this.ext1in_pinID_start
+            this.ext1in_pinID_start
         ) {
           pinID = circuit.pinIndexFromComponent(compTo, wire.to);
           extremity = compTo;
         } else if (
           this.ext1in_maincomp.uniqueID === compTo.uniqueID &&
           circuit.pinIndexFromComponent(this.ext1in_maincomp, wire.to) ===
-          this.ext1in_pinID_start
+            this.ext1in_pinID_start
         ) {
           pinID = circuit.pinIndexFromComponent(comp, wire.from);
           extremity = compFrom;
@@ -235,7 +233,7 @@ export default class TheveninToNorton {
     }
   }
 
-  conversion (circuit) {
+  conversion(circuit) {
     // delete Knoten btw VoltageSrc and Resistor
     for (var i = circuit.components.length - 1; i >= 0; i--) {
       let kn = circuit.components[i];
@@ -262,7 +260,9 @@ export default class TheveninToNorton {
     });
     this.rComp.selected = false;
 
-    let csrc = dropComp({
+    // TODO now dropComp is called from circuit
+    // so I have to get this comp and add a funbction to update a comp
+    let csrc = circuit.dropComp({
       c_id: 'CurrentSource',
       valueLeft: this.ext1in_maincomp.x + centerX2PinsComp,
       valueTop: this.ext1in_maincomp.y + centerY2PinsComp
@@ -270,15 +270,14 @@ export default class TheveninToNorton {
     dirU === 0 ? (csrc.directionU = 0) : (csrc.directionU = 1);
     dirI === 0 ? (csrc.directionI = 0) : (csrc.directionI = 1);
     csrc.valueI = valueUq / this.rComp.valueR;
-    circuit.components.push(csrc);
 
-    let kn1 = dropComp({
+    let kn1 = circuit.dropComp({
       c_id: 'Knoten',
       valueLeft: this.ext1in_maincomp.pins[0].x + 30,
       valueTop: this.ext1in_maincomp.pins[0].y + 20
     });
     circuit.components.push(kn1);
-    let kn2 = dropComp({
+    let kn2 = circuit.dropComp({
       c_id: 'Knoten',
       valueLeft: this.ext1in_maincomp.pins[1].x + 30,
       valueTop: this.ext1in_maincomp.pins[1].y + 20

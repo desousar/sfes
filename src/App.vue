@@ -93,9 +93,9 @@ import popupHelp from './components/popupHelp.vue';
 import toolStates from './states.js';
 import EventBus from './components/jsFolder/event-bus';
 
-import Circuit from './components/jsFolder/constructorComponent/Circuit.js';
+import Circuit from './components/CircuitClass/Circuit.js';
 
-import { resetNbFromComp } from './components/jsFolder/dropComponent';
+import { resetNbFromComp } from '@/components/CircuitClass/handleComponent/CreateComponent.js';
 
 export default {
   name: 'App',
@@ -112,8 +112,8 @@ export default {
     popupHelp
   },
   emits: ['tool-state-changed'],
-  mounted: function() {
-    EventBus.on('PUSchangeLanguage', newL => {
+  mounted: function () {
+    EventBus.on('PUSchangeLanguage', (newL) => {
       this.updateLanguage(newL);
     });
     EventBus.on('MBaboutUs', () => {
@@ -128,10 +128,10 @@ export default {
     EventBus.on('MBhelp', () => {
       this.openClosePopupHelp();
     });
-    EventBus.on('PUSpredVal', predValue => {
+    EventBus.on('PUSpredVal', (predValue) => {
       this.withPredefinedValue = predValue;
     });
-    EventBus.on('BBcomp', compToPass => {
+    EventBus.on('BBcomp', (compToPass) => {
       console.log('modif', compToPass.name);
       this.theCompoToPass = compToPass;
       this.openClosePopupComp();
@@ -171,7 +171,7 @@ export default {
     };
   },
   methods: {
-    updateLanguage: function(updatedLanguage) {
+    updateLanguage: function (updatedLanguage) {
       this.currentLanguage = updatedLanguage;
     },
 
@@ -224,13 +224,13 @@ export default {
      * #endregion
      */
 
-    openClosePopupAboutUs: function() {
+    openClosePopupAboutUs: function () {
       this.isPopupAboutUsVisible = !this.isPopupAboutUsVisible;
     },
     openClosePopupSettings() {
       this.isPopupSettingsVisible = !this.isPopupSettingsVisible;
     },
-    openClosePopupComp: function() {
+    openClosePopupComp: function () {
       // situation: click on close button from pop up windows
       if (this.isPopupCompVisible) {
         this.save();
@@ -240,10 +240,10 @@ export default {
     openClosePopupResult() {
       this.isPopupResultVisible = !this.isPopupResultVisible;
     },
-    openClosePopupEquivalentSrc: function() {
+    openClosePopupEquivalentSrc: function () {
       this.isPopupEquivalentSrcVisible = !this.isPopupEquivalentSrcVisible;
     },
-    openClosePopupHelp: function() {
+    openClosePopupHelp: function () {
       this.isPopupHelpVisible = !this.isPopupHelpVisible;
     }
   }

@@ -7,17 +7,17 @@ import {
   valueTopPin1KompRot0,
   centerX2PinsComp,
   centerY2PinsComp
-} from './constructorComponent/Component.js';
+} from '@/components/jsFolder/constructorComponent/Component.js';
 
-import ComponentJS from './constructorComponent/Component.js';
+import ComponentJS from '@/components/jsFolder/constructorComponent/Component.js';
 
-import KnotenJS from './constructorComponent/jsComponents/Knoten.js';
-import KlemmeJS from './constructorComponent/jsComponents/Klemme.js';
-import ResistorJS from './constructorComponent/jsComponents/Resistor.js';
-import CurrentSourceJS from './constructorComponent/jsComponents/CurrentSource.js';
-import VoltageSourceJS from './constructorComponent/jsComponents/VoltageSource.js';
-import AmpermeterJS from './constructorComponent/jsComponents/Ampermeter.js';
-import VoltmeterJS from './constructorComponent/jsComponents/Voltmeter.js';
+import KnotenJS from '@/components/jsFolder/constructorComponent/jsComponents/Knoten.js';
+import KlemmeJS from '@/components/jsFolder/constructorComponent/jsComponents/Klemme.js';
+import ResistorJS from '@/components/jsFolder/constructorComponent/jsComponents/Resistor.js';
+import CurrentSourceJS from '@/components/jsFolder/constructorComponent/jsComponents/CurrentSource.js';
+import VoltageSourceJS from '@/components/jsFolder/constructorComponent/jsComponents/VoltageSource.js';
+import AmpermeterJS from '@/components/jsFolder/constructorComponent/jsComponents/Ampermeter.js';
+import VoltmeterJS from '@/components/jsFolder/constructorComponent/jsComponents/Voltmeter.js';
 
 let nb = 0;
 let nbKn = 0;
@@ -43,9 +43,10 @@ const resetNbFromComp = () => {
   nbVM = 0;
 };
 
-const dropComp = ({ withPresValue, c_id, valueLeft, valueTop }) => {
+function dropComp({ withPresValue, c_id, valueLeft, valueTop }) {
+  let comp = undefined;
   if (c_id === 'Knoten') {
-    const comp = new KnotenJS({
+    comp = new KnotenJS({
       symbol: 'kn' + nbKn,
       valueLeft: valueLeft,
       valueTop: valueTop,
@@ -57,9 +58,8 @@ const dropComp = ({ withPresValue, c_id, valueLeft, valueTop }) => {
       ]
     });
     nbKn = nbKn + 1;
-    return comp;
   } else if (c_id === 'Klemme') {
-    const comp = new KlemmeJS({
+    comp = new KlemmeJS({
       symbol: 'kl' + nbKl,
       valueLeft: valueLeft,
       valueTop: valueTop,
@@ -71,9 +71,8 @@ const dropComp = ({ withPresValue, c_id, valueLeft, valueTop }) => {
       ]
     });
     nbKl = nbKl + 1;
-    return comp;
   } else if (c_id === 'Resistor') {
-    const comp = new ResistorJS({
+    comp = new ResistorJS({
       symbol: 'R' + nbR,
       valueLeft: valueLeft,
       valueTop: valueTop,
@@ -90,9 +89,8 @@ const dropComp = ({ withPresValue, c_id, valueLeft, valueTop }) => {
       valR: withPresValue ? 1000 : undefined
     });
     nbR = nbR + 1;
-    return comp;
   } else if (c_id === 'VoltageSource') {
-    const comp = new VoltageSourceJS({
+    comp = new VoltageSourceJS({
       symbol: 'U' + nbVs,
       valueLeft: valueLeft,
       valueTop: valueTop,
@@ -109,9 +107,8 @@ const dropComp = ({ withPresValue, c_id, valueLeft, valueTop }) => {
       valU: withPresValue ? 10 : undefined
     });
     nbVs = nbVs + 1;
-    return comp;
   } else if (c_id === 'CurrentSource') {
-    const comp = new CurrentSourceJS({
+    comp = new CurrentSourceJS({
       symbol: 'I' + nbCs,
       valueLeft: valueLeft,
       valueTop: valueTop,
@@ -128,9 +125,8 @@ const dropComp = ({ withPresValue, c_id, valueLeft, valueTop }) => {
       valI: withPresValue ? 1 : undefined
     });
     nbCs = nbCs + 1;
-    return comp;
   } else if (c_id === 'Ampermeter') {
-    const comp = new AmpermeterJS({
+    comp = new AmpermeterJS({
       symbol: 'AM' + nbAM,
       valueLeft: valueLeft,
       valueTop: valueTop,
@@ -146,9 +142,8 @@ const dropComp = ({ withPresValue, c_id, valueLeft, valueTop }) => {
       ]
     });
     nbAM = nbAM + 1;
-    return comp;
   } else if (c_id === 'Voltmeter') {
-    const comp = new VoltmeterJS({
+    comp = new VoltmeterJS({
       symbol: 'VM' + nbVM,
       valueLeft: valueLeft,
       valueTop: valueTop,
@@ -164,9 +159,8 @@ const dropComp = ({ withPresValue, c_id, valueLeft, valueTop }) => {
       ]
     });
     nbVM = nbVM + 1;
-    return comp;
   } else {
-    const comp = new ComponentJS(c_id, nb, valueLeft, valueTop, [
+    comp = new ComponentJS(c_id, nb, valueLeft, valueTop, [
       {
         x: valueLeft + valLeftPin0KompRot0,
         y: valueTop + valTopPin0KompRot0
@@ -177,6 +171,9 @@ const dropComp = ({ withPresValue, c_id, valueLeft, valueTop }) => {
       }
     ]);
     nb = nb + 1;
-    return comp;
   }
-};
+  if (comp) {
+    this.components.push(comp);
+  }
+  return comp;
+}

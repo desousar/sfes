@@ -1,8 +1,6 @@
 import KnotenJS from '../../jsFolder/constructorComponent/jsComponents/Knoten';
 import ResistorJS from '../../jsFolder/constructorComponent/jsComponents/Resistor';
 
-import { dropComp } from '../../jsFolder/dropComponent';
-
 export default class SternToStern {
   constructor() {
     this.extremity1_comp = undefined;
@@ -48,7 +46,7 @@ export default class SternToStern {
     if (selectedComp_array.length !== 3) {
       return false;
     } else {
-      return selectedComp_array.every(comp => comp instanceof ResistorJS);
+      return selectedComp_array.every((comp) => comp instanceof ResistorJS);
     }
   }
 
@@ -58,13 +56,12 @@ export default class SternToStern {
       if (c.showPin1 && c.showPin2) {
         return false;
       }
-      const addKnotenOnPin = pinId => {
-        const kn = dropComp({
+      const addKnotenOnPin = (pinId) => {
+        const kn = circuit.dropComp({
           c_id: 'Knoten',
           valueLeft: c.pins[0].x + 30,
           valueTop: c.pins[0].y + 20
         });
-        circuit.components.push(kn);
         circuit.createOneWire(c, pinId, kn, 0);
         if (c === selectedComp_array[1]) {
           this.extremity2_comp = c;
@@ -120,7 +117,7 @@ export default class SternToStern {
       : console.log('ext2 undef');
     for (let sc of selectedComp_array) {
       if (!sc.checked) {
-        selectedComp_array.map(c => (c.checked = false));
+        selectedComp_array.map((c) => (c.checked = false));
         return false;
       } else {
         sc.checked = false;
@@ -136,14 +133,14 @@ export default class SternToStern {
       const fromComp = circuit.componentFromPin(w.from);
       const toComp = circuit.componentFromPin(w.to);
 
-      const isCentralKnoten = kn => {
+      const isCentralKnoten = (kn) => {
         console.log('let me test', kn.symbol);
         //central Knoten can just have 3 connections
         if (circuit.getCountConnection(kn) !== 3) {
           return false;
         }
         //central Knoten must be connected to the 3 selected R
-        const isEqualToASelectedR = c => {
+        const isEqualToASelectedR = (c) => {
           console.log('isEqualToASelectedR', c.symbol);
           if (
             c.uniqueID === selectedComp_array[0].uniqueID ||
@@ -227,7 +224,7 @@ export default class SternToStern {
    */
   findPathToAll(circuit, originC, destC) {
     console.log('call findPathToAll');
-    const searchExtremities = compUT => {
+    const searchExtremities = (compUT) => {
       //either compUT is a sKnoten or selected
       if (this.isClassicKnoten(compUT)) {
         console.log('1)', compUT.symbol);
@@ -338,12 +335,11 @@ export default class SternToStern {
 
     const pinAId = circuit.pinIndexFromComponent(compA, pinA);
     const pinBId = circuit.pinIndexFromComponent(compB, pinB);
-    let kn1 = dropComp({
+    let kn1 = circuit.dropComp({
       c_id: 'Knoten',
       valueLeft: compA.pins[pinAId].x + 30,
       valueTop: compA.pins[pinAId].y + 20
     });
-    circuit.components.push(kn1);
 
     circuit.createOneWire(compA, pinAId, kn1, 0);
     circuit.createOneWire(compB, pinBId, kn1, 0);
@@ -360,7 +356,7 @@ export default class SternToStern {
 
     //new valueR
     let sum = 0;
-    selectedComp_array.forEach(comp => {
+    selectedComp_array.forEach((comp) => {
       sum += 1 / comp.valueR;
     });
     const divisor = 1 / sum;

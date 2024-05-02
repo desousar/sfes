@@ -2,7 +2,6 @@ import KnotenJS from '../../jsFolder/constructorComponent/jsComponents/Knoten';
 import ResistorJS from '../../jsFolder/constructorComponent/jsComponents/Resistor';
 
 import { middle3Points } from '../util/mathFunction';
-import { dropComp } from '../../jsFolder/dropComponent';
 
 export default class DreieckToStern {
   constructor() {
@@ -41,7 +40,7 @@ export default class DreieckToStern {
     if (selectedComp_array.length !== 3) {
       return false;
     } else {
-      return selectedComp_array.every(comp => comp instanceof ResistorJS);
+      return selectedComp_array.every((comp) => comp instanceof ResistorJS);
     }
   }
 
@@ -81,7 +80,7 @@ export default class DreieckToStern {
     for (let sc of selectedComp_array) {
       if (!sc.checked) {
         console.log('ERROR', sc.symbol, 'is not checked');
-        selectedComp_array.map(c => (c.checked = false));
+        selectedComp_array.map((c) => (c.checked = false));
         return false;
       } else {
         sc.checked = false;
@@ -134,7 +133,7 @@ export default class DreieckToStern {
       const fromComp = circuit.componentFromPin(w.from);
       const toComp = circuit.componentFromPin(w.to);
 
-      const deterExtr = comp => {
+      const deterExtr = (comp) => {
         if (
           comp.uniqueID === this.extremity1_comp.uniqueID ||
           comp.uniqueID === this.extremity2_comp.uniqueID
@@ -183,7 +182,7 @@ export default class DreieckToStern {
       }
       if (extr.find.length !== 2 || extr.find[0] === extr.find[1]) {
         console.log('Problem With Connection', extr.symbol);
-        circuit.components.map(c => (c.find = []));
+        circuit.components.map((c) => (c.find = []));
         return false;
       }
       extr.find = [];
@@ -243,7 +242,7 @@ export default class DreieckToStern {
       'and destC',
       destC.symbol
     );
-    const searchExtremities = compUT => {
+    const searchExtremities = (compUT) => {
       //either compUT is a MultiPin or selected
       if (compUT.isMultiPin) {
         console.log('1)', compUT.symbol);
@@ -355,12 +354,11 @@ export default class DreieckToStern {
       selectedComp_array[1],
       selectedComp_array[2]
     );
-    let kn = dropComp({
+    let kn = circuit.dropComp({
       c_id: 'Knoten',
       valueLeft: x,
       valueTop: y
     });
-    circuit.components.push(kn);
 
     console.log(
       this.extremity1_comp.symbol,
@@ -369,12 +367,12 @@ export default class DreieckToStern {
     );
 
     let divisor = 0;
-    selectedComp_array.forEach(c => {
+    selectedComp_array.forEach((c) => {
       divisor += c.valueR;
     });
     console.log('divisor', divisor);
 
-    circuit.components.map(c => (c.checked = undefined));
+    circuit.components.map((c) => (c.checked = undefined));
     //----- first step
 
     console.log('ON*', this.extremity1_comp.symbol);
@@ -544,7 +542,7 @@ export default class DreieckToStern {
     ext2_comp.valueR = secondValueR;
     ext3_comp.valueR = thirdValueR;
 
-    selectedComp_array.forEach(c => {
+    selectedComp_array.forEach((c) => {
       if (c.showPin1) {
         circuit.createOneWire(c, 0, kn, 0);
       }
@@ -552,6 +550,6 @@ export default class DreieckToStern {
         circuit.createOneWire(c, 1, kn, 0);
       }
     });
-    circuit.components.map(c => (c.checked = undefined));
+    circuit.components.map((c) => (c.checked = undefined));
   }
 }

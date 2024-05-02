@@ -1,11 +1,14 @@
-import KnotenJS from '../../jsFolder/constructorComponent/jsComponents/Knoten';
-import ResistorJS from '../../jsFolder/constructorComponent/jsComponents/Resistor';
+import ResistorJS from '@/components/jsFolder/constructorComponent/jsComponents/Resistor';
 
-import { distanceBtw2Points } from '../util/mathFunction';
-import { dropComp } from '../../jsFolder/dropComponent';
+import log from '@/consoleLog';
 
 export default class MultipleRinSerie {
-  constructor() {
+  constructor(circuit) {
+    // circuit will be use to update the circuit
+    this.circuit = circuit;
+    // circuitCopy will be used to modify the circuit locally without modifying the true circuit => see setAsVisited()
+    this.circuitCopy = circuit.project();
+
     this.extremity1_comp = undefined;
     this.extremity2_comp = undefined;
     this.extremity1_pinID = undefined;
@@ -26,261 +29,174 @@ export default class MultipleRinSerie {
    * -isAllSameInstance()
    * -isInSerie()
    */
-  isPossible (onReal, selectedComp_array, circuit) {
-    console.log('---------Serie---------');
-    let isAllSameInstance_bool = false;
-    let isInSerie_bool = false;
-    isAllSameInstance_bool = this.isAllSameInstance(selectedComp_array);
-    if (!isAllSameInstance_bool) {
-      return false;
-    }
-    isInSerie_bool = this.isInSerie(onReal, selectedComp_array, circuit);
-    return isAllSameInstance_bool && isInSerie_bool;
-  }
+  isPossible() {
+    log('---------Serie---------');
+    const selectedComp_array = this.circuitCopy.getSelectedComponents();
+    log('selected_array', selectedComp_array);
 
-  isAllSameInstance (selectedComp_array) {
-    return selectedComp_array.every(comp => comp instanceof ResistorJS);
-  }
-
-  isInSerie (onReal, selectedComp_array, circuit) {
-    this.extremity1_comp = undefined;
-    this.extremity2_comp = undefined;
-    circuit.components.map(comp => (comp.flagConversion = false));
-    let firstComp = selectedComp_array[0];
-    firstComp.flagConversion = true;
-    console.log(firstComp.symbol, 'fflagConversion = true');
-    circuit.wires.forEach(w => {
-      const fromComp = circuit.componentFromPin(w.from);
-      const toComp = circuit.componentFromPin(w.to);
-      if (firstComp.uniqueID === fromComp.uniqueID) {
-        console.log('find', firstComp.symbol, 'on fromComp');
-        this.nextNeighbor(circuit, fromComp, toComp);
-      }
-      if (firstComp.uniqueID === toComp.uniqueID) {
-        console.log('find', firstComp.symbol, 'on toComp');
-        this.nextNeighbor(circuit, toComp, fromComp);
-      }
-    });
-    const result = selectedComp_array.every(
-      comp => comp.flagConversion === true
+    return (
+      this.isAllSameInstance(selectedComp_array) &&
+      this.isInSerie(selectedComp_array)
     );
-    circuit.components.map(comp => (comp.flagConversion = false));
-    if (!onReal) {
-      circuit.components.map(comp => (comp.visited = false));
-    }
-    console.log('extremity', this.extremity1_comp, this.extremity2_comp);
-    return result;
   }
 
-  getNextCompWith (circuit, comp) {
-    for (let wire of circuit.wires) {
-      const compFrom = circuit.componentFromPin(wire.from);
-      const compTo = circuit.componentFromPin(wire.to);
-      if (comp.uniqueID === compFrom.uniqueID) {
-        console.log('ENTER 10:', compTo.symbol);
-        if (compTo.flagConversion !== true) {
-          this.nextNeighbor(circuit, compFrom, compTo);
-        }
-      } else if (comp.uniqueID === compTo.uniqueID) {
-        console.log('ENTER 20:', compFrom.symbol);
-        if (compFrom.flagConversion !== true) {
-          this.nextNeighbor(circuit, compTo, compFrom);
-        }
-      }
-    }
+  isAllSameInstance(selectedComp_array) {
+    return selectedComp_array.every((comp) => comp instanceof ResistorJS);
   }
 
-  nextNeighbor (circuit, origin, comp) {
-    console.log(comp.symbol, 'is under test');
-    if (comp.flagConversion === true) {
-      console.log(comp.symbol, ' flagConversion is already true A LOOP');
-      this.circuitAsLoop = true;
-      return;
-    } else if (
-      comp.selected ||
-      (comp instanceof KnotenJS &&
-        circuit.getCountConnection(comp) === 2 &&
-        comp.valuePotentialSource === undefined)
-    ) {
-      comp.flagConversion = true;
-      console.log(comp.symbol, 'flagConversion = true');
-      if (comp instanceof KnotenJS) {
-        console.log('comp is Knoteand visited', comp.symbol);
-        comp.visited = true;
-      }
-      this.getNextCompWith(circuit, comp);
-    } else {
-      var pinID = undefined;
-      for (let wire of circuit.wires) {
-        const compFrom = circuit.componentFromPin(wire.from);
-        const compTo = circuit.componentFromPin(wire.to);
+  /*
+    on the path btw 2 R, I can have
+      - 2-pins-comp
+      - multi-pin-comp with MAX 2 neighbors
+  */
+  /*
+    I will start on one R and I should access/visit all other R
+    Start based on pin[0] then start based on pin[1]
+ */
+  isInSerie(selArray) {
+    const startComp = selArray[0];
+    this.circuitCopy.setAsVisited(startComp);
+    this.circuitCopy.setOnPath(startComp, true);
+    for (const pin of startComp.pins) {
+      log('---PIN---');
+      const [nComp] = this.circuitCopy.getNeighborsOfOneComp(pin);
+
+      const explore = (nComp) => {
+        log('EXPLORE', nComp?.symbol);
+
         if (
-          origin.uniqueID === compFrom.uniqueID &&
-          comp.uniqueID === compTo.uniqueID
+          !nComp ||
+          (nComp.isMultiPin &&
+            this.circuitCopy.getNeighborsOfOneComp(nComp.pins).length > 2)
         ) {
-          pinID = circuit.pinIndexFromComponent(comp, wire.to);
-        } else if (
-          origin.uniqueID === compTo.uniqueID &&
-          comp.uniqueID === compFrom.uniqueID
-        ) {
-          pinID = circuit.pinIndexFromComponent(comp, wire.from);
+          log('STOP');
+          return;
         }
-      }
 
-      this.extremity1_comp === undefined
-        ? (this.extremity1_comp = comp)
-        : (this.extremity2_comp = comp);
-      this.extremity1_pinID === undefined
-        ? (this.extremity1_pinID = pinID)
-        : (this.extremity2_pinID = pinID);
+        this.circuitCopy.setAsVisited(nComp);
+
+        if (nComp.selected && !nComp.onPath) {
+          this.circuitCopy.setOnPath(nComp, true);
+        }
+
+        const comps = this.circuitCopy.getNeighborsOfOneComp(nComp.pins);
+
+        log('comps', comps);
+
+        for (const icomp of comps) {
+          log('icomp', icomp.symbol, 'isVisited ?', icomp.visited);
+
+          if (icomp.visited) {
+            continue;
+          }
+
+          explore(icomp);
+        }
+      };
+
+      explore(nComp);
     }
+
+    return this.circuitCopy.components
+      .filter((c) => c.selected)
+      .every((c) => c.onPath);
   }
 
   /**
-   * delete old components (R)
-   * add new component (R)
+   * modify value from one comp ~ keepAlive (R)
+   * delete Other (R)
    */
-  conversion (selectedComp_array, circuit) {
+  /*
+    process for earch "to delete" R:
+    1) get neighbor(s) from selected R
+    2) delete selected R
+    3) create wire btw both neighbors if neighbors == 2
+  */
+  conversion() {
+    const selectedComp_array = this.circuit.getSelectedComponents();
     var sumR = 0;
-    selectedComp_array.forEach(comp => {
+    selectedComp_array.forEach((comp) => {
       sumR += comp.valueR;
     });
 
-    for (var i = circuit.components.length - 1; i >= 0; i--) {
-      let kn = circuit.components[i];
-      if (kn.visited) {
-        console.log(kn.symbol);
-        circuit.deleteOneComponent(kn);
-      }
-    }
+    let [keepAlive] = selectedComp_array.splice(0, 1);
+    keepAlive.valueR = sumR;
+    keepAlive.showSymbol = true;
+    keepAlive.selected = false;
 
-    let [keepRAlive] = selectedComp_array.splice(0, 1);
-    selectedComp_array.forEach(component => {
-      circuit.deleteOneComponent(component);
-    });
-    circuit.wires.forEach((wire) => {
-      const compFrom = circuit.componentFromPin(wire.from);
-      const compTo = circuit.componentFromPin(wire.to);
-      if (
-        keepRAlive.uniqueID === compFrom.uniqueID ||
-        keepRAlive.uniqueID === compTo.uniqueID
-      ) {
-        circuit.deleteOneWire(wire);
-      }
-    });
-    keepRAlive.valueR = sumR;
-    keepRAlive.showSymbol = true;
-    keepRAlive.selected = false;
-    keepRAlive.showPin1 = true;
-    keepRAlive.showPin2 = true;
+    selectedComp_array.forEach((component) => {
+      let newWire = [undefined, undefined, undefined, undefined];
+      // step 1
+      const nComps = this.circuit.getNeighborsOfOneComp(component.pins);
 
-    if (this.circuitAsLoop) {
-      let kn = dropComp({
-        c_id: 'Knoten',
-        valueLeft: selectedComp_array[0].x,
-        valueTop: selectedComp_array[0].y
-      });
-      circuit.components.push(kn);
-      circuit.createOneWire(keepRAlive, 0, kn, 0);
-      circuit.createOneWire(keepRAlive, 1, kn, 0);
-    }
-    // check coord x and y for graphical attribution
-    else if (
-      this.extremity1_comp !== undefined &&
-      this.extremity2_comp !== undefined
-    ) {
-      const pin0 = distanceBtw2Points(
-        this.extremity1_comp.pins[this.extremity1_pinID],
-        keepRAlive.pins[0]
-      );
-      const pin1 = distanceBtw2Points(
-        this.extremity1_comp.pins[this.extremity1_pinID],
-        keepRAlive.pins[1]
-      );
-      if (pin0 <= pin1) {
-        //connect extremity1_comp with pin0 and extremity2_comp with pin1
-        circuit.createOneWire(
-          this.extremity1_comp,
-          this.extremity1_pinID,
-          keepRAlive,
-          0
-        );
-        circuit.createOneWire(
-          this.extremity2_comp,
-          this.extremity2_pinID,
-          keepRAlive,
-          1
-        );
-      } else {
-        //connect extremity1_comp with pin1 and extremity2_comp with pin0
-        circuit.createOneWire(
-          this.extremity1_comp,
-          this.extremity1_pinID,
-          keepRAlive,
-          1
-        );
-        circuit.createOneWire(
-          this.extremity2_comp,
-          this.extremity2_pinID,
-          keepRAlive,
-          0
-        );
+      if (nComps.length === 2) {
+        /*
+          find pins
+          neighborA_pinXA--deleted_R--pinXB_neighborB
+        */
+        newWire[0] = nComps[0];
+        newWire[2] = nComps[1];
+
+        this.circuit.wires.forEach((wire) => {
+          // if something equals nComps[0].pins[0]
+          if (
+            (wire.from === component.pins[0] &&
+              wire.to === nComps[0].pins[0]) ||
+            (wire.from === component.pins[1] &&
+              wire.to === nComps[0].pins[0]) ||
+            (wire.to === component.pins[0] &&
+              wire.from === nComps[0].pins[0]) ||
+            (wire.to === component.pins[1] && wire.from === nComps[0].pins[0])
+          ) {
+            newWire[1] = 0;
+          }
+          // if something equals nComps[0].pins[1]
+          if (
+            (wire.from === component.pins[0] &&
+              wire.to === nComps[0].pins[1]) ||
+            (wire.from === component.pins[1] &&
+              wire.to === nComps[0].pins[1]) ||
+            (wire.to === component.pins[0] &&
+              wire.from === nComps[0].pins[1]) ||
+            (wire.to === component.pins[1] && wire.from === nComps[0].pins[1])
+          ) {
+            newWire[1] = 1;
+          }
+
+          // if something equals nComps[1].pins[0]
+          if (
+            (wire.from === component.pins[0] &&
+              wire.to === nComps[1].pins[0]) ||
+            (wire.from === component.pins[1] &&
+              wire.to === nComps[1].pins[0]) ||
+            (wire.to === component.pins[0] &&
+              wire.from === nComps[1].pins[0]) ||
+            (wire.to === component.pins[1] && wire.from === nComps[1].pins[0])
+          ) {
+            newWire[3] = 0;
+          }
+          // if something equals nComps[1].pins[1]
+          if (
+            (wire.from === component.pins[0] &&
+              wire.to === nComps[1].pins[1]) ||
+            (wire.from === component.pins[1] &&
+              wire.to === nComps[1].pins[1]) ||
+            (wire.to === component.pins[0] &&
+              wire.from === nComps[1].pins[1]) ||
+            (wire.to === component.pins[1] && wire.from === nComps[1].pins[1])
+          ) {
+            newWire[3] = 1;
+          }
+        });
       }
-    } else {
-      if (this.extremity1_comp !== undefined) {
-        const pin0 = distanceBtw2Points(
-          this.extremity1_comp.pins[this.extremity1_pinID],
-          keepRAlive.pins[0]
-        );
-        const pin1 = distanceBtw2Points(
-          this.extremity1_comp.pins[this.extremity1_pinID],
-          keepRAlive.pins[1]
-        );
-        if (pin0 <= pin1) {
-          //connect extremity1_comp with pin0
-          circuit.createOneWire(
-            this.extremity1_comp,
-            this.extremity1_pinID,
-            keepRAlive,
-            0
-          );
-        } else {
-          //connect extremity1_comp with pin1
-          circuit.createOneWire(
-            this.extremity1_comp,
-            this.extremity1_pinID,
-            keepRAlive,
-            1
-          );
-        }
+
+      //step 2
+      this.circuit.deleteOneComponent(component);
+      // step 3
+      if (nComps.length === 2) {
+        // createOneWire(compA, compAPinId, compB, compBPinId)
+        this.circuit.createOneWire(...newWire);
       }
-      if (this.extremity2_comp !== undefined) {
-        const pin0 = distanceBtw2Points(
-          this.extremity2_comp.pins[this.extremity2_pinID],
-          keepRAlive.pins[0]
-        );
-        const pin1 = distanceBtw2Points(
-          this.extremity2_comp.pins[this.extremity2_pinID],
-          keepRAlive.pins[1]
-        );
-        if (pin0 <= pin1) {
-          //connect extremity2_comp with pin0
-          circuit.createOneWire(
-            this.extremity2_comp,
-            this.extremity2_pinID,
-            keepRAlive,
-            0
-          );
-        } else {
-          //connect extremity2_comp with pin1
-          circuit.createOneWire(
-            this.extremity2_comp,
-            this.extremity2_pinID,
-            keepRAlive,
-            1
-          );
-        }
-      }
-    }
+    });
   }
 }

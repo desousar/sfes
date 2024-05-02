@@ -208,7 +208,6 @@
 <script>
 import EventBus from './jsFolder/event-bus';
 import toolStates from '../states.js';
-import { dropComp } from './jsFolder/dropComponent.js';
 import CircuitSolver from './jsFolder/constructorComponent/CircuitSolver.js';
 
 import Knoten from './elements/Knoten.vue';
@@ -346,6 +345,7 @@ export default {
       left: '0px',
 
       multiRinParallel_instance: undefined,
+      multipleRinSerie_instance: undefined,
 
       multipleRinSerie_data: false,
       multipleRinParallel_data: false,
@@ -485,13 +485,13 @@ export default {
       });
       const selectedComp = this.circuit.getSelectedComponents();
       if (hasMainVal(selectedComp) && selectedComp.length > 1) {
-        this.multipleRinSerie_openMenu(selectedComp);
-        this.multipleRinParallel_openMenu(selectedComp);
-        this.theveninToNorton_openMenu(selectedComp);
-        this.nortonToThevenin_openMenu(selectedComp);
-        this.dreieckToStern_openMenu(selectedComp);
-        this.sternToDreieck_openMenu(selectedComp);
-        this.permutation_openMenu(selectedComp);
+        this.multipleRinSerie_openMenu();
+        this.multipleRinParallel_openMenu();
+        // this.theveninToNorton_openMenu(selectedComp);
+        // this.nortonToThevenin_openMenu(selectedComp);
+        // this.dreieckToStern_openMenu(selectedComp);
+        // this.sternToDreieck_openMenu(selectedComp);
+        // this.permutation_openMenu(selectedComp);
       }
     },
     isClassicKnoten(comp) {
@@ -499,13 +499,9 @@ export default {
         comp instanceof KnotenJS && comp.valuePotentialSource === undefined
       );
     },
-    multipleRinSerie_openMenu: function (selectedComp) {
-      let multiRinSerie = new MultipleRinSerie();
-      this.multipleRinSerie_data = multiRinSerie.isPossible(
-        false,
-        selectedComp,
-        this.circuit
-      );
+    multipleRinSerie_openMenu: function () {
+      this.multipleRinSerie_instance = new MultipleRinSerie(this.circuit);
+      this.multipleRinSerie_data = this.multipleRinSerie_instance.isPossible();
     },
     multipleRinParallel_openMenu: function () {
       this.multiRinParallel_instance = new MultipleRinParallel(this.circuit);
@@ -550,16 +546,7 @@ export default {
       );
     },
     multipleRinSerie_function: function () {
-      let multiRinSerie = new MultipleRinSerie();
-      multiRinSerie.isPossible(
-        true,
-        this.circuit.getSelectedComponents(),
-        this.circuit
-      );
-      multiRinSerie.conversion(
-        this.circuit.getSelectedComponents(),
-        this.circuit
-      );
+      this.multipleRinSerie_instance.conversion();
       this.resetAndSaveAfterConversion();
     },
     multipleRinParallel_function: function () {
@@ -662,14 +649,13 @@ export default {
         let valueLeft = e.clientX - tgt.left + valueScrollLeft;
 
         //method from dropComponent.js
-        let c = dropComp({
+        const c = this.circuit.dropComp({
           withPresValue: this.getWithPredefinedValue,
           c_id,
           valueLeft,
           valueTop
         });
 
-        this.circuit.components.push(c);
         if (saveAfterDrop === true) {
           EventBus.emit('BBSave');
         }
@@ -775,12 +761,11 @@ export default {
             newValLeft = this.fromComponent.x + 80;
           }
           const newValTop = this.fromComponent.y + 50;
-          const kn = dropComp({
+          const kn = this.circuit.dropComp({
             c_id: 'Knoten',
             valueLeft: newValLeft,
             valueTop: newValTop
           });
-          this.circuit.components.push(kn);
           //connect 2 pins from this.fromComponent with kn pin
           const createWire = (fC, fCpin, tC, tCpin) => {
             let wire = new WireJS({

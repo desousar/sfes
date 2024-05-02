@@ -36,62 +36,6 @@ export default class MultipleRinParallel {
     return selectedComp_array.every((comp) => comp instanceof ResistorJS);
   }
 
-  setAsVisited(comp) {
-    this.circuitCopy.components
-      .filter((c) => c.uniqueID === comp.uniqueID)
-      .map((comp) => {
-        comp.visited = true;
-      });
-    log('set visited', comp.symbol, comp.visited);
-  }
-  setOnPath(comp, bool) {
-    this.circuitCopy.components
-      .filter((c) => c.uniqueID === comp.uniqueID)
-      .map((comp) => {
-        comp.onPath = bool;
-      });
-    log('set onPath', comp.symbol, comp.onPath);
-  }
-
-  /**
-   * @param {Object if only one OR Array if multiple like MultiComp} pins
-   * @returns neighbor(s) as an Array of One Comp based on the given pin(s)
-   */
-  getNeighborsOfOneComp(realCircuit, pins) {
-    const compsToReturn = [];
-    if (!(pins instanceof Array)) {
-      pins = [pins];
-    }
-    if (realCircuit) {
-      for (const pin of pins) {
-        for (const wire of this.circuit.wires) {
-          if (pin === wire.from) {
-            const compTo = this.circuit.componentFromPin(wire.to);
-            compsToReturn.push(compTo);
-          }
-          if (pin === wire.to) {
-            const compFrom = this.circuit.componentFromPin(wire.from);
-            compsToReturn.push(compFrom);
-          }
-        }
-      }
-    } else {
-      for (const pin of pins) {
-        for (const wire of this.circuitCopy.wires) {
-          if (pin === wire.from) {
-            const compTo = this.circuitCopy.componentFromPin(wire.to);
-            compsToReturn.push(compTo);
-          }
-          if (pin === wire.to) {
-            const compFrom = this.circuitCopy.componentFromPin(wire.from);
-            compsToReturn.push(compFrom);
-          }
-        }
-      }
-    }
-    return compsToReturn;
-  }
-
   /*
     on the path btw 2 R, I can have 
     - multiple Knoten || 
@@ -112,10 +56,10 @@ export default class MultipleRinParallel {
       log('---START---', sComp.symbol);
       for (const [index, pin] of sComp.pins.entries()) {
         log('---PIN---');
-        this.setAsVisited(sComp);
+        this.circuitCopy.setAsVisited(sComp);
 
         // get 1 neighbor from R on this pin
-        const [nComp] = this.getNeighborsOfOneComp(false, pin);
+        const [nComp] = this.circuitCopy.getNeighborsOfOneComp(pin);
         if (!nComp) {
           return false;
         }
@@ -130,11 +74,11 @@ export default class MultipleRinParallel {
           hasOnePotentialKnoten = true;
         }
 
-        this.setAsVisited(nComp);
+        this.circuitCopy.setAsVisited(nComp);
 
         const explore = (nComp) => {
           log('EXPLORE', nComp.symbol);
-          const comps = this.getNeighborsOfOneComp(false, nComp.pins);
+          const comps = this.circuitCopy.getNeighborsOfOneComp(nComp.pins);
 
           log('comps', comps);
           for (const icomp of comps) {
@@ -152,7 +96,7 @@ export default class MultipleRinParallel {
             }
 
             if (icomp.selected && icomp.uniqueID !== sComp.uniqueID) {
-              this.setOnPath(icomp, true);
+              this.circuitCopy.setOnPath(icomp, true);
               continue;
             }
             if (
@@ -165,7 +109,7 @@ export default class MultipleRinParallel {
                 (hasOneKlemme || hasOnePotentialKnoten))
             ) {
               log('stop on', icomp.symbol);
-              this.setOnPath(icomp, false);
+              this.circuitCopy.setOnPath(icomp, false);
               continue;
             }
             if (icomp instanceof KlemmeJS) {
@@ -175,7 +119,7 @@ export default class MultipleRinParallel {
               hasOnePotentialKnoten = true;
             }
 
-            this.setAsVisited(icomp);
+            this.circuitCopy.setAsVisited(icomp);
 
             if (!icomp.selected) {
               explore(icomp);
@@ -199,7 +143,7 @@ export default class MultipleRinParallel {
               hasOnePotentialKnoten = false;
             }
           } else {
-            this.setOnPath(nComp, true);
+            this.circuitCopy.setOnPath(nComp, true);
           }
         };
 
@@ -210,7 +154,7 @@ export default class MultipleRinParallel {
         }
 
         if (nComp.onPath) {
-          this.setOnPath(sComp, true);
+          this.circuitCopy.setOnPath(sComp, true);
         }
 
         if (
@@ -283,7 +227,7 @@ export default class MultipleRinParallel {
       if (this.isSimpleKnoten(kn)) {
         if (this.circuit.getCountConnection(kn) === 1) {
           // case circuit--MultiPin--Kn
-          const [tempComp] = this.getNeighborsOfOneComp(true, kn.pins);
+          const [tempComp] = this.circuit.getNeighborsOfOneComp(kn.pins);
           if (tempComp.isMultiPin) {
             log('***', tempComp.symbol, 'delete', kn.symbol);
             this.circuit.deleteOneComponent(kn);

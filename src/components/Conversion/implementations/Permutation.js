@@ -34,8 +34,6 @@ export default class Permutation {
    */
 
   /**
-   * @param {just comp with attribut selected === true} selectedComp_array
-   * @param {entire object} circuit
    * @returns true if condition is met :
    *  2 selected 2-pins-comps independently of their position can be permuted
    */

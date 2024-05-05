@@ -23,8 +23,6 @@ export default class MultipleRinSerie {
    */
 
   /**
-   * @param {just comp with attribut selected === true} selectedComp_array
-   * @param {entire object} circuit
    * @returns true if condition are met :
    * -isAllSameInstance()
    * -isInSerie()

@@ -93,6 +93,16 @@ export default class Circuit {
     log('set onPath', comp.symbol, comp.onPath);
   }
 
+  setForPermutation(comp, rotation, x, y) {
+    this.components
+      .filter((c) => c.uniqueID === comp.uniqueID)
+      .map((comp) => {
+        comp.rotation = rotation;
+        comp.x = x;
+        comp.y = y;
+      });
+  }
+
   /**
    * @param {Object if only one OR Array if multiple like MultiComp} pins
    * @returns neighbor(s) as an Array of One Comp based on the given pin(s)

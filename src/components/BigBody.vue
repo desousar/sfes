@@ -206,6 +206,7 @@
 </template>
 
 <script>
+import log from '@/consoleLog';
 import EventBus from './jsFolder/event-bus';
 import toolStates from '../states.js';
 import CircuitSolver from './jsFolder/constructorComponent/CircuitSolver.js';
@@ -346,6 +347,7 @@ export default {
 
       multiRinParallel_instance: undefined,
       multipleRinSerie_instance: undefined,
+      permutation_instance: undefined,
 
       multipleRinSerie_data: false,
       multipleRinParallel_data: false,
@@ -491,7 +493,7 @@ export default {
         // this.nortonToThevenin_openMenu(selectedComp);
         // this.dreieckToStern_openMenu(selectedComp);
         // this.sternToDreieck_openMenu(selectedComp);
-        // this.permutation_openMenu(selectedComp);
+        this.permutation_openMenu();
       }
     },
     isClassicKnoten(comp) {
@@ -538,12 +540,9 @@ export default {
         this.circuit
       );
     },
-    permutation_openMenu(selectedComp) {
-      let permutation = new Permutation();
-      this.permutation_data = permutation.isPossible(
-        selectedComp,
-        this.circuit
-      );
+    permutation_openMenu: function () {
+      this.permutation_instance = new Permutation(this.circuit);
+      this.permutation_data = this.permutation_instance.isPossible();
     },
     multipleRinSerie_function: function () {
       this.multipleRinSerie_instance.conversion();
@@ -589,13 +588,9 @@ export default {
       );
       this.resetAndSaveAfterConversion();
     },
-    permutation_function() {
+    permutation_function: function () {
       if (confirm('Potential values will change')) {
-        let permutation = new Permutation();
-        permutation.conversion(
-          this.circuit.getSelectedComponents(),
-          this.circuit
-        );
+        this.permutation_instance.conversion();
         this.resetAndSaveAfterConversion();
       }
     },

@@ -348,6 +348,7 @@ export default {
       multiRinParallel_instance: undefined,
       multipleRinSerie_instance: undefined,
       permutation_instance: undefined,
+      theveninToNorton_instance: undefined,
 
       multipleRinSerie_data: false,
       multipleRinParallel_data: false,
@@ -489,7 +490,7 @@ export default {
       if (hasMainVal(selectedComp) && selectedComp.length > 1) {
         this.multipleRinSerie_openMenu();
         this.multipleRinParallel_openMenu();
-        // this.theveninToNorton_openMenu(selectedComp);
+        this.theveninToNorton_openMenu();
         // this.nortonToThevenin_openMenu(selectedComp);
         // this.dreieckToStern_openMenu(selectedComp);
         // this.sternToDreieck_openMenu(selectedComp);
@@ -510,13 +511,9 @@ export default {
       this.multipleRinParallel_data =
         this.multiRinParallel_instance.isPossible();
     },
-    theveninToNorton_openMenu(selectedComp) {
-      let theveninToNorton = new TheveninToNorton();
-      this.theveninToNorton_data = theveninToNorton.isPossible(
-        false,
-        selectedComp,
-        this.circuit
-      );
+    theveninToNorton_openMenu: function () {
+      this.theveninToNorton_instance = new TheveninToNorton(this.circuit);
+      this.theveninToNorton_data = this.theveninToNorton_instance.isPossible();
     },
     nortonToThevenin_openMenu(selectedComp) {
       let nortonToThevenin = new NortonToThevenin();
@@ -553,13 +550,7 @@ export default {
       this.resetAndSaveAfterConversion();
     },
     theveninToNorton_function() {
-      let theveninToNorton = new TheveninToNorton();
-      theveninToNorton.isPossible(
-        true,
-        this.circuit.getSelectedComponents(),
-        this.circuit
-      );
-      theveninToNorton.conversion(this.circuit);
+      this.theveninToNorton_instance.conversion();
       this.resetAndSaveAfterConversion();
     },
     nortonToThevenin_function() {
@@ -957,15 +948,15 @@ export default {
 
       fr.onload = function () {
         obj = JSON.parse(fr.result);
-        console.log('JSON.parse(fr.result)\n', obj);
+        log('JSON.parse(fr.result)\n', obj);
       };
       fr.readAsText(blob);
       fr.onloadend = function () {
-        console.log('START Load');
+        log('START Load');
         self.circuit.loadNewCircuit(obj);
-        console.log('Comp Ok, Wire load start');
+        log('Comp Ok, Wire load start');
         self.circuit.loadWireOfNewCircuit(obj);
-        console.log('CIRCUIT LOADED', self.circuit);
+        log('CIRCUIT LOADED', self.circuit);
       };
       EventBus.emit('BBSave');
     },

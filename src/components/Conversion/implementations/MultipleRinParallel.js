@@ -191,6 +191,10 @@ export default class MultipleRinParallel {
    * delete Other (R)
    */
   conversion() {
+    this.circuitCopy.components.map((c) => {
+      c.visited = false;
+      c.onPath = false;
+    });
     const selectedComp_array = this.circuit.getSelectedComponents();
     let sum = 0;
     selectedComp_array.forEach((comp) => {

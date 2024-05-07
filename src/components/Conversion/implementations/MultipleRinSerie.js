@@ -59,6 +59,10 @@ export default class MultipleRinSerie {
       log('---PIN---');
       const [nComp] = this.circuitCopy.getNeighborsOfOneComp(pin);
 
+      if (!nComp) {
+        continue;
+      }
+
       const explore = (nComp) => {
         log('EXPLORE', nComp?.symbol);
 
@@ -111,6 +115,10 @@ export default class MultipleRinSerie {
     3) create wire btw both neighbors if neighbors == 2
   */
   conversion() {
+    this.circuitCopy.components.map((c) => {
+      c.visited = false;
+      c.onPath = false;
+    });
     const selectedComp_array = this.circuit.getSelectedComponents();
     var sumR = 0;
     selectedComp_array.forEach((comp) => {

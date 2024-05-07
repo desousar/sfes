@@ -60,11 +60,6 @@ export default class Permutation {
     -- <=> a wire
   */
 
-  // this.n1_pinA_pinIndex = undefined; // on conversion will be connected to comp1_pin0
-  // this.n2_pinA_pinIndex = undefined; // on conversion will be connected to comp1_pin1
-  // this.n3_pinA_pinIndex = undefined; // on conversion will be connected to comp0_pin0
-  // this.n4_pinA_pinIndex = undefined; // on conversion will be connected to comp0_pin1
-
   /*
     after conversion swap comp0 and comp1:
     n1_pinA_pinIndex--pin0_comp1_pin1--n2_pinA_pinIndex .... n3_pinA_pinIndex--pin0_comp0_pin1--n4_pinA_pinIndex

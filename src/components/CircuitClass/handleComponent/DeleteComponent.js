@@ -3,7 +3,7 @@
  * @param {*} componentToDelete
  * @param {index of comp in circuit.components array} index
  */
-export default function deleteOneComponent(componentToDelete) {
+function deleteOneComponent(componentToDelete) {
   let index = undefined; // used for graphical
   this.components.forEach((comp, i) => {
     if (componentToDelete.uniqueID === comp.uniqueID) {
@@ -34,3 +34,58 @@ export default function deleteOneComponent(componentToDelete) {
     comp.resetCalculatedValues();
   });
 }
+
+// only for comp with exacly 2 neighbors
+function deleteCompAndSetWireInstead(compToDelete) {
+  if (this.getNeighborsOfOneComp(compToDelete.pins).length !== 2) {
+    return;
+  }
+  let n1 = undefined;
+  let n1_pinA_pinIndex = undefined;
+  let n2 = undefined;
+  let n2_pinA_pinIndex = undefined;
+
+  for (let index = this.wires.length - 1; index >= 0; index--) {
+    let wire = this.wires[index];
+    const fromComp = this.componentFromPin(wire.from);
+    const toComp = this.componentFromPin(wire.to);
+
+    if (fromComp.uniqueID === compToDelete.uniqueID) {
+      const pinOfComp0 = this.pinIndexFromComponent(compToDelete, wire.from);
+      if (pinOfComp0 === 0) {
+        //case MultiPin
+        if (!n1) {
+          n1_pinA_pinIndex = this.pinIndexFromComponent(toComp, wire.to);
+          n1 = toComp;
+        } else {
+          n2_pinA_pinIndex = this.pinIndexFromComponent(toComp, wire.to);
+          n2 = toComp;
+        }
+      } else {
+        n2_pinA_pinIndex = this.pinIndexFromComponent(toComp, wire.to);
+        n2 = toComp;
+      }
+    }
+
+    if (toComp.uniqueID === compToDelete.uniqueID) {
+      const pinOfComp0 = this.pinIndexFromComponent(compToDelete, wire.to);
+      if (pinOfComp0 === 0) {
+        //case MultiPin
+        if (!n1) {
+          n1_pinA_pinIndex = this.pinIndexFromComponent(fromComp, wire.from);
+          n1 = fromComp;
+        } else {
+          n2_pinA_pinIndex = this.pinIndexFromComponent(fromComp, wire.from);
+          n2 = fromComp;
+        }
+      } else {
+        n2_pinA_pinIndex = this.pinIndexFromComponent(fromComp, wire.from);
+        n2 = fromComp;
+      }
+    }
+  }
+  this.deleteOneComponent(compToDelete);
+  this.createOneWire(n1, n1_pinA_pinIndex, n2, n2_pinA_pinIndex);
+}
+
+export { deleteOneComponent, deleteCompAndSetWireInstead };

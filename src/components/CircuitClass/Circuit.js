@@ -18,7 +18,10 @@ import log from '@/consoleLog';
 
 import deleteOneWire from './handleWire/DeleteWire.js';
 import createOneWire from './handleWire/CreateWire.js';
-import deleteOneComponent from './handleComponent/DeleteComponent.js';
+import {
+  deleteOneComponent,
+  deleteCompAndSetWireInstead
+} from './handleComponent/DeleteComponent.js';
 import { dropComp } from './handleComponent/CreateComponent.js';
 
 export default class Circuit {
@@ -928,4 +931,5 @@ export default class Circuit {
 Circuit.prototype.deleteOneWire = deleteOneWire;
 Circuit.prototype.createOneWire = createOneWire;
 Circuit.prototype.deleteOneComponent = deleteOneComponent;
+Circuit.prototype.deleteCompAndSetWireInstead = deleteCompAndSetWireInstead;
 Circuit.prototype.dropComp = dropComp;

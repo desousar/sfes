@@ -43,12 +43,13 @@ export default class MultipleRinParallel {
     - 1 Knoten with Potential and multiple Knoten
   */
   /*
-    To avoid an overly complex circuit that would cause the algo to fail, I will do the following:
-    For each R, I'll search for a path to at least one other selected R.
-    Among all these attempts, all that's needed is for one attempt to be valid for the 2 pins of the same R being tested (successPin) to know that the R's are parallel to each other (success).
+    A circuit that is too complex (MultiPin entanglement) may cause the algo to fail. I proceed as follows:
+    For each R, I'll look for a path to the other selected R.
+    All these attempts must be valid to return true, variable success (that the R's are parallel to each other).
   */
   isInParallel(selArray) {
     let isShorCircuit = false;
+    let success = false;
     for (const sComp of selArray) {
       let successPin = [false, false];
       let hasOneKlemme = false;
@@ -174,10 +175,12 @@ export default class MultipleRinParallel {
         });
       }
       if (successPin[0] && successPin[1]) {
-        return true;
+        success = true;
+      } else {
+        return false;
       }
     }
-    return false;
+    return success;
   }
 
   isSimpleKnoten(comp) {

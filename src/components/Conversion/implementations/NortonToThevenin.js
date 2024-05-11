@@ -245,7 +245,11 @@ export default class TheveninToNorton {
             // I found the second select comp
             break;
           }
-          if (icomp.visited) {
+          if (
+            icomp.visited ||
+            (!icomp.isMultiPin && !icomp.selected) ||
+            (icomp.isMultiPin && !this.isSimpleKnoten(icomp))
+          ) {
             log('stop on', icomp.symbol);
             continue;
           }
@@ -271,7 +275,7 @@ export default class TheveninToNorton {
 
       log(simpleKnotenToDelete);
       for (const kn of simpleKnotenToDelete) {
-        log('delete', kn.symbol);
+        log('delete', kn.symbol, 'attach to', nComp.symbol);
         this.circuit.deleteMultiPinCompAndSetWireInstead(nComp, kn);
       }
     }

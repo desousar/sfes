@@ -43,7 +43,7 @@ const resetNbFromComp = () => {
   nbVM = 0;
 };
 
-function dropComp({ withPresValue, c_id, valueLeft, valueTop }) {
+function dropComp({ withPresValue, c_id, valueLeft, valueTop, dirU, dirI }) {
   let comp = undefined;
   if (c_id === 'Knoten') {
     comp = new KnotenJS({
@@ -104,7 +104,9 @@ function dropComp({ withPresValue, c_id, valueLeft, valueTop }) {
           y: valueTop + valTopPin1KompRot0
         }
       ],
-      valU: withPresValue ? 10 : undefined
+      valU: withPresValue ? 10 : undefined,
+      directionU: dirU,
+      directionI: dirI
     });
     nbVs = nbVs + 1;
   } else if (c_id === 'CurrentSource') {
@@ -122,7 +124,9 @@ function dropComp({ withPresValue, c_id, valueLeft, valueTop }) {
           y: valueTop + valTopPin1KompRot0
         }
       ],
-      valI: withPresValue ? 1 : undefined
+      valI: withPresValue ? 1 : undefined,
+      directionU: dirU,
+      directionI: dirI
     });
     nbCs = nbCs + 1;
   } else if (c_id === 'Ampermeter') {

@@ -20,7 +20,8 @@ import deleteOneWire from './handleWire/DeleteWire.js';
 import createOneWire from './handleWire/CreateWire.js';
 import {
   deleteOneComponent,
-  deleteCompAndSetWireInstead
+  deleteCompAndSetWireInstead,
+  deleteMultiPinCompAndSetWireInstead
 } from './handleComponent/DeleteComponent.js';
 import { dropComp } from './handleComponent/CreateComponent.js';
 
@@ -932,4 +933,6 @@ Circuit.prototype.deleteOneWire = deleteOneWire;
 Circuit.prototype.createOneWire = createOneWire;
 Circuit.prototype.deleteOneComponent = deleteOneComponent;
 Circuit.prototype.deleteCompAndSetWireInstead = deleteCompAndSetWireInstead;
+Circuit.prototype.deleteMultiPinCompAndSetWireInstead =
+  deleteMultiPinCompAndSetWireInstead;
 Circuit.prototype.dropComp = dropComp;

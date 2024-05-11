@@ -88,4 +88,54 @@ function deleteCompAndSetWireInstead(compToDelete) {
   this.createOneWire(n1, n1_pinA_pinIndex, n2, n2_pinA_pinIndex);
 }
 
-export { deleteOneComponent, deleteCompAndSetWireInstead };
+// for MultiPin comp with more than 2 neighbors
+// connect compToDelete's neighbors to knTarget and delete compToDelete
+function deleteMultiPinCompAndSetWireInstead(knTarget, compToDelete) {
+  if (!(knTarget.isMultiPin && compToDelete.isMultiPin)) {
+    return;
+  }
+
+  const n2 = knTarget;
+  const n2_pinA_pinIndex = 0;
+
+  const compsToLinked = [];
+
+  for (let index = this.wires.length - 1; index >= 0; index--) {
+    let wire = this.wires[index];
+
+    let n1 = undefined;
+    let n1_pinA_pinIndex = undefined;
+
+    const fromComp = this.componentFromPin(wire.from);
+    const toComp = this.componentFromPin(wire.to);
+
+    if (fromComp.uniqueID === compToDelete.uniqueID) {
+      n1 = toComp;
+      n1_pinA_pinIndex = this.pinIndexFromComponent(toComp, wire.to);
+    }
+
+    if (toComp.uniqueID === compToDelete.uniqueID) {
+      n1 = fromComp;
+      n1_pinA_pinIndex = this.pinIndexFromComponent(fromComp, wire.from);
+    }
+
+    if (n1) {
+      compsToLinked.push({ n1: n1, n1_pinA_pinIndex: n1_pinA_pinIndex });
+    }
+  }
+  this.deleteOneComponent(compToDelete);
+  for (const compToLinked of compsToLinked) {
+    this.createOneWire(
+      compToLinked.n1,
+      compToLinked.n1_pinA_pinIndex,
+      n2,
+      n2_pinA_pinIndex
+    );
+  }
+}
+
+export {
+  deleteOneComponent,
+  deleteCompAndSetWireInstead,
+  deleteMultiPinCompAndSetWireInstead
+};

@@ -43,12 +43,12 @@ export default class MultipleRinParallel {
     - 1 Knoten with Potential and multiple Knoten
   */
   /*
+    To avoid an overly complex circuit that would cause the algo to fail, I will do the following:
     For each R, I'll search for a path to at least one other selected R.
     Among all these attempts, all that's needed is for one attempt to be valid for the 2 pins of the same R being tested (successPin) to know that the R's are parallel to each other (success).
   */
   isInParallel(selArray) {
     let isShorCircuit = false;
-    let success = false;
     for (const sComp of selArray) {
       let successPin = [false, false];
       let hasOneKlemme = false;
@@ -174,12 +174,10 @@ export default class MultipleRinParallel {
         });
       }
       if (successPin[0] && successPin[1]) {
-        success = true;
+        return true;
       }
     }
-
-    // For each component, I test the paths of the two pins, which should give me twice the number of selected components.
-    return success;
+    return false;
   }
 
   isSimpleKnoten(comp) {
@@ -217,7 +215,7 @@ export default class MultipleRinParallel {
       - 1 Knoten with Potential and multiple Knoten => ideally keepAlive the Knoten with Potential
     */
     /*
-      CURRENTLY 
+      BUT CURRENTLY  
       while (a Knoten in the circuit has just 1 connection to a MultiPin || a Knoten is alone) && this Knoten isn't a potentialSrc => delete this one
      */
     while (this.multiPinSimplification() === false) {

@@ -198,6 +198,9 @@ export default class TheveninToNorton {
     }
 
     //step 2
+    /*
+      ...---[partR_outside]-R-[opposite_pinIdCompR]--[opposite_pinIdCompVS]-VS-[partVS_outside]---...
+    */
     const partR_outside = {
       compR: compR,
       pinIdCompR: undefined,
@@ -303,10 +306,13 @@ export default class TheveninToNorton {
     this.circuit.deleteOneComponent(compVS);
 
     //step 4
+    // in Component.js centerX2PinsComp and centerY2PinsComp are subtracted inside the constructor (default behaviour for the drop creation)
     const compCS = this.circuit.dropComp({
       c_id: 'CurrentSource',
       valueLeft: compVS.x + centerX2PinsComp,
-      valueTop: compVS.y + centerY2PinsComp
+      valueTop: compVS.y + centerY2PinsComp,
+      dirU: dirU,
+      dirI: dirI
     });
 
     //TODO based on direction, fix the formula
@@ -314,8 +320,6 @@ export default class TheveninToNorton {
     if (dirU === dirI) {
       compCS.valueI *= -1;
     }
-    compCS.dirU = dirU;
-    compCS.dirI = dirI;
 
     const kn1 = this.circuit.dropComp({
       c_id: 'Knoten',

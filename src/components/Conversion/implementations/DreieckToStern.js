@@ -372,30 +372,30 @@ export default class DreieckToStern {
             kn
           /    \
          /      \
-  R_alpha       R_beta
+  d_alpha       d_beta
       /           \
      /             \
-   kn----R_gamma----kn
+   kn----d_gamma----kn
 
     convert into
 
             kn
           /    
          /      
-  R_alpha     --R_beta
+  s_alpha     --s_beta
         |    /     \
         ----kn--    \
                 \    \
-    kn---R_gamma--    kn
+    kn---s_gamma--    kn
 
     accessConfig structure is like this example
     const accessConfig = [
-      {comp: R_alpha, compPinId: 0, neighbor: R_gamma, neighborPinId: 0 },
-      {comp: R_alpha, compPinId: 1, neighbor: R_beta, neighborPinId: 0 },
-      {comp: R_beta, compPinId: 0, neighbor: R_alpha, neighborPinId: 1 },
-      {comp: R_beta, compPinId: 1, neighbor: R_gamma, neighborPinId: 1 },
-      {comp: R_gamma, compPinId: 0, neighbor: R_alpha, neighborPinId: 0 },
-      {comp: R_gamma, compPinId: 1, neighbor: R_beta, neighborPinId: 1 },
+      {comp: d_alpha, compPinId: 0, neighbor: d_gamma, neighborPinId: 0 },
+      {comp: d_alpha, compPinId: 1, neighbor: d_beta, neighborPinId: 0 },
+      {comp: d_beta, compPinId: 0, neighbor: d_alpha, neighborPinId: 1 },
+      {comp: d_beta, compPinId: 1, neighbor: d_gamma, neighborPinId: 1 },
+      {comp: d_gamma, compPinId: 0, neighbor: d_alpha, neighborPinId: 0 },
+      {comp: d_gamma, compPinId: 1, neighbor: d_beta, neighborPinId: 1 },
     ]; with :
     index n and n+1 are same comp
     on index n it's comp pin 0

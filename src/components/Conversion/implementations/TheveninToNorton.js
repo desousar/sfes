@@ -60,7 +60,7 @@ export default class TheveninToNorton {
 
   /*
     on the path btw R and U, I can have
-      - multiple Knoten without potential value with MAX 2 neighbors
+      - multiple simple Knoten (without potential value) with MAX 2 neighbors
   */
   isInSerie(selArray) {
     const startComp = selArray[0];

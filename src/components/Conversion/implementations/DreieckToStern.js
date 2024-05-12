@@ -44,9 +44,9 @@ export default class DreieckToStern {
 
   /*
     on the path btw 2 R, I can have 
-    - multiple Knoten || 
-    - 1 Klemme and multiple Knoten || 
-    - 1 Knoten with Potential and multiple Knoten
+    - multiple simple Knoten || 
+    - 1 Klemme and multiple simple Knoten || 
+    - 1 Knoten with Potential and multiple simple Knoten
   */
   /*
   if I start at one R on one pin and access the other two, I'm faced with a shortcut, return false

@@ -38,9 +38,9 @@ export default class MultipleRinParallel {
 
   /*
     on the path btw 2 R, I can have 
-    - multiple Knoten || 
-    - 1 Klemme and multiple Knoten || 
-    - 1 Knoten with Potential and multiple Knoten
+    - multiple simple Knoten || 
+    - 1 Klemme and multiple simple Knoten || 
+    - 1 Knoten with Potential and multiple simple Knoten
   */
   /*
     A circuit that is too complex (MultiPin entanglement) may cause the algo to fail. I proceed as follows:

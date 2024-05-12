@@ -178,7 +178,7 @@ export default class TheveninToNorton {
   }
 
   /*
-    step 1: remove single Knoten between R and CS until R and VS are separated by only one simple Knoten
+    step 1: remove single Knoten (fusion) between R and CS until R and VS are separated by only one simple Knoten
     step 2: understand the circuit to have the external components to create future wires and to store the values valueIq, dirU and dirI
     step 3: delete CS
     step 4: add VS + set value VS
@@ -217,12 +217,12 @@ export default class TheveninToNorton {
      */
     const selected_array = this.circuit.getSelectedComponents();
     const startComp = selected_array[0];
-    this.circuitCopy.setAsVisited(startComp);
+    this.circuit.setAsVisited(startComp);
     for (const pin of startComp.pins) {
       const simpleKnotenToDelete = [];
       log('---PIN---');
       // get 1 neighbor from first selected comp on this pin
-      const [nComp] = this.circuitCopy.getNeighborsOfOneComp(pin);
+      const [nComp] = this.circuit.getNeighborsOfOneComp(pin);
       if (!nComp) {
         continue;
       }
@@ -231,11 +231,11 @@ export default class TheveninToNorton {
         log('not a simple Knoten');
         continue;
       }
-      this.circuitCopy.setAsVisited(nComp);
+      this.circuit.setAsVisited(nComp);
 
       const explore = (nComp) => {
         log('EXPLORE', nComp.symbol);
-        const comps = this.circuitCopy.getNeighborsOfOneComp(nComp.pins);
+        const comps = this.circuit.getNeighborsOfOneComp(nComp.pins);
 
         log('comps', comps);
         for (const icomp of comps) {
@@ -254,7 +254,7 @@ export default class TheveninToNorton {
             continue;
           }
 
-          this.circuitCopy.setAsVisited(icomp);
+          this.circuit.setAsVisited(icomp);
 
           if (this.isSimpleKnoten(icomp) && this.isSimpleKnoten(nComp)) {
             simpleKnotenToDelete.push(icomp);
@@ -268,9 +268,8 @@ export default class TheveninToNorton {
 
       explore(nComp);
 
-      this.circuitCopy.components.map((c) => {
+      this.circuit.components.map((c) => {
         c.visited = false;
-        c.onPath = false;
       });
 
       log(simpleKnotenToDelete);

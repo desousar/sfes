@@ -143,10 +143,10 @@ export default class TheveninToNorton {
         : selected_array[1];
 
     const startComp = selected_array[0];
-    this.circuitCopy.setAsVisited(startComp);
+    this.circuit.setAsVisited(startComp);
     for (const pin of startComp.pins) {
       log('---PIN---');
-      const [nComp] = this.circuitCopy.getNeighborsOfOneComp(pin);
+      const [nComp] = this.circuit.getNeighborsOfOneComp(pin);
 
       if (!nComp) {
         continue;
@@ -171,9 +171,9 @@ export default class TheveninToNorton {
           simpleKnotenToDelete.push(nComp);
         }
 
-        this.circuitCopy.setAsVisited(nComp);
+        this.circuit.setAsVisited(nComp);
 
-        const comps = this.circuitCopy.getNeighborsOfOneComp(nComp.pins);
+        const comps = this.circuit.getNeighborsOfOneComp(nComp.pins);
 
         log('comps', comps);
 
@@ -189,6 +189,10 @@ export default class TheveninToNorton {
       };
 
       explore(nComp);
+
+      this.circuit.components.map((c) => {
+        c.visited = false;
+      });
     }
 
     // delete simple Knoten btw VoltageSrc and Resistor or next to this comp

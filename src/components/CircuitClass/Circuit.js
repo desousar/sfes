@@ -107,6 +107,14 @@ export default class Circuit {
       });
   }
 
+  setValueR(comp, valueR) {
+    this.components
+      .filter((c) => c.uniqueID === comp.uniqueID)
+      .map((comp) => {
+        comp.valueR = valueR;
+      });
+  }
+
   /**
    * @param {Object if only one OR Array if multiple like MultiComp} pins
    * @returns neighbor(s) as an Array of One Comp based on the given pin(s)

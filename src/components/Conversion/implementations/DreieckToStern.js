@@ -220,10 +220,6 @@ export default class DreieckToStern {
     );
   }
 
-  isSimpleKnoten(comp) {
-    return comp instanceof KnotenJS && comp.valuePotentialSource === undefined;
-  }
-
   /*
     step 1: too complex to try to merge 2 single Knoten directly connected btw these 3 R, so instead I use isPossible code to understand the circuit (which pin of which R accesses which pin of which R) because I already know that the structure is correct
     step 2: add simple Knoten and replace wires

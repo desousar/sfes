@@ -1,5 +1,4 @@
 import ObjectID from 'bson-objectid';
-import KnotenJS from '@/components/jsFolder/constructorComponent/jsComponents/Knoten';
 
 export default class BaseComponent {
   constructor(name, symbol, valueLeft, valueTop) {
@@ -11,10 +10,6 @@ export default class BaseComponent {
 
     this.showSymbol = false;
     this.selected = false;
-  }
-
-  isSimpleKnoten(comp) {
-    return comp instanceof KnotenJS && comp.valuePotentialSource === undefined;
   }
 
   /*-------------------StepB: BauteilGleichungen----------------------*/

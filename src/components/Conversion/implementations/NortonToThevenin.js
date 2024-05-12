@@ -1,3 +1,5 @@
+import KnotenJS from '../../jsFolder/constructorComponent/jsComponents/Knoten';
+
 import ResistorJS from '../../jsFolder/constructorComponent/jsComponents/Resistor';
 import CurrentSrcJS from '../../jsFolder/constructorComponent/jsComponents/CurrentSource';
 
@@ -82,7 +84,7 @@ export default class TheveninToNorton {
           return false;
         }
         log('nComp', nComp.symbol);
-        if (!nComp.isSimpleKnoten()) {
+        if (!this.isSimpleKnoten(nComp)) {
           log('not a simple Knoten');
           return false;
         }
@@ -118,7 +120,7 @@ export default class TheveninToNorton {
             if (
               icomp.visited ||
               (!icomp.isMultiPin && !icomp.selected) ||
-              (icomp.isMultiPin && !icomp.isSimpleKnoten())
+              (icomp.isMultiPin && !this.isSimpleKnoten(icomp))
             ) {
               log('stop on', icomp.symbol);
               this.circuitCopy.setOnPath(icomp, false);
@@ -172,6 +174,10 @@ export default class TheveninToNorton {
     return false;
   }
 
+  isSimpleKnoten(comp) {
+    return comp instanceof KnotenJS && comp.valuePotentialSource === undefined;
+  }
+
   /*
     step 1: remove single Knoten (fusion) between R and CS until R and VS are separated by only one simple Knoten
     step 2: understand the circuit to have the external components to create future wires and to store the values valueIq, dirU and dirI
@@ -222,7 +228,7 @@ export default class TheveninToNorton {
         continue;
       }
       log('nComp', nComp.symbol);
-      if (!nComp.isSimpleKnoten()) {
+      if (!this.isSimpleKnoten(nComp)) {
         log('not a simple Knoten');
         continue;
       }
@@ -243,7 +249,7 @@ export default class TheveninToNorton {
           if (
             icomp.visited ||
             (!icomp.isMultiPin && !icomp.selected) ||
-            (icomp.isMultiPin && !icomp.isSimpleKnoten())
+            (icomp.isMultiPin && !this.isSimpleKnoten(icomp))
           ) {
             log('stop on', icomp.symbol);
             continue;
@@ -251,7 +257,7 @@ export default class TheveninToNorton {
 
           this.circuit.setAsVisited(icomp);
 
-          if (icomp.isSimpleKnoten() && nComp.isSimpleKnoten()) {
+          if (this.isSimpleKnoten(icomp) && this.isSimpleKnoten(nComp)) {
             simpleKnotenToDelete.push(icomp);
           }
 

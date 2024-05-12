@@ -183,6 +183,10 @@ export default class MultipleRinParallel {
     return success;
   }
 
+  isSimpleKnoten(comp) {
+    return comp instanceof KnotenJS && comp.valuePotentialSource === undefined;
+  }
+
   /**
    * modify value from one comp ~ keepAlive (R)
    * delete Other (R)
@@ -225,7 +229,7 @@ export default class MultipleRinParallel {
     log('multiPinSimplification');
     // this.circuit.components.forEach((kn) => {
     for (const kn of this.circuit.components) {
-      if (kn.isSimpleKnoten()) {
+      if (this.isSimpleKnoten(kn)) {
         if (this.circuit.getCountConnection(kn) === 1) {
           // case circuit--MultiPin--Kn
           const [tempComp] = this.circuit.getNeighborsOfOneComp(kn.pins);

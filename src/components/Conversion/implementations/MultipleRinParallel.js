@@ -52,11 +52,11 @@ export default class MultipleRinParallel {
     let success = false;
     for (const sComp of selArray) {
       let successPin = [false, false];
-      let hasOneKlemme = false;
-      let hasOnePotentialKnoten = false;
       log('---START---', sComp.symbol);
       for (const [index, pin] of sComp.pins.entries()) {
         log('---PIN---');
+        let hasOneKlemme = false;
+        let hasOnePotentialKnoten = false;
         this.circuitCopy.setAsVisited(sComp);
 
         // get 1 neighbor from R on this pin
@@ -176,8 +176,6 @@ export default class MultipleRinParallel {
       }
       if (successPin[0] && successPin[1]) {
         success = true;
-      } else {
-        return false;
       }
     }
     return success;

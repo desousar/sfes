@@ -565,8 +565,11 @@ export default {
       }
     },
     resetAndSaveAfterConversion() {
+      this.circuit.components.map((c) => {
+        c.selected = false;
+        c.recalculatePins();
+      });
       this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
-      this.circuit.components.map((c) => (c.selected = false));
       this.closeMenu();
       EventBus.emit('BBSave');
     },

@@ -356,7 +356,5 @@ export default class TheveninToNorton {
     //step 5
     this.circuit.createOneWire(compR, futurePinIdOfRConnectedToCS, compVS, 1);
     this.circuit.createOneWire(compVS, 0, knOnPin0FromCS, 0);
-
-    this.circuit.components.map((c) => c.recalculatePins());
   }
 }

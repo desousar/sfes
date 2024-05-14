@@ -86,6 +86,9 @@ export default class DreieckToStern {
 
         // get 1 neighbor from R on this pin
         const [nComp] = this.circuitCopy.getNeighborsOfOneComp(pin);
+        if (!nComp || !nComp.isMultiPin) {
+          continue;
+        }
         log('nComp', nComp.symbol);
 
         if (nComp instanceof KlemmeJS) {
@@ -246,6 +249,9 @@ export default class DreieckToStern {
 
         // get 1 neighbor from R on this pin
         const [nComp] = this.circuitCopy.getNeighborsOfOneComp(pin);
+        if (!nComp || !nComp.isMultiPin) {
+          continue;
+        }
         log('nComp', nComp.symbol);
 
         if (nComp instanceof KlemmeJS) {
@@ -346,10 +352,6 @@ export default class DreieckToStern {
         };
 
         explore(nComp);
-
-        if (isShorCircuit) {
-          return false;
-        }
 
         if (nComp.onPath) {
           this.circuitCopy.setOnPath(sComp, true);

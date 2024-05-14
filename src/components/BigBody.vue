@@ -351,6 +351,7 @@ export default {
       theveninToNorton_instance: undefined,
       nortonToThevenin_instance: undefined,
       dreieckToStern_instance: undefined,
+      sternToDreieck_instance: undefined,
 
       multipleRinSerie_data: false,
       multipleRinParallel_data: false,
@@ -495,7 +496,7 @@ export default {
         this.theveninToNorton_openMenu();
         this.nortonToThevenin_openMenu();
         this.dreieckToStern_openMenu();
-        // this.sternToDreieck_openMenu(selectedComp);
+        this.sternToDreieck_openMenu();
         this.permutation_openMenu();
       }
     },
@@ -525,12 +526,9 @@ export default {
       this.dreieckToStern_instance = new DreieckToStern(this.circuit);
       this.dreieckToStern_data = this.dreieckToStern_instance.isPossible();
     },
-    sternToDreieck_openMenu(selectedComp) {
-      let sternToDreieck = new SternToDreieck();
-      this.sternToDreieck_data = sternToDreieck.isPossible(
-        selectedComp,
-        this.circuit
-      );
+    sternToDreieck_openMenu: function () {
+      this.sternToDreieck_instance = new SternToDreieck(this.circuit);
+      this.sternToDreieck_data = this.sternToDreieck_instance.isPossible();
     },
     permutation_openMenu: function () {
       this.permutation_instance = new Permutation(this.circuit);
@@ -557,11 +555,7 @@ export default {
       this.resetAndSaveAfterConversion();
     },
     sternToDreieck_function() {
-      let sternToDreieck = new SternToDreieck();
-      sternToDreieck.conversion(
-        this.circuit.getSelectedComponents(),
-        this.circuit
-      );
+      this.sternToDreieck_instance.conversion();
       this.resetAndSaveAfterConversion();
     },
     permutation_function: function () {

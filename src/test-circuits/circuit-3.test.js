@@ -2,7 +2,7 @@ import Knoten from '../components/jsFolder/constructorComponent/jsComponents/Kno
 import Klemme from '../components/jsFolder/constructorComponent/jsComponents/Klemme.js';
 import Resistor from '../components/jsFolder/constructorComponent/jsComponents/Resistor.js';
 
-import Circuit from '../components/jsFolder/constructorComponent/Circuit.js';
+import Circuit from '@/components/CircuitClass/Circuit.js';
 
 import { unitTest } from './test-utils.js';
 

@@ -93,7 +93,7 @@ import popupHelp from './components/popupHelp.vue';
 import toolStates from './states.js';
 import EventBus from './components/jsFolder/event-bus';
 
-import Circuit from './components/CircuitClass/Circuit.js';
+import Circuit from '@/components/CircuitClass/Circuit.js';
 
 import { resetNbFromComp } from '@/components/CircuitClass/handleComponent/CreateComponent.js';
 

@@ -4,7 +4,7 @@ import Klemme from '../components/jsFolder/constructorComponent/jsComponents/Kle
 import Resistor from '../components/jsFolder/constructorComponent/jsComponents/Resistor.js';
 import VoltageSource from '../components/jsFolder/constructorComponent/jsComponents/VoltageSource.js';
 
-import Circuit from '../components/jsFolder/constructorComponent/Circuit.js';
+import Circuit from '@/components/CircuitClass/Circuit.js';
 
 import { unitTest } from './test-utils.js';
 

@@ -1,3 +1,5 @@
+import log from '@/consoleLog';
+
 const sub = (a, b) => {
   return a - b;
 };
@@ -31,16 +33,16 @@ export default class Matrix {
   }
 
   print(msg) {
-    console.log('======' + msg + '=========');
-    console.log('rows', this.row, 'and cols', this.column);
+    log('======' + msg + '=========');
+    log('rows', this.row, 'and cols', this.column);
     for (let i = 0; i < this.row; ++i) {
       let line = '';
       for (let j = 0; j < this.column; ++j) {
         line += this.mtx[i][j] + ', ';
       }
-      console.log(line);
+      log(line);
     }
-    console.log('==========================');
+    log('==========================');
   }
   deepCopy() {
     return Object.assign(
@@ -50,7 +52,7 @@ export default class Matrix {
   }
 
   toReducedRowEchelonForm() {
-    console.log('--##########--ReducedRowEchelonForm--##########--');
+    log('--##########--ReducedRowEchelonForm--##########--');
     let lead = 0;
     for (let r = 0; r < this.row; r++) {
       if (this.column <= lead) {
@@ -176,7 +178,7 @@ export default class Matrix {
   }
 
   solve(b) {
-    console.log('--##########--Gauss Elimination--##########--');
+    log('--##########--Gauss Elimination--##########--');
     this.print('A');
     b.print('b');
     this.print('A');
@@ -189,7 +191,7 @@ export default class Matrix {
     let x = new Matrix({
       ary: this.extractX()
     });
-    console.log('*******************');
+    log('*******************');
     x.mtx.forEach((n) => {
       n[0] = parseFloat(n[0]).toFixed(6);
     });

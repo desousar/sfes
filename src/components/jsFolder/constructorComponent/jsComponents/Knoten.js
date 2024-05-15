@@ -1,4 +1,4 @@
-import MultiPinComponent from '../MultiPinComponent';
+import MultiPinComponent from '@/components/jsFolder/constructorComponent/MultiPinComponent';
 
 /*
 to obtain following value:

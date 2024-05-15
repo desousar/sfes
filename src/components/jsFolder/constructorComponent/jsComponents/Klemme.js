@@ -1,4 +1,4 @@
-import MultiPinComponent from '../MultiPinComponent';
+import MultiPinComponent from '@/components/jsFolder/constructorComponent/MultiPinComponent';
 
 /*
 to obtain following value:
@@ -27,7 +27,7 @@ export default class Klemme extends MultiPinComponent {
       valueTop - valueTopLeftPinKlemme //center
     );
   }
-  recalculatePins () {
+  recalculatePins() {
     let [pinx, piny] = this.pins;
     pinx = this.x + valueTopLeftPinKlemme;
     piny = this.y + valueTopLeftPinKlemme;
@@ -36,15 +36,15 @@ export default class Klemme extends MultiPinComponent {
     this.pins[0].y = piny;
   }
 
-  resetCalculatedValues () {
+  resetCalculatedValues() {
     this.valuePhi = undefined;
   }
 
-  getString () {
+  getString() {
     return this.symbol;
   }
 
-  selection () {
-    this.selected = !this.selected
+  selection() {
+    this.selected = !this.selected;
   }
 }

@@ -1,4 +1,4 @@
-import Component from "../Component.js";
+import Component from '@/components/jsFolder/constructorComponent/Component.js';
 
 export default class Inductor extends Component {
   constructor(
@@ -12,7 +12,7 @@ export default class Inductor extends Component {
     pins
   ) {
     super(
-      "Inductor",
+      'Inductor',
       symbolNumber,
       (valueLeft = valueLeft ? valueLeft : 0),
       (valueTop = valueTop ? valueTop : 0),
@@ -24,7 +24,7 @@ export default class Inductor extends Component {
         ? pins
         : [
             { x: 0, y: 0 },
-            { x: 0, y: 0 },
+            { x: 0, y: 0 }
           ])
     );
   }

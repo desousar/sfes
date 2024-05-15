@@ -1,4 +1,4 @@
-import Component from '../Component.js';
+import Component from '@/components/jsFolder/constructorComponent/Component.js';
 
 export default class Ampermeter extends Component {
   constructor({

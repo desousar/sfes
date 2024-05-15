@@ -1,5 +1,5 @@
-import Component from "../Component.js";
-import BaseComponent from "../BaseComponent.js";
+import Component from '@/components/jsFolder/constructorComponent/Component.js';
+import BaseComponent from '@/components/jsFolder/constructorComponent/BaseComponent.js';
 
 export default class WireAsComp extends BaseComponent {
   constructor({
@@ -10,12 +10,12 @@ export default class WireAsComp extends BaseComponent {
     directionI = Component.PIN0_TO_PIN1,
     pins = [
       { x: 0, y: 0 },
-      { x: 0, y: 0 },
+      { x: 0, y: 0 }
     ],
     valueLeft = 0,
-    valueTop = 0,
+    valueTop = 0
   }) {
-    super("WireAsComp", symbol, valueLeft, valueTop);
+    super('WireAsComp', symbol, valueLeft, valueTop);
     this.valueU = valueU;
     this.directionU = directionU;
     this.valueI = valueI;

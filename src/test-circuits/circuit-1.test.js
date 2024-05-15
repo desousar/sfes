@@ -1,12 +1,12 @@
-import CurrentSource from '../components/jsFolder/constructorComponent/jsComponents/CurrentSource.js';
-import Knoten from '../components/jsFolder/constructorComponent/jsComponents/Knoten.js';
-import Klemme from '../components/jsFolder/constructorComponent/jsComponents/Klemme.js';
-import Resistor from '../components/jsFolder/constructorComponent/jsComponents/Resistor.js';
-import VoltageSource from '../components/jsFolder/constructorComponent/jsComponents/VoltageSource.js';
+import CurrentSource from '@/components/jsFolder/constructorComponent/jsComponents/CurrentSource.js';
+import Knoten from '@/components/jsFolder/constructorComponent/jsComponents/Knoten.js';
+import Klemme from '@/components/jsFolder/constructorComponent/jsComponents/Klemme.js';
+import Resistor from '@/components/jsFolder/constructorComponent/jsComponents/Resistor.js';
+import VoltageSource from '@/components/jsFolder/constructorComponent/jsComponents/VoltageSource.js';
 
 import Circuit from '@/components/CircuitClass/Circuit.js';
 
-import { unitTest } from './test-utils.js';
+import { unitTest } from '@/test-circuits/test-utils.js';
 
 /*
    -----------------I1-------w2-------------------------k6---w4--I2--w5--

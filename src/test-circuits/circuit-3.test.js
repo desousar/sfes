@@ -1,10 +1,10 @@
-import Knoten from '../components/jsFolder/constructorComponent/jsComponents/Knoten.js';
-import Klemme from '../components/jsFolder/constructorComponent/jsComponents/Klemme.js';
-import Resistor from '../components/jsFolder/constructorComponent/jsComponents/Resistor.js';
+import Knoten from '@/components/jsFolder/constructorComponent/jsComponents/Knoten.js';
+import Klemme from '@/components/jsFolder/constructorComponent/jsComponents/Klemme.js';
+import Resistor from '@/components/jsFolder/constructorComponent/jsComponents/Resistor.js';
 
 import Circuit from '@/components/CircuitClass/Circuit.js';
 
-import { unitTest } from './test-utils.js';
+import { unitTest } from '@/test-circuits/test-utils.js';
 
 /*
     ------R1-------                          ----rB1----

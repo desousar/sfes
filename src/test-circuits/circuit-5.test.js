@@ -1,11 +1,11 @@
-import Knoten from '../components/jsFolder/constructorComponent/jsComponents/Knoten.js';
-import Resistor from '../components/jsFolder/constructorComponent/jsComponents/Resistor.js';
-import VoltageSource from '../components/jsFolder/constructorComponent/jsComponents/VoltageSource.js';
+import Knoten from '@/components/jsFolder/constructorComponent/jsComponents/Knoten.js';
+import Resistor from '@/components/jsFolder/constructorComponent/jsComponents/Resistor.js';
+import VoltageSource from '@/components/jsFolder/constructorComponent/jsComponents/VoltageSource.js';
 
 import Circuit from '@/components/CircuitClass/Circuit.js';
 
-import { unitTest } from './test-utils.js';
-import ConsistentMatrixInfiniteError from '../CustomError/consistentMatrixInfiniteError.js';
+import { unitTest } from '@/test-circuits/test-utils.js';
+import ConsistentMatrixInfiniteError from '@/CustomError/consistentMatrixInfiniteError.js';
 
 /*
 Rand2VS.m:

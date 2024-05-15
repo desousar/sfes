@@ -1,3 +1,13 @@
+const sub = (a, b) => {
+  return a - b;
+};
+const mult = (a, b) => {
+  return a * b;
+};
+const div = (a, b) => {
+  return a / b;
+};
+
 export default class Matrix {
   constructor({ ary, row, column }) {
     this.row = row !== undefined ? row : ary.length;
@@ -36,7 +46,7 @@ export default class Matrix {
     return Object.assign(
       Object.create(Object.getPrototypeOf(this)),
       JSON.parse(JSON.stringify(this))
-    ); //Deep copy
+    );
   }
 
   toReducedRowEchelonForm() {
@@ -76,14 +86,14 @@ export default class Matrix {
 
       let val = this.mtx[r][lead];
       for (let j = 0; j < this.column; j++) {
-        this.mtx[r][j] /= val;
+        this.mtx[r][j] = div(this.mtx[r][j], val);
       }
 
       for (let i = 0; i < this.row; i++) {
         if (i == r) continue;
         val = this.mtx[i][lead];
         for (let j = 0; j < this.column; j++) {
-          this.mtx[i][j] -= val * this.mtx[r][j];
+          this.mtx[i][j] = sub(this.mtx[i][j], mult(val, this.mtx[r][j]));
         }
       }
       lead++;
@@ -105,9 +115,9 @@ export default class Matrix {
       // Do for all rows below pivot
       for (let i = k + 1; i < m; ++i) {
         // Do for all remaining elements in current row:
-        let c = this.mtx[i][k] / this.mtx[k][k];
+        let c = div(this.mtx[i][k], this.mtx[k][k]);
         for (let j = k + 1; j < n; ++j) {
-          this.mtx[i][j] = this.mtx[i][j] - this.mtx[k][j] * c;
+          this.mtx[i][j] = sub(this.mtx[i][j], mult(this.mtx[k][j], c));
         }
         // Fill lower triangular matrix with zeros
         this.mtx[i][k] = 0;
@@ -141,9 +151,9 @@ export default class Matrix {
   substitute() {
     let m = this.row;
     for (let i = m - 1; i >= 0; --i) {
-      let x = this.mtx[i][m] / this.mtx[i][i];
+      let x = div(this.mtx[i][m], this.mtx[i][i]);
       for (let j = i - 1; j >= 0; --j) {
-        this.mtx[j][m] -= x * this.mtx[j][i];
+        this.mtx[j][m] = sub(this.mtx[j][m], mult(x, this.mtx[j][i]));
         this.mtx[j][i] = 0;
       }
       this.mtx[i][m] = x;

@@ -1,6 +1,8 @@
-import KnotenJS from '@/components/jsFolder/constructorComponent/jsComponents/Knoten';
-import ResistorJS from '@/components/jsFolder/constructorComponent/jsComponents/Resistor';
-import KlemmeJS from '@/components/jsFolder/constructorComponent/jsComponents/Klemme';
+import {
+  isResistor,
+  isKnotenWithPotential,
+  isKlemme
+} from '@/components/instanceofFunction.js';
 
 import { middle3Points } from '../util/mathFunction';
 
@@ -38,7 +40,7 @@ export default class DreieckToStern {
   is3SameInstance(selectedComp_array) {
     return (
       selectedComp_array.length === 3 &&
-      selectedComp_array.every((comp) => comp instanceof ResistorJS)
+      selectedComp_array.every((comp) => isResistor(comp))
     );
   }
 
@@ -91,10 +93,10 @@ export default class DreieckToStern {
         }
         log('nComp', nComp.symbol);
 
-        if (nComp instanceof KlemmeJS) {
+        if (isKlemme(nComp)) {
           hasOneKlemme = true;
         }
-        if (nComp instanceof KnotenJS && nComp.valuePotentialSource) {
+        if (isKnotenWithPotential(nComp)) {
           hasOnePotentialKnoten = true;
         }
 
@@ -127,20 +129,18 @@ export default class DreieckToStern {
             if (
               icomp.visited ||
               (!icomp.isMultiPin && !icomp.selected) ||
-              (icomp instanceof KlemmeJS &&
-                (hasOneKlemme || hasOnePotentialKnoten)) ||
-              (icomp instanceof KnotenJS &&
-                icomp.valuePotentialSource &&
+              (isKlemme(icomp) && (hasOneKlemme || hasOnePotentialKnoten)) ||
+              (isKnotenWithPotential(icomp) &&
                 (hasOneKlemme || hasOnePotentialKnoten))
             ) {
               log('stop on', icomp.symbol);
               this.circuitCopy.setOnPath(icomp, false);
               continue;
             }
-            if (icomp instanceof KlemmeJS) {
+            if (isKlemme(icomp)) {
               hasOneKlemme = true;
             }
-            if (icomp instanceof KnotenJS && icomp.valuePotentialSource) {
+            if (isKnotenWithPotential(icomp)) {
               hasOnePotentialKnoten = true;
             }
 
@@ -161,10 +161,10 @@ export default class DreieckToStern {
             So I need to check whether I'm on a Klemme or Knoten with PS, and set it to false, so that I can continue searching after the path without these variables being set to true because they're not part of the path.
           */
           if (onPath === 0) {
-            if (nComp instanceof KlemmeJS) {
+            if (isKlemme(nComp)) {
               hasOneKlemme = false;
             }
-            if (nComp instanceof KnotenJS && nComp.valuePotentialSource) {
+            if (isKnotenWithPotential(nComp)) {
               hasOnePotentialKnoten = false;
             }
           } else {
@@ -254,10 +254,10 @@ export default class DreieckToStern {
         }
         log('nComp', nComp.symbol);
 
-        if (nComp instanceof KlemmeJS) {
+        if (isKlemme(nComp)) {
           hasOneKlemme = true;
         }
-        if (nComp instanceof KnotenJS && nComp.valuePotentialSource) {
+        if (isKnotenWithPotential(nComp)) {
           hasOnePotentialKnoten = true;
         }
 
@@ -306,20 +306,18 @@ export default class DreieckToStern {
             if (
               icomp.visited ||
               (!icomp.isMultiPin && !icomp.selected) ||
-              (icomp instanceof KlemmeJS &&
-                (hasOneKlemme || hasOnePotentialKnoten)) ||
-              (icomp instanceof KnotenJS &&
-                icomp.valuePotentialSource &&
+              (isKlemme(icomp) && (hasOneKlemme || hasOnePotentialKnoten)) ||
+              (isKnotenWithPotential(icomp) &&
                 (hasOneKlemme || hasOnePotentialKnoten))
             ) {
               log('stop on', icomp.symbol);
               this.circuitCopy.setOnPath(icomp, false);
               continue;
             }
-            if (icomp instanceof KlemmeJS) {
+            if (isKlemme(icomp)) {
               hasOneKlemme = true;
             }
-            if (icomp instanceof KnotenJS && icomp.valuePotentialSource) {
+            if (isKnotenWithPotential(icomp)) {
               hasOnePotentialKnoten = true;
             }
 
@@ -340,10 +338,10 @@ export default class DreieckToStern {
             So I need to check whether I'm on a Klemme or Knoten with PS, and set it to false, so that I can continue searching after the path without these variables being set to true because they're not part of the path.
           */
           if (onPath === 0) {
-            if (nComp instanceof KlemmeJS) {
+            if (isKlemme(nComp)) {
               hasOneKlemme = false;
             }
-            if (nComp instanceof KnotenJS && nComp.valuePotentialSource) {
+            if (isKnotenWithPotential(nComp)) {
               hasOnePotentialKnoten = false;
             }
           } else {

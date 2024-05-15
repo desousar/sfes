@@ -1,6 +1,9 @@
-import KnotenJS from '../../jsFolder/constructorComponent/jsComponents/Knoten';
-import ResistorJS from '../../jsFolder/constructorComponent/jsComponents/Resistor';
-import KlemmeJS from '@/components/jsFolder/constructorComponent/jsComponents/Klemme';
+import {
+  isResistor,
+  isSimpleKnoten,
+  isKnotenWithPotential,
+  isKlemme
+} from '@/components/instanceofFunction.js';
 
 import { centerBtw2Points } from '@/components/Conversion/util/mathFunction';
 
@@ -38,7 +41,7 @@ export default class SternToStern {
   is3SameInstance(selectedComp_array) {
     return (
       selectedComp_array.length === 3 &&
-      selectedComp_array.every((comp) => comp instanceof ResistorJS)
+      selectedComp_array.every((comp) => isResistor(comp))
     );
   }
 
@@ -66,8 +69,8 @@ export default class SternToStern {
         if (
           !nComp ||
           !nComp.isMultiPin ||
-          nComp instanceof KlemmeJS ||
-          (nComp instanceof KnotenJS && nComp.valuePotentialSource)
+          isKlemme(nComp) ||
+          isKnotenWithPotential(nComp)
         ) {
           continue;
         }
@@ -100,8 +103,8 @@ export default class SternToStern {
 
             if (
               (!icomp.isMultiPin && !icomp.selected) ||
-              icomp instanceof KlemmeJS ||
-              (icomp instanceof KnotenJS && icomp.valuePotentialSource)
+              isKlemme(icomp) ||
+              isKnotenWithPotential(icomp)
             ) {
               log('stop on', icomp.symbol);
               this.circuitCopy.setOnPath(icomp, false);
@@ -160,10 +163,6 @@ export default class SternToStern {
     return false;
   }
 
-  isSimpleKnoten(comp) {
-    return comp instanceof KnotenJS && comp.valuePotentialSource === undefined;
-  }
-
   /*
     1) get the 3 inner pinIds and store for 3) all visited single Knoten
     2) delete the single Knoten (wires are managed automatically)
@@ -211,8 +210,8 @@ export default class SternToStern {
         if (
           !nComp ||
           !nComp.isMultiPin ||
-          nComp instanceof KlemmeJS ||
-          (nComp instanceof KnotenJS && nComp.valuePotentialSource)
+          isKlemme(nComp) ||
+          isKnotenWithPotential(nComp)
         ) {
           continue;
         }
@@ -228,7 +227,7 @@ export default class SternToStern {
 
         this.circuit.setAsVisited(nComp);
 
-        if (this.isSimpleKnoten(nComp)) {
+        if (isSimpleKnoten(nComp)) {
           simpleKnotenToDelete_temp.push(nComp);
         }
 
@@ -274,8 +273,8 @@ export default class SternToStern {
 
             if (
               (!icomp.isMultiPin && !icomp.selected) ||
-              icomp instanceof KlemmeJS ||
-              (icomp instanceof KnotenJS && icomp.valuePotentialSource)
+              isKlemme(icomp) ||
+              isKnotenWithPotential(icomp)
             ) {
               log('stop on', icomp.symbol);
               this.circuit.setOnPath(icomp, false);
@@ -288,7 +287,7 @@ export default class SternToStern {
 
             this.circuit.setAsVisited(icomp);
 
-            if (this.isSimpleKnoten(icomp)) {
+            if (isSimpleKnoten(icomp)) {
               simpleKnotenToDelete_temp.push(icomp);
             }
 

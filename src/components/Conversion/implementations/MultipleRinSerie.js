@@ -1,4 +1,4 @@
-import ResistorJS from '@/components/jsFolder/constructorComponent/jsComponents/Resistor';
+import { isResistor } from '@/components/instanceofFunction.js';
 
 import log from '@/consoleLog';
 
@@ -39,7 +39,7 @@ export default class MultipleRinSerie {
   }
 
   isAllSameInstance(selectedComp_array) {
-    return selectedComp_array.every((comp) => comp instanceof ResistorJS);
+    return selectedComp_array.every((comp) => isResistor(comp));
   }
 
   /*

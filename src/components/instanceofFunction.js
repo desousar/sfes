@@ -5,16 +5,18 @@ export {
   isAmpermeter,
   isVoltmeter,
   isKnoten,
-  isKlemme,
+  isSimpleKnoten,
+  isKnotenWithPotential,
+  isKlemme
 };
 
-import Ampermeter from "./jsFolder/constructorComponent/jsComponents/Ampermeter";
-import CurrentSource from "./jsFolder/constructorComponent/jsComponents/CurrentSource";
-import Klemme from "./jsFolder/constructorComponent/jsComponents/Klemme";
-import Knoten from "./jsFolder/constructorComponent/jsComponents/Knoten";
-import Resistor from "./jsFolder/constructorComponent/jsComponents/Resistor";
-import VoltageSource from "./jsFolder/constructorComponent/jsComponents/VoltageSource";
-import Voltmeter from "./jsFolder/constructorComponent/jsComponents/Voltmeter";
+import Ampermeter from './jsFolder/constructorComponent/jsComponents/Ampermeter';
+import CurrentSource from './jsFolder/constructorComponent/jsComponents/CurrentSource';
+import Klemme from './jsFolder/constructorComponent/jsComponents/Klemme';
+import Knoten from './jsFolder/constructorComponent/jsComponents/Knoten';
+import Resistor from './jsFolder/constructorComponent/jsComponents/Resistor';
+import VoltageSource from './jsFolder/constructorComponent/jsComponents/VoltageSource';
+import Voltmeter from './jsFolder/constructorComponent/jsComponents/Voltmeter';
 
 const isResistor = (comp) => {
   return comp instanceof Resistor;
@@ -34,6 +36,15 @@ const isVoltmeter = (comp) => {
 const isKnoten = (comp) => {
   return comp instanceof Knoten;
 };
+
+const isSimpleKnoten = (comp) => {
+  return isKnoten(comp) && comp.valuePotentialSource === undefined;
+};
+
+const isKnotenWithPotential = (comp) => {
+  return isKnoten(comp) && comp.valuePotentialSource;
+};
+
 const isKlemme = (comp) => {
   return comp instanceof Klemme;
 };

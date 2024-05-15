@@ -1,6 +1,9 @@
-import KnotenJS from '../../jsFolder/constructorComponent/jsComponents/Knoten';
-import ResistorJS from '../../jsFolder/constructorComponent/jsComponents/Resistor';
-import VoltageSrcJS from '../../jsFolder/constructorComponent/jsComponents/VoltageSource';
+import {
+  isResistor,
+  isVoltageSource,
+  isKnoten,
+  isSimpleKnoten
+} from '@/components/instanceofFunction.js';
 
 import {
   centerX2PinsComp,
@@ -48,10 +51,10 @@ export default class TheveninToNorton {
     let oneResistor = false;
     let oneVoltageSrc = false;
     selectedComp_array.some((comp) => {
-      if (comp instanceof ResistorJS) {
+      if (isResistor(comp)) {
         oneResistor = true;
       }
-      if (comp instanceof VoltageSrcJS) {
+      if (isVoltageSource(comp)) {
         oneVoltageSrc = true;
       }
     });
@@ -80,8 +83,7 @@ export default class TheveninToNorton {
         if (
           !(
             nComp.selected ||
-            (nComp instanceof KnotenJS &&
-              nComp.valuePotentialSource === undefined &&
+            (isSimpleKnoten(nComp) &&
               this.circuit.getCountConnection(nComp) === 2)
           )
         ) {
@@ -133,14 +135,12 @@ export default class TheveninToNorton {
     //step 1
     const simpleKnotenToDelete = [];
     const selected_array = this.circuit.getSelectedComponents();
-    const compR =
-      selected_array[0] instanceof ResistorJS
-        ? selected_array[0]
-        : selected_array[1];
-    const compVS =
-      selected_array[0] instanceof VoltageSrcJS
-        ? selected_array[0]
-        : selected_array[1];
+    const compR = isResistor(selected_array[0])
+      ? selected_array[0]
+      : selected_array[1];
+    const compVS = isVoltageSource(selected_array[0])
+      ? selected_array[0]
+      : selected_array[1];
 
     const startComp = selected_array[0];
     this.circuit.setAsVisited(startComp);
@@ -158,8 +158,7 @@ export default class TheveninToNorton {
         if (
           !(
             nComp.selected ||
-            (nComp instanceof KnotenJS &&
-              nComp.valuePotentialSource === undefined &&
+            (isSimpleKnoten(nComp) &&
               this.circuit.getCountConnection(nComp) === 2)
           )
         ) {
@@ -167,7 +166,7 @@ export default class TheveninToNorton {
           return;
         }
 
-        if (nComp instanceof KnotenJS) {
+        if (isKnoten(nComp)) {
           simpleKnotenToDelete.push(nComp);
         }
 

@@ -911,9 +911,9 @@ export default {
         hasMainVal(this.circuit.components) &&
         this.circuit.components.length > 0
       ) {
-        let solver = new CircuitSolver();
+        let solver = new CircuitSolver(this.circuit);
         try {
-          solver.solveWithAttribution(this.circuit);
+          solver.solveWithAttribution();
           EventBus.emit('BBresult');
           EventBus.emit('BBSave');
         } catch (e) {

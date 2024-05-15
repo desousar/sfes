@@ -1,4 +1,4 @@
-import CircuitSolver from '../components/jsFolder/constructorComponent/CircuitSolver.js';
+import CircuitSolver from '@/components/jsFolder/constructorComponent/CircuitSolver.js';
 
 /**
  *
@@ -7,9 +7,9 @@ import CircuitSolver from '../components/jsFolder/constructorComponent/CircuitSo
  * @returns number (number === 0 => success)
  */
 export function unitTest(original, solutionArray) {
-  let solver = new CircuitSolver();
+  let solver = new CircuitSolver(original);
 
-  var projection = solver.solve(original);
+  var projection = solver.solve();
 
   for (let i = 0; i < projection.listOfSubCircuit.length; i++) {
     projection.result[i].mtx.forEach((comp) => {

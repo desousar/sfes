@@ -198,7 +198,7 @@ export default {
       this.solveIqe = undefined;
       this.solveUqe = undefined;
 
-      let solver = new CircuitSolver();
+      let solver = new CircuitSolver(this.circuitcomplet);
       try {
         solver.solve(this.circuitcomplet);
       } catch (e) {
@@ -214,13 +214,9 @@ export default {
         );
       }
       console.log('#############SolverI now#############');
-      let solverI = new CircuitSolver();
+      let solverI = new CircuitSolver(this.circuitcomplet);
       try {
-        this.solveIqe = solverI.solveIqe(
-          this.circuitcomplet,
-          this.firstKlemme,
-          this.secondKlemme
-        );
+        this.solveIqe = solverI.solveIqe(this.firstKlemme, this.secondKlemme);
       } catch (e) {
         this.solveIqe = e;
         console.log(
@@ -233,13 +229,9 @@ export default {
         );
       }
       console.log('#############SolverU now#############');
-      let solverU = new CircuitSolver();
+      let solverU = new CircuitSolver(this.circuitcomplet);
       try {
-        this.solveUqe = solverU.solveUqe(
-          this.circuitcomplet,
-          this.firstKlemme,
-          this.secondKlemme
-        );
+        this.solveUqe = solverU.solveUqe(this.firstKlemme, this.secondKlemme);
       } catch (e) {
         this.solveUqe = e;
         console.log(

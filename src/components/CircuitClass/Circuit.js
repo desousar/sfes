@@ -153,6 +153,61 @@ export default class Circuit {
     return eq; // manipulate circuit eq that is a projection
   }
 
+  checkAndSolveCircuit() {
+    //STEP 1
+    console.log('STEP 1 started');
+    /**
+     * purpose: check that all 2-Pins-components have their main value
+     * => Done before calling checkAndSolveCircuit
+     */
+    try {
+      /* if you run test-circuit in command line comment following function call */
+      this.isCircuitOpen();
+    } catch (e) {
+      throw new Error('ERROR by STEP 1: ' + e.message);
+    }
+    console.log('STEP 1 finished');
+    //STEP 2
+    console.log('STEP 2 started');
+    this.verifyOneKnotenBetweenTwo2PinsKomp();
+    console.log('STEP 2 finished');
+    //STEP 3
+    console.log('STEP 3 started');
+    this.getSubCircuit(this.components[0]);
+    console.log('Number of Subcircuit(s) :', this.listOfSubCircuit.length); //projection.components is now empty !!!
+    console.log('STEP 3 finished');
+
+    //STEP 4
+    console.log('STEP 4 started');
+    this.verifyPotential();
+    console.log('STEP 4 finished');
+
+    //STEP 5
+    console.log('STEP 5 started');
+    this.addOneWireBetweenTwoMultiPinKomp();
+    console.log('STEP 5 finished');
+
+    //Knotenpotentialverfahren
+    console.log('---!!!---Ready for Knotenpotentialverfahren---!!!---');
+    try {
+      this.createAndSolveMatrix();
+    } catch (e) {
+      // throw new Error("ERROR by Knotenpotentialverfahren: " + e.message);
+
+      if (e instanceof InconsistentMatrixError) {
+        throw new InconsistentMatrixError(
+          'ERROR by Knotenpotentialverfahren: ' + e.message
+        );
+      }
+      if (e instanceof ConsistentMatrixInfiniteError) {
+        throw new ConsistentMatrixInfiniteError(
+          'ERROR by Knotenpotentialverfahren: ' + e.message
+        );
+      }
+    }
+    console.log('SOLVED');
+  }
+
   /*--------------------STEP 1--------------------*/
 
   isCircuitOpen() {

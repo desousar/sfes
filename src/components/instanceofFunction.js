@@ -10,13 +10,13 @@ export {
   isKlemme
 };
 
-import Ampermeter from './jsFolder/constructorComponent/jsComponents/Ampermeter';
-import CurrentSource from './jsFolder/constructorComponent/jsComponents/CurrentSource';
-import Klemme from './jsFolder/constructorComponent/jsComponents/Klemme';
-import Knoten from './jsFolder/constructorComponent/jsComponents/Knoten';
-import Resistor from './jsFolder/constructorComponent/jsComponents/Resistor';
-import VoltageSource from './jsFolder/constructorComponent/jsComponents/VoltageSource';
-import Voltmeter from './jsFolder/constructorComponent/jsComponents/Voltmeter';
+import Ampermeter from '@/components/jsFolder/constructorComponent/jsComponents/Ampermeter';
+import CurrentSource from '@/components/jsFolder/constructorComponent/jsComponents/CurrentSource';
+import Klemme from '@/components/jsFolder/constructorComponent/jsComponents/Klemme';
+import Knoten from '@/components/jsFolder/constructorComponent/jsComponents/Knoten';
+import Resistor from '@/components/jsFolder/constructorComponent/jsComponents/Resistor';
+import VoltageSource from '@/components/jsFolder/constructorComponent/jsComponents/VoltageSource';
+import Voltmeter from '@/components/jsFolder/constructorComponent/jsComponents/Voltmeter';
 
 const isResistor = (comp) => {
   return comp instanceof Resistor;

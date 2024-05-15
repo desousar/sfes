@@ -1,4 +1,4 @@
-import BaseComponent from './BaseComponent.js';
+import BaseComponent from '@/components/jsFolder/constructorComponent/BaseComponent.js';
 export {
   valueLeftPin0KompRot0,
   valueTopPin0KompRot0,
@@ -105,19 +105,19 @@ export default class Component extends BaseComponent {
       pin2x = this.x + valueLeftPin1KompRot0;
       pin2y = this.y + valueTopPin1KompRot0;
     } else if (this.rotation === 90) {
-      // TODO change here to adapt to 90°
+      // change here to adapt to 90°
       pin1x = this.x + valueLeftPin0KompRot90;
       pin1y = this.y + valueTopPin0KompRot90;
       pin2x = this.x + valueLeftPin1KompRot90;
       pin2y = this.y + valueTopPin1KompRot90;
     } else if (this.rotation === 180) {
-      // TODO change here to adapt to 180°
+      // change here to adapt to 180°
       pin1x = this.x + valueLeftPin1KompRot0;
       pin1y = this.y + valueTopPin1KompRot0;
       pin2x = this.x + valueLeftPin0KompRot0;
       pin2y = this.y + valueTopPin0KompRot0;
     } else if (this.rotation === 270) {
-      // TODO change here to adapt to 270°
+      // change here to adapt to 270°
       pin1x = this.x + valueLeftPin1KompRot90;
       pin1y = this.y + valueTopPin1KompRot90;
       pin2x = this.x + valueLeftPin0KompRot90;

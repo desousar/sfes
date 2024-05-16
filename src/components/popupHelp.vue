@@ -125,13 +125,7 @@ const props = defineProps({
   currentLanguage: String
 });
 
-const emit = defineEmits([
-  'click',
-  'mousedown',
-  'mouseup',
-  'mousemove',
-  'close'
-]);
+const emit = defineEmits(['close']);
 
 const state = reactive({
   onDraggable: false,

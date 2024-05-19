@@ -15,11 +15,11 @@
     <g
       class="klemmeClass"
       draggable="false"
-      @click="$emit('simpleClick')"
-      @dblclick="$emit('doubleClick')"
-      @mousedown="$emit('mousedown', $event)"
-      @mousemove="$emit('mousemove', $event)"
-      @mouseout="$emit('mouseout')"
+      @click="emit('simpleClick')"
+      @dblclick="emit('doubleClick')"
+      @mousedown="emit('mousedown', $event)"
+      @mousemove="emit('mousemove', $event)"
+      @mouseout="emit('mouseout')"
       inkscape:label="Calque 1"
       inkscape:groupmode="layer"
       id="layer1"
@@ -42,29 +42,30 @@
         cx="60.500099"
         cy="287.05344"
         class="pin"
-        @mousedown="ev => $emit('pin', 0)"
-        @mouseup="ev => $emit('pinMouseUp', 0)"
+        @mousedown="(ev) => emit('pin', 0)"
+        @mouseup="(ev) => emit('pinMouseUp', 0)"
       />
     </g>
   </svg>
 </template>
 
-<script>
-export default {
-  props: {
-    component: Object
-  },
-  emits: [
-    'simpleClick',
-    'dblclick',
-    'mouseup',
-    'mousedown',
-    'mousemove',
-    'mouseout',
-    'pin',
-    'pinMouseUp'
-  ]
-};
+<script setup>
+import { defineProps, defineEmits } from 'vue';
+
+defineProps({
+  component: Object
+});
+
+const emit = defineEmits([
+  'simpleClick',
+  'dblclick',
+  'mouseup',
+  'mousedown',
+  'mousemove',
+  'mouseout',
+  'pin',
+  'pinMouseUp'
+]);
 </script>
 
 <style>

@@ -15,11 +15,11 @@
     <g
       class="knotenClass"
       draggable="false"
-      @click="$emit('simpleClick')"
-      @dblclick="$emit('doubleClick')"
-      @mousedown="$emit('mousedown', $event)"
-      @mousemove="$emit('mousemove', $event)"
-      @mouseout="$emit('mouseout')"
+      @click="emit('simpleClick')"
+      @dblclick="emit('doubleClick')"
+      @mousedown="emit('mousedown', $event)"
+      @mousemove="emit('mousemove', $event)"
+      @mouseout="emit('mouseout')"
       inkscape:label="Calque 1"
       inkscape:groupmode="layer"
       id="layer1"
@@ -42,8 +42,8 @@
         "
         r="8"
         class="pin"
-        @mousedown="ev => $emit('pin', 0)"
-        @mouseup="ev => $emit('pinMouseUp', 0)"
+        @mousedown="(ev) => emit('pin', 0)"
+        @mouseup="(ev) => emit('pinMouseUp', 0)"
       />
     </g>
     <g
@@ -139,14 +139,34 @@
       transform="translate(-81.276361,-45.462418)"
     >
       <path
-        style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.65945935;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+        style="
+          opacity: 1;
+          fill: #000000;
+          fill-opacity: 1;
+          stroke: none;
+          stroke-width: 1.65945935;
+          stroke-linecap: butt;
+          stroke-miterlimit: 4;
+          stroke-dasharray: none;
+          stroke-opacity: 1;
+        "
         d="m 97.385628,108.75209 h 6.000002 v 42 h -6.000002 z"
         id="rect3732-0"
         inkscape:connector-curvature="0"
       />
       <path
         transform="rotate(90)"
-        style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.58302212;stroke-linecap:butt;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+        style="
+          opacity: 1;
+          fill: #000000;
+          fill-opacity: 1;
+          stroke: none;
+          stroke-width: 1.58302212;
+          stroke-linecap: butt;
+          stroke-miterlimit: 4;
+          stroke-dasharray: none;
+          stroke-opacity: 1;
+        "
         d="m 144.75209,-119.49631 h 6 v 38.219943 h -6 z"
         id="rect3732-0-5"
         inkscape:connector-curvature="0"
@@ -155,22 +175,23 @@
   </svg>
 </template>
 
-<script>
-export default {
-  props: {
-    component: Object
-  },
-  emits: [
-    'simpleClick',
-    'dblclick',
-    'mouseup',
-    'mousedown',
-    'mousemove',
-    'mouseout',
-    'pin',
-    'pinMouseUp'
-  ]
-};
+<script setup>
+import { defineProps, defineEmits } from 'vue';
+
+defineProps({
+  component: Object
+});
+
+const emit = defineEmits([
+  'simpleClick',
+  'dblclick',
+  'mouseup',
+  'mousedown',
+  'mousemove',
+  'mouseout',
+  'pin',
+  'pinMouseUp'
+]);
 </script>
 
 <style>

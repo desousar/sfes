@@ -16,11 +16,11 @@
     <g
       class="cursorPointer"
       draggable="false"
-      @click="$emit('simpleClick')"
-      @dblclick="$emit('doubleClick')"
-      @mousedown="$emit('mousedown', $event)"
-      @mousemove="$emit('mousemove', $event)"
-      @mouseout="$emit('mouseout')"
+      @click="emit('simpleClick')"
+      @dblclick="emit('doubleClick')"
+      @mousedown="emit('mousedown', $event)"
+      @mousemove="emit('mousemove', $event)"
+      @mouseout="emit('mouseout')"
       inkscape:label="Calque 1"
       inkscape:groupmode="layer"
       id="layer1"
@@ -510,13 +510,13 @@
         <circle
           v-if="component.showPin1"
           class="pin"
-          @mousedown="ev => $emit('pin', 0)"
-          @mouseup="ev => $emit('pinMouseUp', 0)"
+          @mousedown="(ev) => emit('pin', 0)"
+          @mouseup="(ev) => emit('pinMouseUp', 0)"
           r="5"
           cy="29.202511"
           cx="2.9999013"
           id="pin1EasyToClick"
-          style="opacity: 0;"
+          style="opacity: 0"
         />
         <circle
           v-if="component.showPin2"
@@ -540,15 +540,18 @@
         <circle
           v-if="component.showPin2"
           class="pin"
-          @mousedown="ev => $emit('pin', 1)"
-          @mouseup="ev => $emit('pinMouseUp', 1)"
+          @mousedown="(ev) => emit('pin', 1)"
+          @mouseup="(ev) => emit('pinMouseUp', 1)"
           r="5"
-          style="opacity: 0;"
+          style="opacity: 0"
           id="pin2EasyToClick"
           cx="89.399902"
           cy="29.202511"
         />
-        <g transform="translate(-2.1892392,-47.511653)" id="g105">
+        <g
+          transform="translate(-2.1892392,-47.511653)"
+          id="g105"
+        >
           <circle
             style="
               opacity: 1;
@@ -590,32 +593,32 @@
   </svg>
 </template>
 
-<script>
-export default {
-  props: {
-    component: Object
-  },
-  emits: [
-    'simpleClick',
-    'dblclick',
-    'mouseup',
-    'mousedown',
-    'mousemove',
-    'mouseout',
-    'pin',
-    'pinMouseUp'
-  ],
-  methods: {
-    horizontalOrVerticalClass: function() {
-      return {
-        componentDeg0: this.component.rotation === 0,
-        componentDeg90: this.component.rotation === 90,
-        componentDeg180: this.component.rotation === 180,
-        componentDeg270: this.component.rotation === 270
-      };
-    }
-  }
-};
+<script setup>
+import { defineProps, defineEmits } from 'vue';
+
+const props = defineProps({
+  component: Object
+});
+
+const emit = defineEmits([
+  'simpleClick',
+  'dblclick',
+  'mouseup',
+  'mousedown',
+  'mousemove',
+  'mouseout',
+  'pin',
+  'pinMouseUp'
+]);
+
+function horizontalOrVerticalClass() {
+  return {
+    componentDeg0: props.component.rotation === 0,
+    componentDeg90: props.component.rotation === 90,
+    componentDeg180: props.component.rotation === 180,
+    componentDeg270: props.component.rotation === 270
+  };
+}
 </script>
 
 <style scoped>

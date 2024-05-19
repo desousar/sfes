@@ -24,9 +24,8 @@
     version="1.1"
     id="svg8"
     inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-     -->
-    <!-- <defs id="defs2" /> -->
-    <!-- <sodipodi:namedview
+    <defs id="defs2" />
+    <sodipodi:namedview
       id="base"
       pagecolor="#ffffff"
       borderColor="#666666"
@@ -48,8 +47,8 @@
       fit-margin-left="0"
       fit-margin-right="0"
       fit-margin-bottom="0"
-    /> -->
-    <!-- <metadata id="metadata5">
+    /> 
+    <metadata id="metadata5">
       <rdf:RDF>
         <cc:Work rdf:about>
           <dc:format>image/svg+xml</dc:format>
@@ -61,11 +60,11 @@
     <g
       class="cursorPointer"
       draggable="false"
-      @click="$emit('simpleClick')"
-      @dblclick="$emit('doubleClick')"
-      @mousedown="$emit('mousedown', $event)"
-      @mousemove="$emit('mousemove', $event)"
-      @mouseout="$emit('mouseout')"
+      @click="emit('simpleClick')"
+      @dblclick="emit('doubleClick')"
+      @mousedown="emit('mousedown', $event)"
+      @mousemove="emit('mousemove', $event)"
+      @mouseout="emit('mouseout')"
       inkscape:label="Calque 1"
       inkscape:groupmode="layer"
       id="layer1"
@@ -554,14 +553,14 @@
         />
         <circle
           v-if="component.showPin1"
-          @mousedown="ev => $emit('pin', 0)"
-          @mouseup="ev => $emit('pinMouseUp', 0)"
+          @mousedown="(ev) => emit('pin', 0)"
+          @mouseup="(ev) => emit('pinMouseUp', 0)"
           class="pin"
-          r="5"
+          r="10"
           cy="29.202511"
           cx="2.9999013"
           id="pin1EasyToClick"
-          style="opacity: 0;"
+          style="opacity: 0"
         />
         <circle
           v-if="component.showPin2"
@@ -584,11 +583,11 @@
         />
         <circle
           v-if="component.showPin2"
-          @mousedown="ev => $emit('pin', 1)"
-          @mouseup="ev => $emit('pinMouseUp', 1)"
+          @mousedown="(ev) => emit('pin', 1)"
+          @mouseup="(ev) => emit('pinMouseUp', 1)"
           class="pin"
-          r="5"
-          style="opacity: 0;"
+          r="10"
+          style="opacity: 0"
           id="pin2EasyToClick"
           cx="89.399902"
           cy="29.202511"
@@ -614,32 +613,32 @@
   </svg>
 </template>
 
-<script>
-export default {
-  props: {
-    component: Object
-  },
-  emits: [
-    'simpleClick',
-    'doubleClick',
-    'mouseup',
-    'mousedown',
-    'mousemove',
-    'mouseout',
-    'pin',
-    'pinMouseUp'
-  ],
-  methods: {
-    horizontalOrVerticalClass: function() {
-      return {
-        componentDeg0: this.component.rotation === 0,
-        componentDeg90: this.component.rotation === 90,
-        componentDeg180: this.component.rotation === 180,
-        componentDeg270: this.component.rotation === 270
-      };
-    }
-  }
-};
+<script setup>
+import { defineProps, defineEmits } from 'vue';
+
+const props = defineProps({
+  component: Object
+});
+
+const emit = defineEmits([
+  'simpleClick',
+  'dblclick',
+  'mouseup',
+  'mousedown',
+  'mousemove',
+  'mouseout',
+  'pin',
+  'pinMouseUp'
+]);
+
+function horizontalOrVerticalClass() {
+  return {
+    componentDeg0: props.component.rotation === 0,
+    componentDeg90: props.component.rotation === 90,
+    componentDeg180: props.component.rotation === 180,
+    componentDeg270: props.component.rotation === 270
+  };
+}
 </script>
 
 <style scoped>

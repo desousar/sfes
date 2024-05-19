@@ -165,7 +165,7 @@
         cy="287"
         r="2.3447022"
         class="pin"
-        @click="ev => $emit('pin', 'pin1', 0, ev)"
+        @click="(ev) => $emit('pin', 'pin1', 0, ev)"
       />
       <circle
         v-if="component.showPin2"
@@ -185,12 +185,13 @@
         "
         r="2.3447022"
         class="pin"
-        @click="ev => $emit('pin', 'pin2', 1, ev)"
+        @click="(ev) => $emit('pin', 'pin2', 1, ev)"
       />
     </g>
   </svg>
 </template>
 
+<!-- not used so not updated -->
 <script>
 export default {
   props: {
@@ -205,7 +206,7 @@ export default {
     'mouseout'
   ],
   methods: {
-    horizontalOrVerticalClass: function() {
+    horizontalOrVerticalClass: function () {
       return {
         componentDeg0: this.component.rotation === 0,
         componentDeg90: this.component.rotation === 90,

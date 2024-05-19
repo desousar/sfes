@@ -1,10 +1,16 @@
 <template>
   <div class="globalBar">
-    <div class="dropdown" id="marginL2px">
-      <button class="dropbtn">{{ file[getCurrentLanguage] }}</button>
+    <div
+      class="dropdown"
+      id="marginL2px"
+    >
+      <button class="dropbtn">{{ language.file[getCurrentLanguage] }}</button>
       <div class="dropdown-content">
-        <button class="custom-btn" @click="getEmptyCircuit()">
-          {{ neu[getCurrentLanguage] }}
+        <button
+          class="custom-btn"
+          @click="getEmptyCircuit()"
+        >
+          {{ language.neu[getCurrentLanguage] }}
         </button>
         <label class="custom-labelInput">
           <input
@@ -14,197 +20,260 @@
             @change="openFile"
             @click="onInputClick"
           />
-          {{ open[getCurrentLanguage] }}
+          {{ language.open[getCurrentLanguage] }}
         </label>
         <label class="custom-labelInput">
-          <input type="button" id="fileSave" @click="saveFile()" />
-          {{ saveAs[getCurrentLanguage] }}
+          <input
+            type="button"
+            id="fileSave"
+            @click="saveFile()"
+          />
+          {{ language.saveAs[getCurrentLanguage] }}
         </label>
-        <button class="custom-btn" @click="capture()">
-          {{ exportToPDF_data[getCurrentLanguage] }}
+        <button
+          class="custom-btn"
+          @click="capture()"
+        >
+          {{ language.exportToPDF_data[getCurrentLanguage] }}
         </button>
       </div>
     </div>
-    <div class="dropdown" id="marginL2px">
-      <button class="dropbtn">{{ view_data[getCurrentLanguage] }}</button>
+    <div
+      class="dropdown"
+      id="marginL2px"
+    >
+      <button class="dropbtn">
+        {{ language.view_data[getCurrentLanguage] }}
+      </button>
       <div class="dropdown-content">
-        <button class="custom-btn" @click="a4Format()">
-          <span v-if="a4FormatBool_data" class="mdi mdi-check-bold"></span>
-          {{ a4Format_data[getCurrentLanguage] }}
+        <button
+          class="custom-btn"
+          @click="a4Format()"
+        >
+          <span
+            v-if="state.a4FormatBool_data"
+            class="mdi mdi-check-bold"
+          ></span>
+          {{ language.a4Format_data[getCurrentLanguage] }}
         </button>
-        <button class="custom-btn" @click="gridPoint()">
-          <span v-if="gridPointBool_data" class="mdi mdi-check-bold"></span>
-          {{ gridPoint_data[getCurrentLanguage] }}
+        <button
+          class="custom-btn"
+          @click="gridPoint()"
+        >
+          <span
+            v-if="state.gridPointBool_data"
+            class="mdi mdi-check-bold"
+          ></span>
+          {{ language.gridPoint_data[getCurrentLanguage] }}
         </button>
-        <button class="custom-btn" @click="gridLine()">
-          <span v-if="gridLineBool_data" class="mdi mdi-check-bold"></span>
-          {{ gridLine_data[getCurrentLanguage] }}
+        <button
+          class="custom-btn"
+          @click="gridLine()"
+        >
+          <span
+            v-if="state.gridLineBool_data"
+            class="mdi mdi-check-bold"
+          ></span>
+          {{ language.gridLine_data[getCurrentLanguage] }}
         </button>
       </div>
     </div>
 
-    <div class="dropdown" id="marginL2px">
-      <button class="dropbtn">{{ resolve_data[getCurrentLanguage] }}</button>
+    <div
+      class="dropdown"
+      id="marginL2px"
+    >
+      <button class="dropbtn">
+        {{ language.resolve_data[getCurrentLanguage] }}
+      </button>
       <div class="dropdown-content">
-        <button class="custom-btn" @click="solve()">
-          {{ solve_data[getCurrentLanguage] }}
+        <button
+          class="custom-btn"
+          @click="solve()"
+        >
+          {{ language.solve_data[getCurrentLanguage] }}
         </button>
-        <button class="custom-btn" @click="equivalentSource()">
-          {{ equivalent[getCurrentLanguage] }}
+        <button
+          class="custom-btn"
+          @click="equivalentSource()"
+        >
+          {{ language.equivalent[getCurrentLanguage] }}
         </button>
       </div>
     </div>
 
-    <div class="dropdown" id="marginL2px">
-      <button class="dropbtn" @click="settings()">
-        {{ setting_data[getCurrentLanguage] }}
+    <div
+      class="dropdown"
+      id="marginL2px"
+    >
+      <button
+        class="dropbtn"
+        @click="settings()"
+      >
+        {{ language.setting_data[getCurrentLanguage] }}
       </button>
     </div>
 
-    <div class="dropdown" id="marginL2px">
-      <button class="dropbtn">{{ help_data[getCurrentLanguage] }}</button>
+    <div
+      class="dropdown"
+      id="marginL2px"
+    >
+      <button class="dropbtn">
+        {{ language.help_data[getCurrentLanguage] }}
+      </button>
       <div class="dropdown-content">
-        <button class="custom-btn" @click="help()">
-          {{ help_data[getCurrentLanguage] }}
+        <button
+          class="custom-btn"
+          @click="help()"
+        >
+          {{ language.help_data[getCurrentLanguage] }}
         </button>
-        <button class="custom-btn" @click="aboutUs()">
-          {{ aboutUs_data[getCurrentLanguage] }}
+        <button
+          class="custom-btn"
+          @click="aboutUs()"
+        >
+          {{ language.aboutUs_data[getCurrentLanguage] }}
         </button>
       </div>
     </div>
 
     <div class="title">
-      <img class="logo" alt="BeNet" src="../assets/logo.svg" />
+      <img
+        class="logo"
+        alt="BeNet"
+        src="../assets/logo.svg"
+      />
       <div id="descContainer">
-        <p id="titledescription">{{ titledescription1[getCurrentLanguage] }}</p>
-        <p id="titledescription">{{ titledescription2[getCurrentLanguage] }}</p>
+        <p id="titledescription">
+          {{ language.titledescription1[getCurrentLanguage] }}
+        </p>
+        <p id="titledescription">
+          {{ language.titledescription2[getCurrentLanguage] }}
+        </p>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-import EventBus from './jsFolder/event-bus.js';
+<script setup>
+import { ref, reactive, computed, defineProps } from 'vue';
 
-export default {
-  props: {
-    //variable, who I obtain from App.vue (one stage up of this stage)
-    //I need to give the type, after that I can us it into html part like {{...}}
-    currentLanguage: String
+import EventBus from '@/components/jsFolder/event-bus.js';
+
+const props = defineProps({
+  currentLanguage: String
+});
+
+const state = reactive({
+  a4FormatBool_data: false,
+  gridPointBool_data: false,
+  gridLineBool_data: false
+});
+const language = reactive({
+  file: { en: 'File', de: 'Datei' },
+  neu: { en: 'New', de: 'Neu' },
+  open: { en: 'Open', de: 'Öffnen' },
+  saveAs: { en: 'Save As', de: 'Speichern als' },
+  edit: { en: 'Edit', de: 'Bearbeiten' },
+  copy: { en: 'Copy', de: 'Kopieren' },
+  cut: { en: 'Cut', de: 'Schneiden' },
+  paste: { en: 'Paste', de: 'Einfügen' },
+  exportToPDF_data: { en: 'Export to PDF', de: 'Export to PDF' },
+  view_data: { en: 'View', de: 'Ansicht' },
+  a4Format_data: {
+    en: 'Show Page Limit (A4)',
+    de: 'Seitengrenze anzeigen (A4)'
   },
-  emits: ['click'],
-  data() {
-    return {
-      file: { en: 'File', de: 'Datei' },
-      neu: { en: 'New', de: 'Neu' },
-      open: { en: 'Open', de: 'Öffnen' },
-      saveAs: { en: 'Save As', de: 'Speichern als' },
-      edit: { en: 'Edit', de: 'Bearbeiten' },
-      copy: { en: 'Copy', de: 'Kopieren' },
-      cut: { en: 'Cut', de: 'Schneiden' },
-      paste: { en: 'Paste', de: 'Einfügen' },
-      exportToPDF_data: { en: 'Export to PDF', de: 'Export to PDF' },
-      view_data: { en: 'View', de: 'Ansicht' },
-      a4Format_data: {
-        en: 'Show Page Limit (A4)',
-        de: 'Seitengrenze anzeigen (A4)'
-      },
-      gridPoint_data: {
-        en: 'Show Grid Point',
-        de: 'Rasterpunkte anzeigen'
-      },
-      gridLine_data: {
-        en: 'Show Grid Line',
-        de: 'Rasterlinien anzeigen'
-      },
-      resolve_data: { en: 'Resolve', de: 'Lösen' },
-      solve_data: { en: 'Solve circuit', de: 'Schaltung berechnen' },
-      equivalent: { en: 'Equivalent source', de: 'Ersatzquelle' },
-      setting_data: { en: 'Settings', de: 'Einstellungen' },
-      help_data: { en: 'Help', de: 'Hilfe' },
-      aboutUs_data: { en: 'About us', de: 'Über uns' },
-      titledescription1: {
-        en: 'Simulation tool for',
-        de: 'Simulationstool für'
-      },
-      titledescription2: {
-        en: 'electronic circuits',
-        de: 'elektronische Schaltungen'
-      },
-
-      a4FormatBool_data: false,
-      gridPointBool_data: false,
-      gridLineBool_data: false
-    };
+  gridPoint_data: {
+    en: 'Show Grid Point',
+    de: 'Rasterpunkte anzeigen'
   },
-  computed: {
-    getCurrentLanguage() {
-      return this.currentLanguage;
-    }
+  gridLine_data: {
+    en: 'Show Grid Line',
+    de: 'Rasterlinien anzeigen'
   },
-  methods: {
-    capture() {
-      EventBus.emit('MBcapture');
-    },
-    a4Format() {
-      this.a4FormatBool_data = !this.a4FormatBool_data;
-      EventBus.emit('MBa4Format', this.a4FormatBool_data);
-    },
-    gridPoint() {
-      this.gridPointBool_data = !this.gridPointBool_data;
-      EventBus.emit('MBsetGridPoint', this.gridPointBool_data);
-      if (this.gridLineBool_data) {
-        this.gridLineBool_data = !this.gridLineBool_data;
-        EventBus.emit('MBsetGridLine', this.gridLineBool_data);
-      }
-    },
-    gridLine() {
-      this.gridLineBool_data = !this.gridLineBool_data;
-      EventBus.emit('MBsetGridLine', this.gridLineBool_data);
-      if (this.gridPointBool_data) {
-        this.gridPointBool_data = !this.gridPointBool_data;
-        EventBus.emit('MBsetGridPoint', this.gridPointBool_data);
-      }
-    },
-    solve() {
-      EventBus.emit('MBsolve');
-    },
-
-    openFile() {
-      if (
-        confirm(
-          'The current file will be deleted when you create a new one. Are you sure ?'
-        )
-      ) {
-        console.log('openFile');
-        EventBus.emit('MBopenFile');
-      }
-    },
-    onInputClick() {
-      console.log('reset fileupload value');
-      this.$refs.fileupload.value = null;
-    },
-
-    saveFile() {
-      EventBus.emit('MBsaveFile');
-    },
-    equivalentSource() {
-      EventBus.emit('MBequivalentSource');
-    },
-    getEmptyCircuit() {
-      EventBus.emit('MBgetEmptyCircuit');
-    },
-    settings() {
-      EventBus.emit('MBsettings');
-    },
-    help() {
-      EventBus.emit('MBhelp');
-    },
-    aboutUs() {
-      EventBus.emit('MBaboutUs');
-    }
+  resolve_data: { en: 'Resolve', de: 'Lösen' },
+  solve_data: { en: 'Solve circuit', de: 'Schaltung berechnen' },
+  equivalent: { en: 'Equivalent source', de: 'Ersatzquelle' },
+  setting_data: { en: 'Settings', de: 'Einstellungen' },
+  help_data: { en: 'Help', de: 'Hilfe' },
+  aboutUs_data: { en: 'About us', de: 'Über uns' },
+  titledescription1: {
+    en: 'Simulation tool for',
+    de: 'Simulationstool für'
+  },
+  titledescription2: {
+    en: 'electronic circuits',
+    de: 'elektronische Schaltungen'
   }
-};
+});
+
+const getCurrentLanguage = computed(() => {
+  return props.currentLanguage;
+});
+
+function capture() {
+  EventBus.emit('MBcapture');
+}
+function a4Format() {
+  state.a4FormatBool_data = !state.a4FormatBool_data;
+  EventBus.emit('MBa4Format', state.a4FormatBool_data);
+}
+function gridPoint() {
+  state.gridPointBool_data = !state.gridPointBool_data;
+  EventBus.emit('MBsetGridPoint', state.gridPointBool_data);
+  if (state.gridLineBool_data) {
+    state.gridLineBool_data = !state.gridLineBool_data;
+    EventBus.emit('MBsetGridLine', state.gridLineBool_data);
+  }
+}
+function gridLine() {
+  state.gridLineBool_data = !state.gridLineBool_data;
+  EventBus.emit('MBsetGridLine', state.gridLineBool_data);
+  if (state.gridPointBool_data) {
+    state.gridPointBool_data = !state.gridPointBool_data;
+    EventBus.emit('MBsetGridPoint', state.gridPointBool_data);
+  }
+}
+function solve() {
+  EventBus.emit('MBsolve');
+}
+
+function openFile() {
+  if (
+    confirm(
+      'The current file will be deleted when you create a new one. Are you sure ?'
+    )
+  ) {
+    console.log('openFile');
+    EventBus.emit('MBopenFile');
+  }
+}
+
+const fileupload = ref(null);
+function onInputClick() {
+  console.log('reset fileupload value');
+  fileupload.value = null;
+}
+
+function saveFile() {
+  EventBus.emit('MBsaveFile');
+}
+function equivalentSource() {
+  EventBus.emit('MBequivalentSource');
+}
+function getEmptyCircuit() {
+  EventBus.emit('MBgetEmptyCircuit');
+}
+function settings() {
+  EventBus.emit('MBsettings');
+}
+function help() {
+  EventBus.emit('MBhelp');
+}
+function aboutUs() {
+  EventBus.emit('MBaboutUs');
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

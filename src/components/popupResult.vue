@@ -1,7 +1,10 @@
 <!-- src : https://www.digitalocean.com/community/tutorials/vuejs-vue-modal-component -->
 <template>
   <transition name="modal-fade">
-    <div class="modal-backdrop" @click="outsideClick">
+    <div
+      class="modal-backdrop"
+      @click="outsideClick"
+    >
       <div
         class="modalRes"
         id="modalResId"
@@ -19,12 +22,15 @@
         >
           <slot name="header">
             Result <br />
-            {{ success_data[getCurrentLanguage] }}
-            <button @click="exportResult()" @mousedown.stop="">
+            {{ language.success_data[getCurrentLanguage] }}
+            <button
+              @click="exportResult()"
+              @mousedown.stop=""
+            >
               export result
             </button>
             <button
-              style="float:right"
+              style="float: right"
               type="button"
               class="btn-green"
               @click="close()"
@@ -35,7 +41,10 @@
             </button>
           </slot>
         </header>
-        <section class="modalRes-body" id="modalResDescription">
+        <section
+          class="modalRes-body"
+          id="modalResDescription"
+        >
           <slot name="body">
             <div id="dvTable"></div>
             <!-- <table>
@@ -48,108 +57,112 @@
   </transition>
 </template>
 
-<script>
-import '@mdi/font/css/materialdesignicons.css';
+<script setup>
+import {
+  reactive,
+  toRefs,
+  computed,
+  watch,
+  defineProps,
+  defineEmits
+} from 'vue';
 
-export default {
-  props: {
-    arrayComponents: Array,
-    currentLanguage: String,
-    isPopupResultVisible: Boolean
-  },
-  emits: ['click', 'mousedown', 'mouseup', 'mousemove', 'close'],
-  data() {
-    return {
-      onDraggable: false,
-      shiftX: undefined,
-      shiftY: undefined,
-      isResultVisible: false,
+const props = defineProps({
+  arrayComponents: Array,
+  currentLanguage: String,
+  isPopupResultVisible: Boolean
+});
 
-      success_data: {
-        en: 'calculation was successful',
-        de: 'die Berechnung war erfolgreich'
-      }
-    };
-  },
-  watch: {
-    isPopupResultVisible: function(newVal) {
-      if (newVal) {
-        this.printResult();
-      }
-    }
-  },
-  computed: {
-    getCurrentLanguage: function() {
-      return this.currentLanguage;
-    }
-  },
-  methods: {
-    outsideClick() {
-      this.close();
-    },
-    moveStart(e) {
-      this.onDraggable = true;
-      this.shiftX = e.offsetX; //where I click inside Component
-      this.shiftY = e.offsetY;
-    },
-    moveMotion(e) {
-      if (this.onDraggable) {
-        const modalDiv = document.getElementById('modalResId');
-        const valueLeft = e.clientX - this.shiftX;
-        const valueTop = e.clientY - this.shiftY;
-        modalDiv.style.left = valueLeft + 'px';
-        modalDiv.style.top = valueTop + 'px';
-      }
-    },
-    moveEnd(e) {
-      this.moveMotion(e);
-      this.onDraggable = false;
-    },
-    exportResult() {
-      console.log('export');
-      let data = '';
-      this.arrayComponents.forEach(comp => {
-        /*each component has its own function to display a row in the table*/
-        data += comp.getExportString();
-        data += '\n';
-      });
-      // Convert the text to BLOB.
-      const textToBLOB = new Blob([data], {
-        type: 'text/plain;charset=utf-8'
-      });
-      const sFileName = 'SfeS-result.txt'; // The file to save the data.
-      let newLink = document.createElement('a');
-      newLink.download = sFileName;
-
-      if (window.webkitURL != null) {
-        newLink.href = window.webkitURL.createObjectURL(textToBLOB);
-      } else {
-        newLink.href = window.URL.createObjectURL(textToBLOB);
-      }
-      newLink.style.display = 'none';
-      document.body.appendChild(newLink);
-      newLink.click();
-      document.body.removeChild(newLink);
-    },
-    printResult() {
-      var table = document.createElement('table');
-      table.className = 'table';
-
-      this.arrayComponents.forEach(comp => {
-        if (!comp.isMultiPin) {
-          /*each component has its own function to display a row in the table*/
-          comp.getPopupResultRow(table);
-        }
-      });
-      document.getElementById('dvTable').appendChild(table);
-    },
-
-    close() {
-      document.getElementById('dvTable').innerHTML = '';
-      this.$emit('close');
-    }
+const { isPopupResultVisible } = toRefs(props);
+watch(isPopupResultVisible, (newVal) => {
+  if (newVal) {
+    printResult();
   }
-};
+});
+
+const emit = defineEmits(['close']);
+
+const state = reactive({
+  onDraggable: false,
+  shiftX: undefined,
+  shiftY: undefined
+});
+const language = reactive({
+  success_data: {
+    en: 'calculation was successful',
+    de: 'die Berechnung war erfolgreich'
+  }
+});
+
+const getCurrentLanguage = computed(() => {
+  return props.currentLanguage;
+});
+
+function outsideClick() {
+  close();
+}
+function moveStart(e) {
+  state.onDraggable = true;
+  state.shiftX = e.offsetX; //where I click inside Component
+  state.shiftY = e.offsetY;
+}
+function moveMotion(e) {
+  if (state.onDraggable) {
+    const modalDiv = document.getElementById('modalResId');
+    const valueLeft = e.clientX - state.shiftX;
+    const valueTop = e.clientY - state.shiftY;
+    modalDiv.style.left = valueLeft + 'px';
+    modalDiv.style.top = valueTop + 'px';
+  }
+}
+function moveEnd(e) {
+  moveMotion(e);
+  state.onDraggable = false;
+}
+
+function exportResult() {
+  console.log('export');
+  let data = '';
+  props.arrayComponents.forEach((comp) => {
+    /*each component has its own function to display a row in the table*/
+    data += comp.getExportString();
+    data += '\n';
+  });
+  // Convert the text to BLOB.
+  const textToBLOB = new Blob([data], {
+    type: 'text/plain;charset=utf-8'
+  });
+  const sFileName = 'SfeS-result.txt'; // The file to save the data.
+  let newLink = document.createElement('a');
+  newLink.download = sFileName;
+
+  if (window.webkitURL != null) {
+    newLink.href = window.webkitURL.createObjectURL(textToBLOB);
+  } else {
+    newLink.href = window.URL.createObjectURL(textToBLOB);
+  }
+  newLink.style.display = 'none';
+  document.body.appendChild(newLink);
+  newLink.click();
+  document.body.removeChild(newLink);
+}
+function printResult() {
+  var table = document.createElement('table');
+  table.className = 'table';
+
+  props.arrayComponents.forEach((comp) => {
+    if (!comp.isMultiPin) {
+      /*each component has its own function to display a row in the table*/
+      comp.getPopupResultRow(table);
+    }
+  });
+  document.getElementById('dvTable').appendChild(table);
+}
+
+function close() {
+  document.getElementById('dvTable').innerHTML = '';
+  emit('close');
+}
 </script>
 
 <style>

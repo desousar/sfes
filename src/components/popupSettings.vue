@@ -73,7 +73,7 @@
 <script setup>
 import { reactive, computed, defineProps, defineEmits } from 'vue';
 
-import EventBus from './jsFolder/event-bus.js';
+import EventBus from '@/components/jsFolder/event-bus.js';
 
 const props = defineProps({
   currentLanguage: String,

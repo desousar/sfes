@@ -57,7 +57,7 @@
 <script setup>
 import { reactive, computed, defineProps, defineEmits } from 'vue';
 
-import { version } from '../../package.json';
+import { version } from '@/../package.json';
 
 const props = defineProps({
   currentLanguage: String

@@ -3,7 +3,7 @@
 <template>
   <transition
     name="modal-fade"
-    v-if="compoToPass"
+    v-if="state.compoToPass"
   >
     <div
       class="modal-backdrop"
@@ -24,7 +24,9 @@
           id="popupCompTitle"
           @mousedown="moveStart($event)"
         >
-          <slot name="header"> {{ select_data[getCurrentLanguage] }} </slot>
+          <slot name="header">
+            {{ language.select_data[getCurrentLanguage] }}
+          </slot>
           <button
             style="float: right"
             type="button"
@@ -45,38 +47,38 @@
             <input
               type="text"
               id="newID"
-              :value="compoToPass.symbol"
+              :value="state.compoToPass.symbol"
             />
             <div></div>
           </slot>
 
-          <slot v-if="isResistor()">
+          <slot v-if="isResistor(state.compoToPass)">
             <div>R =</div>
             <input
               type="number"
               id="newValueR"
               :value="
-                compoToPass.valueR === undefined
+                state.compoToPass.valueR === undefined
                   ? undefined
-                  : compoToPass.valueR
+                  : state.compoToPass.valueR
               "
               placeholder="undefined"
             />
             <div>&#8486;</div>
           </slot>
 
-          <slot v-if="isKnoten()">
+          <slot v-if="isKnoten(state.compoToPass)">
             <div>
-              Potential {{ source_data[getCurrentLanguage] }}
+              Potential {{ language.source_data[getCurrentLanguage] }}
               =
             </div>
             <input
               type="number"
               id="newValuePotential"
               :value="
-                compoToPass.valuePotentialSource === undefined
+                state.compoToPass.valuePotentialSource === undefined
                   ? undefined
-                  : compoToPass.valuePotentialSource
+                  : state.compoToPass.valuePotentialSource
               "
               placeholder="undefined"
             />
@@ -84,31 +86,33 @@
           </slot>
 
           <!--disabled input-->
-          <slot v-if="isKnoten() || isKlemme()">
+          <slot
+            v-if="isKnoten(state.compoToPass) || isKlemme(state.compoToPass)"
+          >
             <div>Potential =</div>
             <input
               disabled
               type="number"
               id="newValuePhiDisabled"
               :value="
-                compoToPass.valuePhi === undefined
+                state.compoToPass.valuePhi === undefined
                   ? undefined
-                  : compoToPass.valuePhi
+                  : state.compoToPass.valuePhi
               "
               placeholder="not yet available"
             />
             <div>V</div>
           </slot>
 
-          <slot v-if="isVoltageSource()">
+          <slot v-if="isVoltageSource(state.compoToPass)">
             <div>U =</div>
             <input
               type="number"
               id="newValueU"
               :value="
-                compoToPass.valueU === undefined
+                state.compoToPass.valueU === undefined
                   ? undefined
-                  : compoToPass.valueU
+                  : state.compoToPass.valueU
               "
               placeholder="undefined"
             />
@@ -118,10 +122,10 @@
           <!--disabled input-->
           <slot
             v-if="
-              isResistor() ||
-              isKnotenWithPotentialSrc() ||
-              isVoltageSource() ||
-              isAmpermeter()
+              isResistor(state.compoToPass) ||
+              isKnotenWithPotential(state.compoToPass) ||
+              isVoltageSource(state.compoToPass) ||
+              isAmpermeter(state.compoToPass)
             "
           >
             <div>I =</div>
@@ -130,24 +134,24 @@
               type="number"
               id="newValueIDisabled"
               :value="
-                compoToPass.valueI === undefined
+                state.compoToPass.valueI === undefined
                   ? undefined
-                  : compoToPass.valueI
+                  : state.compoToPass.valueI
               "
               placeholder="not yet available"
             />
             <div>A</div>
           </slot>
 
-          <slot v-if="isCurrentSource()">
+          <slot v-if="isCurrentSource(state.compoToPass)">
             <div>I =</div>
             <input
               type="number"
               id="newValueI"
               :value="
-                compoToPass.valueI === undefined
+                state.compoToPass.valueI === undefined
                   ? undefined
-                  : compoToPass.valueI
+                  : state.compoToPass.valueI
               "
               placeholder="undefined"
             />
@@ -155,16 +159,22 @@
           </slot>
 
           <!--disabled input-->
-          <slot v-if="isResistor() || isCurrentSource() || isVoltmeter()">
+          <slot
+            v-if="
+              isResistor(state.compoToPass) ||
+              isCurrentSource(state.compoToPass) ||
+              isVoltmeter(state.compoToPass)
+            "
+          >
             <div>U =</div>
             <input
               disabled
               type="number"
               id="newValueUDisabled"
               :value="
-                compoToPass.valueU === undefined
+                state.compoToPass.valueU === undefined
                   ? undefined
-                  : compoToPass.valueU
+                  : state.compoToPass.valueU
               "
               placeholder="not yet available"
             />
@@ -172,49 +182,59 @@
           </slot>
 
           <!--disabled input-->
-          <slot v-if="isResistor()">
+          <slot v-if="isResistor(state.compoToPass)">
             <div>P =</div>
             <input
               disabled
               type="number"
               id="newValuePDisabled"
               :value="
-                compoToPass.valueP === undefined
+                state.compoToPass.valueP === undefined
                   ? undefined
-                  : compoToPass.valueP
+                  : state.compoToPass.valueP
               "
               placeholder="not yet available"
             />
             <div>W</div>
           </slot>
-          <slot v-if="isResistor()">
+          <slot v-if="isResistor(state.compoToPass)">
             <div></div>
-            <div>({{ verLeistung[getCurrentLanguage] }})</div>
+            <div>({{ language.verLeistung[getCurrentLanguage] }})</div>
           </slot>
 
           <!--disabled input-->
-          <slot v-if="isCurrentSource() || isVoltageSource()">
+          <slot
+            v-if="
+              isCurrentSource(state.compoToPass) ||
+              isVoltageSource(state.compoToPass)
+            "
+          >
             <div>P =</div>
             <input
               disabled
               type="number"
               id="newValuePDisabled"
               :value="
-                compoToPass.valueP === undefined
+                state.compoToPass.valueP === undefined
                   ? undefined
-                  : compoToPass.valueP
+                  : state.compoToPass.valueP
               "
               placeholder="not yet available"
             />
             <div>W</div>
           </slot>
-          <slot v-if="isCurrentSource() || isVoltageSource()">
+          <slot
+            v-if="
+              isCurrentSource(state.compoToPass) ||
+              isVoltageSource(state.compoToPass)
+            "
+          >
             <div></div>
-            <div>({{ erzLeistung[getCurrentLanguage] }})</div>
+            <div>({{ language.erzLeistung[getCurrentLanguage] }})</div>
           </slot>
         </section>
         <!--button as shortcut to delete value of Potential-->
-        <section v-if="isKnoten()">
+        <section v-if="isKnoten(state.compoToPass)">
           <button
             class="btn-width40pct"
             @click="deletePotentialvalue()"
@@ -223,23 +243,23 @@
           </button>
         </section>
         <!--possibility to "play" with current and voltage only if component isn't MultiPin-->
-        <section v-if="!compoToPass.isMultiPin">
+        <section v-if="!state.compoToPass.isMultiPin">
           <section class="oneLine">
             <button
               class="btn-width40pct"
               @click="flipdirU()"
             >
-              flip {{ voltage_data[getCurrentLanguage] }} arrow
+              flip {{ language.voltage_data[getCurrentLanguage] }} arrow
             </button>
             <button
               class="btn-width40pct"
               @click="flipdirI()"
             >
-              flip {{ current_data[getCurrentLanguage] }} arrow
+              flip {{ language.current_data[getCurrentLanguage] }} arrow
             </button>
           </section>
           <section class="checkboxArrow">
-            <div>{{ checkboxArrow_data[getCurrentLanguage] }}</div>
+            <div>{{ language.checkboxArrow_data[getCurrentLanguage] }}</div>
             <div>
               <input
                 type="checkbox"
@@ -248,7 +268,8 @@
                 :checked="controlDirU()"
               />
               <label
-                >display {{ voltage_data[getCurrentLanguage] }} arrow</label
+                >display
+                {{ language.voltage_data[getCurrentLanguage] }} arrow</label
               >
             </div>
             <div>
@@ -259,7 +280,8 @@
                 :checked="controlDirI()"
               />
               <label
-                >display {{ current_data[getCurrentLanguage] }} arrow</label
+                >display
+                {{ language.current_data[getCurrentLanguage] }} arrow</label
               >
             </div>
           </section>
@@ -282,15 +304,24 @@
         <!--this line (span block) will be used if a value is not conform-->
         <span
           id="alertHint"
-          :style="'color:' + alertHint.color"
-          >{{ alertHint.message }}</span
+          :style="'color:' + state.alertHint.color"
+          >{{ state.alertHint.message }}</span
         >
       </div>
     </div>
   </transition>
 </template>
 
-<script>
+<script setup>
+import {
+  reactive,
+  toRefs,
+  computed,
+  watch,
+  defineProps,
+  defineEmits
+} from 'vue';
+
 import {
   isResistor,
   isCurrentSource,
@@ -298,412 +329,381 @@ import {
   isAmpermeter,
   isVoltmeter,
   isKnoten,
+  isKnotenWithPotential,
   isKlemme
-} from './instanceofFunction.js';
+} from '@/components/instanceofFunction.js';
 
-export default {
-  props: {
-    theCompoToPass: Object,
-    arrayComponents: Array,
-    currentLanguage: String,
-    isPopupCompVisible: Boolean
-  },
-  emits: ['click', 'mouseup', 'mousedown', 'mousemove', 'close'],
-  data() {
-    return {
-      compoToPass: null,
-      onDraggable: false,
-      shiftX: undefined,
-      shiftY: undefined,
-      valueIsModified: false,
-      alertHint: { color: null, message: null },
+const props = defineProps({
+  theCompoToPass: Object,
+  arrayComponents: Array,
+  currentLanguage: String,
+  isPopupCompVisible: Boolean
+});
 
-      select_data: {
-        en: 'You have selected a component',
-        de: 'Sie haben eine Komponente ausgewählt'
-      },
-      source_data: { en: 'Source', de: 'Quelle' },
-      erzLeistung: { en: 'generated power', de: 'erzeugte Leistung' },
-      verLeistung: { en: 'consumed power', de: 'verbrauchte Leistung' },
-      current_data: { en: 'current', de: 'strom' },
-      voltage_data: { en: 'voltage', de: 'spannung' },
-      checkboxArrow_data: {
-        en: 'Check which elements should be displayed:',
-        de: 'Anhaken welche Elemente angezeigt werden sollen:'
-      }
-    };
+const { isPopupCompVisible } = toRefs(props);
+watch(isPopupCompVisible, (newVal) => {
+  if (newVal) {
+    state.compoToPass = props.theCompoToPass;
+    //graphical aspect
+    attributionTemp();
+  }
+});
+
+const emit = defineEmits(['close']);
+
+const state = reactive({
+  compoToPass: null,
+  onDraggable: false,
+  shiftX: undefined,
+  shiftY: undefined,
+  valueIsModified: false,
+  alertHint: { color: null, message: null }
+});
+const language = reactive({
+  select_data: {
+    en: 'You have selected a component',
+    de: 'Sie haben eine Komponente ausgewählt'
   },
-  watch: {
-    isPopupCompVisible: function (newVal) {
-      if (newVal) {
-        this.compoToPass = this.theCompoToPass;
-        //graphical aspect
-        this.attributionTemp();
+  source_data: { en: 'Source', de: 'Quelle' },
+  erzLeistung: { en: 'generated power', de: 'erzeugte Leistung' },
+  verLeistung: { en: 'consumed power', de: 'verbrauchte Leistung' },
+  current_data: { en: 'current', de: 'strom' },
+  voltage_data: { en: 'voltage', de: 'spannung' },
+  checkboxArrow_data: {
+    en: 'Check which elements should be displayed:',
+    de: 'Anhaken welche Elemente angezeigt werden sollen:'
+  }
+});
+
+const getCurrentLanguage = computed(() => {
+  return props.currentLanguage;
+});
+
+function attributionTemp() {
+  if (!state.compoToPass.showIdir0 && !state.compoToPass.showIdir1) {
+    state.compoToPass.directionI === 0
+      ? (state.compoToPass.showIdir0Temp = true)
+      : (state.compoToPass.showIdir1Temp = true);
+  }
+  if (!state.compoToPass.showUdir0 && !state.compoToPass.showUdir1) {
+    state.compoToPass.directionU === 0
+      ? (state.compoToPass.showUdir0Temp = true)
+      : (state.compoToPass.showUdir1Temp = true);
+  }
+}
+
+function moveStart(e) {
+  state.onDraggable = true;
+  state.shiftX = e.offsetX; //where I click inside Component
+  state.shiftY = e.offsetY;
+}
+function moveMotion(e) {
+  if (state.onDraggable) {
+    const modalDiv = document.getElementById('popupCompId');
+    const valueLeft = e.clientX - state.shiftX;
+    const valueTop = e.clientY - state.shiftY;
+    modalDiv.style.left = valueLeft + 'px';
+    modalDiv.style.top = valueTop + 'px';
+  }
+}
+function moveEnd(e) {
+  moveMotion(e);
+  state.onDraggable = false;
+}
+
+/**
+ * function for symbol
+ */
+function showSymbolisChecked() {
+  /**
+   * allows to save the data, freshly inserted in the inputBlocks,
+   * in the component in order not to lose them when a checkbox or button is checked.
+   */
+  assertAttribution();
+  state.compoToPass.showSymbol = !state.compoToPass.showSymbol;
+}
+function controlshowSymbol() {
+  return state.compoToPass.showSymbol;
+}
+
+/**
+ * function for current
+ */
+function flipdirI() {
+  /**
+   * allows to save the data, freshly inserted in the inputBlocks,
+   * in the component in order not to lose them when a checkbox or button is checked.
+   */
+  assertAttribution();
+
+  //input field modification
+  if (state.compoToPass.valueI) {
+    state.compoToPass.valueI = state.compoToPass.valueI * -1;
+  }
+
+  //graphical aspect
+  if (state.compoToPass.directionI === 0) {
+    state.compoToPass.directionI = 1;
+    if (document.getElementById('displayDirI').checked) {
+      state.compoToPass.showIdir0 = false;
+      state.compoToPass.showIdir1 = true;
+    } else {
+      state.compoToPass.showIdir0Temp = false;
+      state.compoToPass.showIdir1Temp = true;
+    }
+  } else if (state.compoToPass.directionI === 1) {
+    state.compoToPass.directionI = 0;
+    if (document.getElementById('displayDirI').checked) {
+      state.compoToPass.showIdir0 = true;
+      state.compoToPass.showIdir1 = false;
+    } else {
+      state.compoToPass.showIdir0Temp = true;
+      state.compoToPass.showIdir1Temp = false;
+    }
+  }
+  state.alertHint.color = 'green';
+  state.alertHint.message = `flip ${
+    language.current_data[getCurrentLanguage.value]
+  } direction done`;
+}
+function DirIisChecked() {
+  /**
+   * allows to save the data, freshly inserted in the inputBlocks,
+   * in the component in order not to lose them when a checkbox or button is checked.
+   */
+  assertAttribution();
+  if (state.compoToPass.directionI === 0) {
+    state.compoToPass.showIdir0 = !state.compoToPass.showIdir0;
+  } else if (state.compoToPass.directionI === 1) {
+    state.compoToPass.showIdir1 = !state.compoToPass.showIdir1;
+  }
+  if (controlDirI()) {
+    state.compoToPass.showIdir0Temp = false;
+    state.compoToPass.showIdir1Temp = false;
+  } else {
+    attributionTemp();
+  }
+}
+function controlDirI() {
+  return state.compoToPass.showIdir0 || state.compoToPass.showIdir1;
+}
+
+/**
+ * function for voltage
+ */
+function flipdirU() {
+  /**
+   * allows to save the data, freshly inserted in the inputBlocks,
+   * in the component in order not to lose them when a checkbox or button is checked.
+   */
+  assertAttribution();
+
+  //input field modification
+  if (state.compoToPass.valueU) {
+    state.compoToPass.valueU = state.compoToPass.valueU * -1;
+  }
+
+  //graphical aspect
+  if (state.compoToPass.directionU === 0) {
+    state.compoToPass.directionU = 1;
+    if (document.getElementById('displayDirU').checked) {
+      state.compoToPass.showUdir0 = false;
+      state.compoToPass.showUdir1 = true;
+    } else {
+      state.compoToPass.showUdir0Temp = false;
+      state.compoToPass.showUdir1Temp = true;
+    }
+  } else if (state.compoToPass.directionU === 1) {
+    state.compoToPass.directionU = 0;
+    if (document.getElementById('displayDirU').checked) {
+      state.compoToPass.showUdir0 = true;
+      state.compoToPass.showUdir1 = false;
+    } else {
+      state.compoToPass.showUdir0Temp = true;
+      state.compoToPass.showUdir1Temp = false;
+    }
+  }
+  state.alertHint.color = 'green';
+  state.alertHint.message = `flip ${
+    language.voltage_data[getCurrentLanguage.value]
+  } direction done`;
+}
+function DirUisChecked() {
+  /**
+   * allows to save the data, freshly inserted in the inputBlocks,
+   * in the component in order not to lose them when a checkbox or button is checked.
+   */
+  assertAttribution();
+  if (state.compoToPass.directionU === 0) {
+    state.compoToPass.showUdir0 = !state.compoToPass.showUdir0;
+  } else if (state.compoToPass.directionU === 1) {
+    state.compoToPass.showUdir1 = !state.compoToPass.showUdir1;
+  }
+  if (controlDirU()) {
+    state.compoToPass.showUdir0Temp = false;
+    state.compoToPass.showUdir1Temp = false;
+  } else {
+    attributionTemp();
+  }
+}
+function controlDirU() {
+  return state.compoToPass.showUdir0 || state.compoToPass.showUdir1;
+}
+
+/**
+ * function for Potential on Knoten
+ */
+function deletePotentialvalue() {
+  document.getElementById('newValuePotential').value = '';
+}
+
+function assertAttribution() {
+  /**
+   * check for each component due to the specification
+   */
+  //Resistor
+  if (isResistor(state.compoToPass)) {
+    var tempValueR = document.getElementById('newValueR').value;
+
+    if (tempValueR.length === 0) {
+      tempValueR = undefined;
+    } else {
+      tempValueR = parseFloat(tempValueR);
+      if (tempValueR < 0) {
+        state.alertHint.color = 'red';
+        state.alertHint.message = "Resistor can't be negative";
+        return false;
       }
     }
-  },
-  computed: {
-    getCurrentLanguage: function () {
-      return this.currentLanguage;
+
+    if (tempValueR != state.compoToPass.valueR) {
+      state.valueIsModified = true;
     }
-  },
-  methods: {
-    attributionTemp() {
-      console.log(this.compoToPass);
-      if (!this.compoToPass.showIdir0 && !this.compoToPass.showIdir1) {
-        this.compoToPass.directionI === 0
-          ? (this.compoToPass.showIdir0Temp = true)
-          : (this.compoToPass.showIdir1Temp = true);
-      }
-      if (!this.compoToPass.showUdir0 && !this.compoToPass.showUdir1) {
-        this.compoToPass.directionU === 0
-          ? (this.compoToPass.showUdir0Temp = true)
-          : (this.compoToPass.showUdir1Temp = true);
-      }
-    },
-    moveStart(e) {
-      this.onDraggable = true;
-      this.shiftX = e.offsetX; //where I click inside Component
-      this.shiftY = e.offsetY;
-    },
-    moveMotion(e) {
-      if (this.onDraggable) {
-        const modalDiv = document.getElementById('popupCompId');
-        const valueLeft = e.clientX - this.shiftX;
-        const valueTop = e.clientY - this.shiftY;
-        modalDiv.style.left = valueLeft + 'px';
-        modalDiv.style.top = valueTop + 'px';
-      }
-    },
-    moveEnd(e) {
-      this.moveMotion(e);
-      this.onDraggable = false;
-    },
-    isResistor() {
-      return isResistor(this.compoToPass);
-    },
-    isCurrentSource() {
-      return isCurrentSource(this.compoToPass);
-    },
-    isVoltageSource() {
-      return isVoltageSource(this.compoToPass);
-    },
-    isAmpermeter() {
-      return isAmpermeter(this.compoToPass);
-    },
-    isVoltmeter() {
-      return isVoltmeter(this.compoToPass);
-    },
-    isKnoten() {
-      return isKnoten(this.compoToPass);
-    },
-    isKnotenWithPotentialSrc() {
-      return (
-        isKnoten(this.compoToPass) &&
-        this.compoToPass.valuePotentialSource !== undefined
-      );
-    },
-    isKlemme() {
-      return isKlemme(this.compoToPass);
-    },
 
-    /**
-     * function for symbol
-     */
-    showSymbolisChecked() {
-      /**
-       * allows to save the data, freshly inserted in the inputBlocks,
-       * in the component in order not to lose them when a checkbox or button is checked.
-       */
-      this.assertAttribution();
-      this.compoToPass.showSymbol = !this.compoToPass.showSymbol;
-    },
-    controlshowSymbol() {
-      return this.compoToPass.showSymbol;
-    },
+    state.alertHint.color = 'red';
+    state.alertHint.message = '';
+    state.compoToPass.valueR = tempValueR; //attribution valueR
+  }
 
-    /**
-     * function for current
-     */
-    flipdirI() {
-      /**
-       * allows to save the data, freshly inserted in the inputBlocks,
-       * in the component in order not to lose them when a checkbox or button is checked.
-       */
-      this.assertAttribution();
-
-      //input field modification
-      if (this.compoToPass.valueI) {
-        this.compoToPass.valueI = this.compoToPass.valueI * -1;
-      }
-
-      //graphical aspect
-      if (this.compoToPass.directionI === 0) {
-        this.compoToPass.directionI = 1;
-        if (document.getElementById('displayDirI').checked) {
-          this.compoToPass.showIdir0 = false;
-          this.compoToPass.showIdir1 = true;
-        } else {
-          this.compoToPass.showIdir0Temp = false;
-          this.compoToPass.showIdir1Temp = true;
-        }
-      } else if (this.compoToPass.directionI === 1) {
-        this.compoToPass.directionI = 0;
-        if (document.getElementById('displayDirI').checked) {
-          this.compoToPass.showIdir0 = true;
-          this.compoToPass.showIdir1 = false;
-        } else {
-          this.compoToPass.showIdir0Temp = true;
-          this.compoToPass.showIdir1Temp = false;
-        }
-      }
-      this.alertHint.color = 'green';
-      this.alertHint.message = `flip ${
-        this.current_data[this.getCurrentLanguage]
-      } direction done`;
-    },
-    DirIisChecked() {
-      /**
-       * allows to save the data, freshly inserted in the inputBlocks,
-       * in the component in order not to lose them when a checkbox or button is checked.
-       */
-      this.assertAttribution();
-      if (this.compoToPass.directionI === 0) {
-        this.compoToPass.showIdir0 = !this.compoToPass.showIdir0;
-      } else if (this.compoToPass.directionI === 1) {
-        this.compoToPass.showIdir1 = !this.compoToPass.showIdir1;
-      }
-      if (this.controlDirI()) {
-        this.compoToPass.showIdir0Temp = false;
-        this.compoToPass.showIdir1Temp = false;
+  //Knoten
+  if (isKnoten(state.compoToPass)) {
+    var tempValuePotential = document.getElementById('newValuePotential').value;
+    if (tempValuePotential.length === 0) {
+      tempValuePotential = undefined;
+      state.compoToPass.showPotential = false;
+      state.compoToPass.showGround = false;
+    } else {
+      tempValuePotential = parseFloat(tempValuePotential);
+      if (tempValuePotential === 0) {
+        state.compoToPass.showGround = true;
+        state.compoToPass.showPotential = false;
       } else {
-        this.attributionTemp();
+        state.compoToPass.showPotential = true;
+        state.compoToPass.showGround = false;
       }
-    },
-    controlDirI() {
-      return this.compoToPass.showIdir0 || this.compoToPass.showIdir1;
-    },
+    }
+    if (tempValuePotential != state.compoToPass.valuePotentialSource) {
+      state.valueIsModified = true;
+    }
 
-    /**
-     * function for voltage
-     */
-    flipdirU() {
-      /**
-       * allows to save the data, freshly inserted in the inputBlocks,
-       * in the component in order not to lose them when a checkbox or button is checked.
-       */
-      this.assertAttribution();
+    state.alertHint.color = 'red';
+    state.alertHint.message = '';
+    state.compoToPass.valuePotentialSource = tempValuePotential; //attribution valuePotentialSource
+  }
 
-      //input field modification
-      if (this.compoToPass.valueU) {
-        this.compoToPass.valueU = this.compoToPass.valueU * -1;
-      }
+  //CurrentSource
+  if (isCurrentSource(state.compoToPass)) {
+    let tempValueI = document.getElementById('newValueI').value;
+    if (tempValueI.length === 0) {
+      tempValueI = undefined;
+    } else {
+      tempValueI = parseFloat(tempValueI);
+    }
+    if (tempValueI != state.compoToPass.valueI) {
+      state.valueIsModified = true;
+    }
+    state.compoToPass.valueI = tempValueI; //attribution valueI
+  }
 
-      //graphical aspect
-      if (this.compoToPass.directionU === 0) {
-        this.compoToPass.directionU = 1;
-        if (document.getElementById('displayDirU').checked) {
-          this.compoToPass.showUdir0 = false;
-          this.compoToPass.showUdir1 = true;
-        } else {
-          this.compoToPass.showUdir0Temp = false;
-          this.compoToPass.showUdir1Temp = true;
-        }
-      } else if (this.compoToPass.directionU === 1) {
-        this.compoToPass.directionU = 0;
-        if (document.getElementById('displayDirU').checked) {
-          this.compoToPass.showUdir0 = true;
-          this.compoToPass.showUdir1 = false;
-        } else {
-          this.compoToPass.showUdir0Temp = true;
-          this.compoToPass.showUdir1Temp = false;
-        }
-      }
-      this.alertHint.color = 'green';
-      this.alertHint.message = `flip ${
-        this.voltage_data[this.getCurrentLanguage]
-      } direction done`;
-    },
-    DirUisChecked() {
-      /**
-       * allows to save the data, freshly inserted in the inputBlocks,
-       * in the component in order not to lose them when a checkbox or button is checked.
-       */
-      this.assertAttribution();
-      if (this.compoToPass.directionU === 0) {
-        this.compoToPass.showUdir0 = !this.compoToPass.showUdir0;
-      } else if (this.compoToPass.directionU === 1) {
-        this.compoToPass.showUdir1 = !this.compoToPass.showUdir1;
-      }
-      if (this.controlDirU()) {
-        this.compoToPass.showUdir0Temp = false;
-        this.compoToPass.showUdir1Temp = false;
-      } else {
-        this.attributionTemp();
-      }
-    },
-    controlDirU() {
-      return this.compoToPass.showUdir0 || this.compoToPass.showUdir1;
-    },
-
-    /**
-     * function for Potential on Knoten
-     */
-    deletePotentialvalue() {
-      document.getElementById('newValuePotential').value = '';
-    },
-
-    assertAttribution() {
-      /**
-       * check for each component due to the specification
-       */
-      //Resistor
-      if (this.isResistor()) {
-        var tempValueR = document.getElementById('newValueR').value;
-
-        if (tempValueR.length === 0) {
-          tempValueR = undefined;
-        } else {
-          tempValueR = parseFloat(tempValueR);
-          if (tempValueR < 0) {
-            this.alertHint.color = 'red';
-            this.alertHint.message = "Resistor can't be negative";
+  //VoltageSource
+  if (isVoltageSource(state.compoToPass)) {
+    let tempValueU = document.getElementById('newValueU').value;
+    if (tempValueU.length === 0) {
+      tempValueU = undefined;
+    } else {
+      tempValueU = parseFloat(tempValueU);
+    }
+    if (tempValueU != state.compoToPass.valueU) {
+      state.valueIsModified = true;
+    }
+    state.compoToPass.valueU = tempValueU; //attribution valueU
+  }
+  /**
+   * check symbol before attribution
+   */
+  let tempValueSymbol = document
+    .getElementById('newID')
+    .value.replace(/\s/g, '');
+  if (tempValueSymbol.length !== 0) {
+    if (state.compoToPass.symbol != tempValueSymbol) {
+      for (let index = 0; index < props.arrayComponents.length; index++) {
+        if (state.compoToPass == props.arrayComponents[index]) {
+          if (checkSymbolisUnique() == true) {
+            state.compoToPass.symbol = tempValueSymbol;
+          } else {
+            state.alertHint.color = 'red';
+            state.alertHint.message =
+              'symbol ' + tempValueSymbol + ' exists already ';
+            document.getElementById('newID').value = state.compoToPass.symbol;
             return false;
           }
         }
-
-        if (tempValueR != this.compoToPass.valueR) {
-          this.valueIsModified = true;
-        }
-
-        this.alertHint.color = 'red';
-        this.alertHint.message = '';
-        this.compoToPass.valueR = tempValueR; //attribution valueR
       }
-
-      //Knoten
-      if (this.isKnoten()) {
-        var tempValuePotential =
-          document.getElementById('newValuePotential').value;
-        if (tempValuePotential.length === 0) {
-          tempValuePotential = undefined;
-          this.compoToPass.showPotential = false;
-          this.compoToPass.showGround = false;
-        } else {
-          tempValuePotential = parseFloat(tempValuePotential);
-          if (tempValuePotential === 0) {
-            this.compoToPass.showGround = true;
-            this.compoToPass.showPotential = false;
-          } else {
-            this.compoToPass.showPotential = true;
-            this.compoToPass.showGround = false;
-          }
-        }
-        if (tempValuePotential != this.compoToPass.valuePotentialSource) {
-          this.valueIsModified = true;
-        }
-
-        this.alertHint.color = 'red';
-        this.alertHint.message = '';
-        this.compoToPass.valuePotentialSource = tempValuePotential; //attribution valuePotentialSource
-      }
-
-      //CurrentSource
-      if (this.isCurrentSource()) {
-        let tempValueI = document.getElementById('newValueI').value;
-        if (tempValueI.length === 0) {
-          tempValueI = undefined;
-        } else {
-          tempValueI = parseFloat(tempValueI);
-        }
-        if (tempValueI != this.compoToPass.valueI) {
-          this.valueIsModified = true;
-        }
-        this.compoToPass.valueI = tempValueI; //attribution valueI
-      }
-
-      //VoltageSource
-      if (this.isVoltageSource()) {
-        let tempValueU = document.getElementById('newValueU').value;
-        if (tempValueU.length === 0) {
-          tempValueU = undefined;
-        } else {
-          tempValueU = parseFloat(tempValueU);
-        }
-        if (tempValueU != this.compoToPass.valueU) {
-          this.valueIsModified = true;
-        }
-        this.compoToPass.valueU = tempValueU; //attribution valueU
-      }
-      /**
-       * check symbol before attribution
-       */
-      let tempValueSymbol = document
-        .getElementById('newID')
-        .value.replace(/\s/g, '');
-      if (tempValueSymbol.length !== 0) {
-        if (this.compoToPass.symbol != tempValueSymbol) {
-          for (let index = 0; index < this.arrayComponents.length; index++) {
-            if (this.compoToPass == this.arrayComponents[index]) {
-              if (this.checkSymbolisUnique() == true) {
-                this.compoToPass.symbol = tempValueSymbol;
-              } else {
-                this.alertHint.color = 'red';
-                this.alertHint.message =
-                  'symbol ' + tempValueSymbol + ' exists already ';
-                document.getElementById('newID').value =
-                  this.compoToPass.symbol;
-                return false;
-              }
-            }
-          }
-        }
-      } else {
-        this.alertHint.color = 'red';
-        this.alertHint.message = "symbol can't be null";
-        document.getElementById('newID').value = this.compoToPass.symbol;
-        return false;
-      }
-      return true;
-    },
-    /**
-     * function when Pop-Up is closed for attribution
-     */
-    close() {
-      /**
-       * control if attribution of value to component is conform
-       */
-      if (this.assertAttribution()) {
-        if (this.valueIsModified) {
-          this.arrayComponents.forEach((comp) => {
-            comp.resetCalculatedValues();
-          });
-        }
-        this.valueIsModified = false;
-        this.compoToPass.showIdir0Temp = false;
-        this.compoToPass.showIdir1Temp = false;
-        this.compoToPass.showUdir0Temp = false;
-        this.compoToPass.showUdir1Temp = false;
-        this.$emit('close');
-      }
-    },
-    /**
-     * function that's called in close()
-     * verify that symbol is unique
-     */
-    checkSymbolisUnique() {
-      for (let index = 0; index < this.arrayComponents.length; index++) {
-        if (
-          document.getElementById('newID').value.replace(/\s/g, '') ==
-          this.arrayComponents[index].symbol
-        ) {
-          return false;
-        }
-      }
-      return true;
+    }
+  } else {
+    state.alertHint.color = 'red';
+    state.alertHint.message = "symbol can't be null";
+    document.getElementById('newID').value = state.compoToPass.symbol;
+    return false;
+  }
+  return true;
+}
+/**
+ * function when Pop-Up is closed for attribution
+ */
+function close() {
+  /**
+   * control if attribution of value to component is conform
+   */
+  if (assertAttribution()) {
+    if (state.valueIsModified) {
+      props.arrayComponents.forEach((comp) => {
+        comp.resetCalculatedValues();
+      });
+    }
+    state.valueIsModified = false;
+    state.compoToPass.showIdir0Temp = false;
+    state.compoToPass.showIdir1Temp = false;
+    state.compoToPass.showUdir0Temp = false;
+    state.compoToPass.showUdir1Temp = false;
+    emit('close');
+  }
+}
+/**
+ * function that's called in close()
+ * verify that symbol is unique
+ */
+function checkSymbolisUnique() {
+  for (let index = 0; index < props.arrayComponents.length; index++) {
+    if (
+      document.getElementById('newID').value.replace(/\s/g, '') ==
+      props.arrayComponents[index].symbol
+    ) {
+      return false;
     }
   }
-};
+  return true;
+}
 </script>
 
 <style>

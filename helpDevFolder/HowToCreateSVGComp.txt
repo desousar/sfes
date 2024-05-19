@@ -1,0 +1,21 @@
+First insert the component into the palette (drag and drop on the left): 
+
+If it is a 2-pin component:
+Use the pattern (root/helpDevFolder/Model2PinsCompPresentation.svg) in Inkscape to create it (be careful not to resize the entire drawing).
+Otherwise, use Inkscape to create it from scratch. Add the component (file Component.svg) in the file public/image/components/ next to the other components. Then go to BigBody.vue (src/components/BigBody.vue) and find the componentsItem array and add a new line for the component on the same model as the other lines.
+
+To add the component that is used in the workspace: If it is a 2-pin component: Use the pattern with arrows (root/helpDevFolder/Model2PinsCompCircuit.svg). To create the component "again", you can take part of the SVG path from the previous file and integrate it into this one (make sure that you do not change the size of the entire drawing). Otherwise, refer to the characteristics of the component to graphically represent its properties (e.g. nodes with potential source).Retrieve the SVG path and insert it into a .vue file with the name of the component you created in src/components/elements/. To be more precise, create a <template>, <script> and <style> structure. Insert the SVG path in the <template> part. 
+
+Then use the Resistor.vue file to get the different events that are emitted by a component, the addition of 2 circles around the pins to increase the detection zone and get the content for the <script> and <style> parts, also look in Knoten.vue if needed. Go to BigBody.vue at the beginning of the <script> part and add an import line for the component.vue. Then add the imported component further down in the components object, one line below export default.
+
+In parallel, use the UML (UML.png) of the components already present in the program to know in which group the component should be added. Then add a Component.js file to src/components/jsFolder/constructorComponent/jsComponents/. Add inheritance, attributes and method contents to the existing component structure accordingly.
+
+Once this component.js file is created, go to the src/components/instanceofFunction.js file and add an arrow function for the component with the import of the component.js and the export.
+
+In the src/components/jsFolder/dropComponent.js file, add the constructor call for the case where the compID is the name of the component with the import of component.js.
+
+In the src/components/jsFolder/constructorComponent/Circuit.js file, go to the loadNewCircuit(obj) method and add an if statement for the component with the component.js import.
+
+Finally, in the popup window, popupComp.vue (src/components/popupComp.vue), you need to carefully read the current structure and add the component to the blocks where the component's properties and behavior allow it. It is also possible to add new blocks to communicate with certain attributes of the component.
+
+Assuming a more complex component is added or one that is very different from the currently implemented component styles, the solver process (called from the src/components/jsFolder/constructorComponent/CircuitSolver.js file) of the equation system must be run and customized.

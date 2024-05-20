@@ -4,19 +4,19 @@
       <div
         class="bBcontent_img"
         v-bind:class="{
-          greenClass: selectedTool === toolState.TOOL_CREATE_WIRE
+          greenClass: props.selectedTool === state.toolState.TOOL_CREATE_WIRE
         }"
       >
         <img
           type="image/svg+xml"
-          :alt="wireItem.name"
-          :src="wireItem.src"
+          :alt="state.wireItem.name"
+          :src="state.wireItem.src"
           draggable="false"
           @click="creationWire"
         />
       </div>
       <div
-        v-for="(control, idx) in componentsItem"
+        v-for="(control, idx) in state.componentsItem"
         :key="'control-' + idx"
         class="bBcontent_img"
       >
@@ -34,7 +34,7 @@
 
     <div
       id="targetDiv"
-      ref="targetDiv"
+      ref="targetDivRef"
       @dragover.prevent
       @drop.prevent="drop($event, true)"
       @dragenter.prevent
@@ -88,7 +88,7 @@
           </span>
         </span>
         <component
-          :is="component.name"
+          :is="getComponent(component.name)"
           :alt="component.name"
           :component="component"
           :style="{
@@ -119,9 +119,9 @@
         :width="dynamicWidth()"
         :height="dynamicHeight()"
         :class="{
-          limitA4Paper: inA4Format,
-          gridPoint: setGridPoint,
-          gridLine: setGridLine
+          limitA4Paper: state.inA4Format,
+          gridPoint: state.setGridPoint,
+          gridLine: state.setGridLine
         }"
       >
         <template
@@ -153,49 +153,49 @@
         id="right-click-menu"
         tabindex="-1"
         ref="right"
-        v-if="viewMenu"
+        v-if="state.viewMenu"
         v-on:blur="closeMenu"
-        :style="{ top: top, left: left }"
+        :style="{ top: state.top, left: state.left }"
       >
         <li>available conversions:</li>
         <li
-          v-if="multipleRinSerie_data"
+          v-if="state.multipleRinSerie_data"
           @click="multipleRinSerie_function"
         >
           multiple R in Série
         </li>
         <li
-          v-if="multipleRinParallel_data"
+          v-if="state.multipleRinParallel_data"
           @click="multipleRinParallel_function"
         >
           multiple R in Parallel
         </li>
         <li
-          v-if="theveninToNorton_data"
+          v-if="state.theveninToNorton_data"
           @click="theveninToNorton_function"
         >
           Thevenin to Norton
         </li>
         <li
-          v-if="nortonToThevenin_data"
+          v-if="state.nortonToThevenin_data"
           @click="nortonToThevenin_function"
         >
           Norton to Thevenin
         </li>
         <li
-          v-if="dreieckToStern_data"
+          v-if="state.dreieckToStern_data"
           @click="dreieckToStern_function"
         >
           Dreieck to Stern
         </li>
         <li
-          v-if="sternToDreieck_data"
+          v-if="state.sternToDreieck_data"
           @click="sternToDreieck_function"
         >
           Stern to Dreieck
         </li>
         <li
-          v-if="permutation_data"
+          v-if="state.permutation_data"
           @click="permutation_function"
         >
           Permutation
@@ -205,7 +205,17 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import {
+  reactive,
+  ref,
+  computed,
+  onMounted,
+  defineProps,
+  defineEmits,
+  nextTick
+} from 'vue';
+
 import log from '@/consoleLog';
 import EventBus from './jsFolder/event-bus';
 import toolStates from '../states.js';
@@ -214,12 +224,22 @@ import CircuitSolver from './jsFolder/constructorComponent/CircuitSolver.js';
 import Knoten from './elements/Knoten.vue';
 import Klemme from './elements/Klemme.vue';
 import Resistor from './elements/Resistor.vue';
-/*import Inductor from "./elements/Inductor.vue";
-import Capacitor from "./elements/Capacitor.vue";*/
 import CurrentSource from './elements/CurrentSource.vue';
 import VoltageSource from './elements/VoltageSource.vue';
 import Ampermeter from './elements/Ampermeter.vue';
 import Voltmeter from './elements/Voltmeter.vue';
+/*import Inductor from "./elements/Inductor.vue";
+import Capacitor from "./elements/Capacitor.vue";*/
+
+const components = {
+  Knoten,
+  Klemme,
+  Resistor,
+  CurrentSource,
+  VoltageSource,
+  Ampermeter,
+  Voltmeter
+};
 
 import WireJS from './jsFolder/constructorComponent/Wire.js';
 import KnotenJS from './jsFolder/constructorComponent/jsComponents/Knoten.js';
@@ -251,729 +271,676 @@ const componentsItem = [
   { name: 'Ampermeter', src: srcPath('Ampermeter.svg') }
 ];
 
-export default {
-  components: {
-    // eslint-disable-next-line vue/no-unused-components
-    Knoten,
-    // eslint-disable-next-line vue/no-unused-components
-    Klemme,
-    // eslint-disable-next-line vue/no-unused-components
-    Resistor,
-    /*Inductor,
-    Capacitor,*/
-    // eslint-disable-next-line vue/no-unused-components
-    CurrentSource,
-    // eslint-disable-next-line vue/no-unused-components
-    VoltageSource,
-    // eslint-disable-next-line vue/no-unused-components
-    Ampermeter,
-    // eslint-disable-next-line vue/no-unused-components
-    Voltmeter
-  },
-  props: {
-    currentLanguage: String,
-    withPredefinedValue: Boolean,
-    selectedTool: Number,
-    theCircuit: Object, //circuit with components and wires array
-    undoRedoData: Object
-  },
-  emits: [
-    'simpleClick',
-    'doubleClick',
-    'dragstart',
-    'dragenter',
-    'dragover',
-    'drop',
-    'mouseover',
-    'mousedown',
-    'mousemove',
-    'mouseup',
-    'mouseout',
-    'contextmenu',
-    'pin',
-    'pinMouseUp',
-    'tool-state-changed',
-    'set-circuit'
-  ],
-  mounted: function () {
-    EventBus.on('MBcapture', () => {
-      this.MBcapture();
-    });
-    EventBus.on('MBa4Format', (newA4Bool) => {
-      this.inA4Format = newA4Bool;
-    });
-    EventBus.on('MBsetGridPoint', (bool) => {
-      this.setGridPoint = bool;
-    });
-    EventBus.on('MBsetGridLine', (bool) => {
-      this.setGridLine = bool;
-    });
-    EventBus.on('MBsolve', () => {
-      this.MBsolve();
-    });
-    EventBus.on('MBopenFile', () => {
-      this.MBopenFile();
-    });
-    EventBus.on('MBsaveFile', () => {
-      this.MBsaveFile();
-    });
+const targetDivRef = ref(null);
+const right = ref(null);
 
-    EventBus.on('MBgetEmptyCircuit', () => {
-      this.MBgetEmptyCircuit();
-    });
-  },
+const props = defineProps({
+  withPredefinedValue: Boolean,
+  selectedTool: Number,
+  theCircuit: Object //circuit with components and wires array
+});
 
-  data() {
-    return {
-      setGridPoint: false,
-      setGridLine: false,
-      inA4Format: false,
-      componentsItem: componentsItem,
-      wireItem: wireItem,
-      selectedComponent: null,
-      shiftX: null,
-      shiftY: null,
-      onCreationWire: false,
-      fromComponentPin: null,
-      fromComponent: null,
-      toComponentPin: null,
-      toComponent: null,
+const emit = defineEmits(['tool-state-changed', 'set-circuit']);
 
-      toolState: toolStates,
+onMounted(() => {
+  EventBus.on('MBcapture', () => {
+    MBcapture();
+  });
+  EventBus.on('MBa4Format', (newA4Bool) => {
+    state.inA4Format = newA4Bool;
+  });
+  EventBus.on('MBsetGridPoint', (bool) => {
+    state.setGridPoint = bool;
+  });
+  EventBus.on('MBsetGridLine', (bool) => {
+    state.setGridLine = bool;
+  });
+  EventBus.on('MBsolve', () => {
+    MBsolve();
+  });
+  EventBus.on('MBopenFile', () => {
+    MBopenFile();
+  });
+  EventBus.on('MBsaveFile', () => {
+    MBsaveFile();
+  });
 
-      viewMenu: false,
-      top: '0px',
-      left: '0px',
+  EventBus.on('MBgetEmptyCircuit', () => {
+    MBgetEmptyCircuit();
+  });
+});
 
-      multiRinParallel_instance: undefined,
-      multipleRinSerie_instance: undefined,
-      permutation_instance: undefined,
-      theveninToNorton_instance: undefined,
-      nortonToThevenin_instance: undefined,
-      dreieckToStern_instance: undefined,
-      sternToDreieck_instance: undefined,
+const state = reactive({
+  setGridPoint: false,
+  setGridLine: false,
+  inA4Format: false,
+  componentsItem: componentsItem,
+  wireItem: wireItem,
+  selectedComponent: null,
+  shiftX: null,
+  shiftY: null,
+  onCreationWire: false,
+  fromComponentPin: null,
+  fromComponent: null,
+  toComponentPin: null,
+  toComponent: null,
 
-      multipleRinSerie_data: false,
-      multipleRinParallel_data: false,
-      theveninToNorton_data: false,
-      nortonToThevenin_data: false,
-      dreieckToStern_data: false,
-      sternToDreieck_data: false,
-      permutation_data: false,
+  toolState: toolStates,
 
-      compToDD: undefined
-    };
-  },
-  computed: {
-    circuit() {
-      return this.theCircuit;
-    },
-    getWithPredefinedValue() {
-      return this.withPredefinedValue;
+  viewMenu: false,
+  top: '0px',
+  left: '0px',
+
+  multiRinParallel_instance: undefined,
+  multipleRinSerie_instance: undefined,
+  permutation_instance: undefined,
+  theveninToNorton_instance: undefined,
+  nortonToThevenin_instance: undefined,
+  dreieckToStern_instance: undefined,
+  sternToDreieck_instance: undefined,
+
+  multipleRinSerie_data: false,
+  multipleRinParallel_data: false,
+  theveninToNorton_data: false,
+  nortonToThevenin_data: false,
+  dreieckToStern_data: false,
+  sternToDreieck_data: false,
+  permutation_data: false,
+
+  compToDD: undefined
+});
+
+const circuit = computed(() => {
+  return props.theCircuit;
+});
+const getWithPredefinedValue = computed(() => {
+  return props.withPredefinedValue;
+});
+
+const getComponent = (name) => {
+  return components[name] || null;
+};
+
+function pointerComp(e, c) {
+  if (
+    props.selectedTool === state.toolState.TOOL_ROTATE &&
+    (c instanceof KnotenJS || c instanceof KlemmeJS)
+  ) {
+    e.target.style.cursor = 'auto';
+  } else if (
+    props.selectedTool === state.toolState.TOOL_SELECT &&
+    c instanceof KnotenJS
+  ) {
+    if (c.valuePotentialSource === undefined) {
+      e.target.style.cursor = 'auto';
     }
-  },
-  methods: {
-    pointerComp(e, c) {
-      if (
-        this.selectedTool === this.toolState.TOOL_ROTATE &&
-        (c instanceof KnotenJS || c instanceof KlemmeJS)
-      ) {
-        e.target.style.cursor = 'auto';
-      } else if (
-        this.selectedTool === this.toolState.TOOL_SELECT &&
-        c instanceof KnotenJS
-      ) {
-        if (c.valuePotentialSource === undefined) {
-          e.target.style.cursor = 'auto';
-        }
-      } else {
-        e.target.style.cursor = 'pointer';
-      }
-    },
-    pointerWire(e) {
-      if (this.selectedTool === this.toolState.TOOL_ROTATE) {
-        e.target.style.cursor = 'pointer';
-      } else {
-        e.target.style.cursor = 'auto';
-      }
-    },
-    showTooltip: function (e, comp) {
-      if (this.selectedTool === this.toolState.STATE_IDLE) {
-        let tooltip = document.getElementById('tooltip');
-        tooltip.innerHTML = comp.getString();
-        tooltip.style.display = 'block';
+  } else {
+    e.target.style.cursor = 'pointer';
+  }
+}
+function pointerWire(e) {
+  if (props.selectedTool === state.toolState.TOOL_ROTATE) {
+    e.target.style.cursor = 'pointer';
+  } else {
+    e.target.style.cursor = 'auto';
+  }
+}
+function showTooltip(e, comp) {
+  if (props.selectedTool === state.toolState.STATE_IDLE) {
+    let tooltip = document.getElementById('tooltip');
+    tooltip.innerHTML = comp.getString();
+    tooltip.style.display = 'block';
 
-        let targetDiv = this.$refs.targetDiv;
-        let tgt = targetDiv.getBoundingClientRect();
-        let valueTop = e.clientY - tgt.top + targetDiv.scrollTop;
-        let valueLeft = e.clientX - tgt.left + targetDiv.scrollLeft;
-        //check tgt.right && tgt.bottom
-        if (valueTop > tgt.bottom - 180) {
-          tooltip.style.top = valueTop - 70 + 'px';
-        } else {
-          tooltip.style.top = valueTop + 10 + 'px';
-        }
-        if (valueLeft > tgt.right - 225) {
-          tooltip.style.left = valueLeft - 150 + 'px';
-        } else {
-          tooltip.style.left = valueLeft + 10 + 'px';
-        }
-      }
-    },
-    hideTooltip: function () {
-      let tooltip = document.getElementById('tooltip');
-      tooltip.style.display = 'none';
-    },
-    dynamicWidth: function () {
-      let targetDiv = this.$refs.targetDiv;
-      if (targetDiv !== undefined) {
-        if (this.inA4Format) {
-          targetDiv.style.maxWidth = '21cm';
-        } else {
-          targetDiv.style.maxWidth = 'none';
-          targetDiv.style.width = 'calc(100% - 112px)';
-        }
-        let width = targetDiv.scrollWidth;
-        return width + 'px';
-      }
-    },
-    dynamicHeight: function () {
-      let targetDiv = this.$refs.targetDiv;
-      if (targetDiv !== undefined) {
-        if (this.inA4Format) {
-          targetDiv.style.maxHeight = '29.7cm';
-        } else {
-          targetDiv.style.maxHeight = 'none';
-          targetDiv.style.height = '99.2%';
-        }
-        let height = targetDiv.scrollHeight - 4;
-        return height + 'px';
-      }
-    },
-
-    setMenu: function (top, left) {
-      let targetDiv = this.$refs.targetDiv;
-      let tgt = targetDiv.getBoundingClientRect();
-      let valueScrollTop = targetDiv.scrollTop; //if the srollcar is used, valueScrollTop and Left take this offset
-      let valueScrollLeft = targetDiv.scrollLeft;
-
-      let valueTop = top - tgt.top + valueScrollTop; //calculate the correct coordinate
-      let valueLeft = left - tgt.left + valueScrollLeft;
-
-      this.top = valueTop + 'px';
-      this.left = valueLeft + 'px';
-    },
-
-    closeMenu: function () {
-      this.viewMenu = false;
-      this.multipleRinSerie_data = false;
-      this.multipleRinParallel_data = false;
-      this.theveninToNorton_data = false;
-      this.nortonToThevenin_data = false;
-      this.dreieckToStern_data = false;
-      this.sternToDreieck_data = false;
-      this.permutation_data = false;
-    },
-
-    openMenu: function (e) {
-      this.viewMenu = true;
-      this.$nextTick(
-        function () {
-          this.$refs.right.focus();
-          this.setMenu(e.y, e.x);
-        }.bind(this)
-      );
-      e.preventDefault();
-      this.circuit.components.forEach((c) => {
-        if (this.isClassicKnoten(c) && c.selected) {
-          c.selected = false; // a classic Knoten is useless
-        }
-      });
-      const selectedComp = this.circuit.getSelectedComponents();
-      if (hasMainVal(selectedComp) && selectedComp.length > 1) {
-        this.multipleRinSerie_openMenu();
-        this.multipleRinParallel_openMenu();
-        this.theveninToNorton_openMenu();
-        this.nortonToThevenin_openMenu();
-        this.dreieckToStern_openMenu();
-        this.sternToDreieck_openMenu();
-        this.permutation_openMenu();
-      }
-    },
-    isClassicKnoten(comp) {
-      return (
-        comp instanceof KnotenJS && comp.valuePotentialSource === undefined
-      );
-    },
-    multipleRinSerie_openMenu: function () {
-      this.multipleRinSerie_instance = new MultipleRinSerie(this.circuit);
-      this.multipleRinSerie_data = this.multipleRinSerie_instance.isPossible();
-    },
-    multipleRinParallel_openMenu: function () {
-      this.multiRinParallel_instance = new MultipleRinParallel(this.circuit);
-      this.multipleRinParallel_data =
-        this.multiRinParallel_instance.isPossible();
-    },
-    theveninToNorton_openMenu: function () {
-      this.theveninToNorton_instance = new TheveninToNorton(this.circuit);
-      this.theveninToNorton_data = this.theveninToNorton_instance.isPossible();
-    },
-    nortonToThevenin_openMenu: function () {
-      this.nortonToThevenin_instance = new NortonToThevenin(this.circuit);
-      this.nortonToThevenin_data = this.nortonToThevenin_instance.isPossible();
-    },
-    dreieckToStern_openMenu: function () {
-      this.dreieckToStern_instance = new DreieckToStern(this.circuit);
-      this.dreieckToStern_data = this.dreieckToStern_instance.isPossible();
-    },
-    sternToDreieck_openMenu: function () {
-      this.sternToDreieck_instance = new SternToDreieck(this.circuit);
-      this.sternToDreieck_data = this.sternToDreieck_instance.isPossible();
-    },
-    permutation_openMenu: function () {
-      this.permutation_instance = new Permutation(this.circuit);
-      this.permutation_data = this.permutation_instance.isPossible();
-    },
-    multipleRinSerie_function: function () {
-      this.multipleRinSerie_instance.conversion();
-      this.resetAndSaveAfterConversion();
-    },
-    multipleRinParallel_function: function () {
-      this.multiRinParallel_instance.conversion();
-      this.resetAndSaveAfterConversion();
-    },
-    theveninToNorton_function() {
-      this.theveninToNorton_instance.conversion();
-      this.resetAndSaveAfterConversion();
-    },
-    nortonToThevenin_function() {
-      this.nortonToThevenin_instance.conversion();
-      this.resetAndSaveAfterConversion();
-    },
-    dreieckToStern_function() {
-      this.dreieckToStern_instance.conversion();
-      this.resetAndSaveAfterConversion();
-    },
-    sternToDreieck_function() {
-      this.sternToDreieck_instance.conversion();
-      this.resetAndSaveAfterConversion();
-    },
-    permutation_function: function () {
-      if (confirm('Potential values will change')) {
-        this.permutation_instance.conversion();
-        this.resetAndSaveAfterConversion();
-      }
-    },
-    resetAndSaveAfterConversion() {
-      this.circuit.components.map((c) => {
-        c.selected = false;
-        c.recalculatePins();
-      });
-      this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
-      this.closeMenu();
-      EventBus.emit('BBSave');
-    },
-
-    doubleClick: function (component) {
-      // clear if some text is selected by double click
-      if (document.selection && document.selection.empty) {
-        document.selection.empty();
-      } else if (window.getSelection) {
-        var sel = window.getSelection();
-        sel.removeAllRanges();
-      }
-
-      if (this.selectedTool === this.toolState.STATE_IDLE) {
-        EventBus.emit('BBcomp', component);
-      }
-    },
-
-    /**
-     * #region Drag&Drop
-     */
-    dragStart: function (e) {
-      this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
-      this.resetbyfalseCreationWire(false);
-      this.resetCompFromWire();
-
-      // src: https://stackoverflow.com/questions/7680285/how-do-you-turn-off-setdragimage
-      var img = document.createElement('img');
-      img.src =
-        'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; //blank img
-      e.dataTransfer.setDragImage(img, 0, 0);
-
-      this.compToDD = e.target.alt; // target.alt is the correct name of the component
-    },
-    drop: function (e, saveAfterDrop) {
-      const c_id = this.compToDD;
-      if (c_id != '') {
-        //security
-        let targetDiv = this.$refs.targetDiv; //instead of document.getElementById("targetDiv");
-        let tgt = targetDiv.getBoundingClientRect();
-        let valueScrollTop = targetDiv.scrollTop; //if the srollcar is used, valueScrollTop and Left take this offset
-        let valueScrollLeft = targetDiv.scrollLeft;
-
-        let valueTop = e.clientY - tgt.top + valueScrollTop; //calculate the correct coordinate
-        let valueLeft = e.clientX - tgt.left + valueScrollLeft;
-
-        //method from dropComponent.js
-        const c = this.circuit.dropComp({
-          withPresValue: this.getWithPredefinedValue,
-          c_id,
-          valueLeft,
-          valueTop
-        });
-
-        if (saveAfterDrop === true) {
-          EventBus.emit('BBSave');
-        }
-        return c;
-      }
-    },
-    /**
-     * #endregion
-     */
-
-    /**
-     * #region Movement
-     */
-    moveStart: function (event, component) {
-      if (this.selectedTool === this.toolState.TOOL_MOVE) {
-        this.selectedComponent = component;
-        this.shiftX = event.offsetX; //where I click inside Component
-        this.shiftY = event.offsetY;
-      }
-    },
-    moveMotion: function (e) {
-      if (
-        this.selectedComponent &&
-        this.selectedTool === this.toolState.TOOL_MOVE
-      ) {
-        let targetDiv = this.$refs.targetDiv;
-        let tgt = targetDiv.getBoundingClientRect();
-        let valueTop = null;
-        let valueLeft = null;
-
-        this.selectedComponent.recalculatePins();
-
-        if (
-          this.selectedComponent.rotation === 0 ||
-          this.selectedComponent.rotation === 180 ||
-          this.selectedComponent.isMultiPin === true
-        ) {
-          valueTop = e.clientY - tgt.top + targetDiv.scrollTop - this.shiftY;
-          valueLeft = e.clientX - tgt.left + targetDiv.scrollLeft - this.shiftX;
-        } else if (
-          this.selectedComponent.rotation === 90 ||
-          this.selectedComponent.rotation === 270
-        ) {
-          valueTop = e.clientY - tgt.top + targetDiv.scrollTop - 18.9; // because width === 63.31 and graphical mouse is in middle of comp
-          valueLeft = e.clientX - tgt.left + targetDiv.scrollLeft - 50; // because height === 100 => be placed on horizontal center
-        }
-
-        this.selectedComponent.y = valueTop;
-        this.selectedComponent.x = valueLeft;
-      }
-      if (
-        this.selectedTool === this.toolState.TOOL_CREATE_WIRE &&
-        this.onCreationWire === true
-      ) {
-        let targetDiv = this.$refs.targetDiv;
-        let tgt = targetDiv.getBoundingClientRect();
-        const valTop = e.clientY - tgt.top + targetDiv.scrollTop;
-        const valLeft = e.clientX - tgt.left + targetDiv.scrollLeft;
-        const line = document.getElementById('tempLine');
-        line.setAttribute('x2', valLeft);
-        line.setAttribute('y2', valTop);
-      }
-    },
-    moveEnd: function (e) {
-      if (
-        this.selectedComponent &&
-        this.selectedTool === this.toolState.TOOL_MOVE
-      ) {
-        this.moveMotion(e);
-        this.selectedComponent = null;
-        EventBus.emit('BBSave');
-      }
-      if (
-        this.selectedTool === this.toolState.TOOL_CREATE_WIRE &&
-        this.onCreationWire === true
-      ) {
-        //move up not on a pin
-        this.onCreationWire = false;
-        this.resetCompFromWire();
-        document.getElementById('tempLine').remove();
-      }
-    },
-    pinMoveEnd(component, nr) {
-      if (
-        this.selectedTool === this.toolState.TOOL_CREATE_WIRE &&
-        this.onCreationWire === true
-      ) {
-        if (this.toComponent === null && this.fromComponent !== component) {
-          this.toComponentPin = nr;
-          this.toComponent = component;
-          this.drawWire();
-          EventBus.emit('BBSave');
-        } else if (
-          this.fromComponent !== null &&
-          this.toComponent === null &&
-          this.fromComponentPin !== nr
-        ) {
-          // you are on same comp BUT not same pin
-          let newValLeft;
-          if (this.fromComponent.x - 50 > 0) {
-            newValLeft = this.fromComponent.x - 10;
-          } else {
-            newValLeft = this.fromComponent.x + 80;
-          }
-          const newValTop = this.fromComponent.y + 50;
-          const kn = this.circuit.dropComp({
-            c_id: 'Knoten',
-            valueLeft: newValLeft,
-            valueTop: newValTop
-          });
-          //connect 2 pins from this.fromComponent with kn pin
-          const createWire = (fC, fCpin, tC, tCpin) => {
-            let wire = new WireJS({
-              from: fC.pins[fCpin],
-              to: tC.pins[tCpin]
-            });
-            this.circuit.wires.push(wire);
-            this.pinOpacity0(wire);
-          };
-          createWire(this.fromComponent, 0, kn, 0);
-          createWire(this.fromComponent, 1, kn, 0);
-          EventBus.emit('BBSave');
-        } else {
-          alert('You can choose same pin of the same component');
-        }
-        this.resetCompFromWire();
-        this.onCreationWire = false;
-        document.getElementById('tempLine').remove();
-      }
-    },
-    /**
-     * #endregion
-     */
-
-    simpleClick: function (component) {
-      if (this.selectedTool === this.toolState.TOOL_SELECT) {
-        component.selection();
-        component.recalculatePins();
-      } else if (this.selectedTool === this.toolState.TOOL_DELETE) {
-        this.circuit.deleteOneComponent(component); //call the function delete
-        EventBus.emit('BBSave');
-      } else if (
-        this.selectedTool === this.toolState.TOOL_ROTATE &&
-        component.isMultiPin === false
-      ) {
-        component.rotateRight();
-        EventBus.emit('BBSave');
-      }
-    },
-    /**
-     * #region Wire
-     */
-    creationWire: function () {
-      if (this.selectedTool === this.toolState.TOOL_CREATE_WIRE) {
-        this.resetbyfalseCreationWire(false);
-      } else {
-        this.resetbyfalseCreationWire(true);
-      }
-      this.resetCompFromWire();
-    },
-
-    pinClicked: function (component, nr) {
-      if (this.selectedTool !== this.toolState.TOOL_CREATE_WIRE) {
-        return;
-      }
-      this.onCreationWire = true;
-      this.fromComponentPin = nr;
-      this.fromComponent = component;
-      var newLine = document.createElementNS(
-        'http://www.w3.org/2000/svg',
-        'line'
-      );
-      newLine.style.stroke = 'black';
-      newLine.style.strokeWidth = '2';
-      newLine.setAttribute('id', 'tempLine');
-      newLine.setAttribute('x1', component.pins[nr].x);
-      newLine.setAttribute('y1', component.pins[nr].y);
-      newLine.setAttribute('x2', component.pins[nr].x);
-      newLine.setAttribute('y2', component.pins[nr].y);
-      document.getElementById('svgArea').append(newLine);
-    },
-    resetbyfalseCreationWire: function (bool) {
-      if (bool === true) {
-        this.$emit('tool-state-changed', this.toolState.TOOL_CREATE_WIRE);
-      } else if (bool === false) {
-        this.$emit('tool-state-changed', this.toolState.STATE_IDLE);
-      }
-    },
-    resetCompFromWire() {
-      this.fromComponent =
-        this.fromComponentPin =
-        this.toComponent =
-        this.toComponentPin =
-          null;
-    },
-    selectedWire: function (line) {
-      if (this.selectedTool === this.toolState.TOOL_DELETE) {
-        this.circuit.deleteOneWire(line);
-        EventBus.emit('BBSave');
-      }
-    },
-
-    dropOnWire(e, wire) {
-      if (confirm('Do you want to insert this component on the Wire?')) {
-        const comp = this.drop(e, false);
-        this.circuit.wires.forEach((w) => {
-          if (w === wire) {
-            const fromComp = this.circuit.componentFromPin(w.from);
-            const fromPin = this.circuit.pinIndexFromComponent(
-              fromComp,
-              w.from
-            );
-            const toComp = this.circuit.componentFromPin(w.to);
-            const toPin = this.circuit.pinIndexFromComponent(toComp, w.to);
-            this.circuit.deleteOneWire(w);
-            if (comp.isMultiPin) {
-              this.circuit.createOneWire(comp, 0, fromComp, fromPin);
-              this.circuit.createOneWire(comp, 0, toComp, toPin);
-            } else {
-              const lengthPin0 = distanceBtw2Points(
-                fromComp.pins[fromPin],
-                comp.pins[0]
-              );
-              const lengthPin1 = distanceBtw2Points(
-                fromComp.pins[fromPin],
-                comp.pins[1]
-              );
-              if (lengthPin0 <= lengthPin1) {
-                this.circuit.createOneWire(comp, 0, fromComp, fromPin);
-                this.circuit.createOneWire(comp, 1, toComp, toPin);
-              } else {
-                this.circuit.createOneWire(comp, 1, fromComp, fromPin);
-                this.circuit.createOneWire(comp, 0, toComp, toPin);
-              }
-            }
-            EventBus.emit('BBSave');
-          }
-        });
-      } else {
-        this.drop(e, true);
-      }
-    },
-    drawWire: function () {
-      let wire = new WireJS({
-        from: this.fromComponent.pins[this.fromComponentPin],
-        to: this.toComponent.pins[this.toComponentPin]
-      });
-      this.circuit.wires.push(wire);
-      this.pinOpacity0(wire);
-    },
-
-    pinOpacity0: function (wire) {
-      const showHidePin = (c, pinNB) => {
-        if (c.isMultiPin === false) {
-          if (pinNB === 0) {
-            c.showPin1 = false;
-          } else if (pinNB === 1) {
-            c.showPin2 = false;
-          }
-        }
-      };
-      const fromComp = this.circuit.componentFromPin(wire.from);
-      const toComp = this.circuit.componentFromPin(wire.to);
-      showHidePin(
-        fromComp,
-        this.circuit.pinIndexFromComponent(fromComp, wire.from)
-      );
-      showHidePin(toComp, this.circuit.pinIndexFromComponent(toComp, wire.to));
-    },
-    /**
-     * #endregion
-     */
-
-    /**
-     * #region MenuBar function
-     */
-    MBcapture() {
-      let targetDiv = document.getElementById('targetDiv');
-      targetDiv.scrollTo(0, 0);
-      print();
-    },
-
-    MBsolve() {
-      if (
-        hasMainVal(this.circuit.components) &&
-        this.circuit.components.length > 0
-      ) {
-        let solver = new CircuitSolver(this.circuit);
-        try {
-          solver.solveWithAttribution();
-          EventBus.emit('BBresult');
-          EventBus.emit('BBSave');
-        } catch (e) {
-          alert('*****ERROR*****\n' + e.message);
-        }
-      }
-    },
-    MBopenFile() {
-      var file = document.getElementById('fileInput').files[0];
-      const blob = new Blob([file], { type: 'application/json' });
-      const fr = new FileReader();
-      var obj;
-      var self = this;
-
-      fr.onload = function () {
-        obj = JSON.parse(fr.result);
-        log('JSON.parse(fr.result)\n', obj);
-      };
-      fr.readAsText(blob);
-      fr.onloadend = function () {
-        log('START Load');
-        self.circuit.loadNewCircuit(obj);
-        log('Comp Ok, Wire load start');
-        self.circuit.loadWireOfNewCircuit(obj);
-        log('CIRCUIT LOADED', self.circuit);
-      };
-      EventBus.emit('BBSave');
-    },
-    MBsaveFile() {
-      let data = this.circuit;
-      // Convert the text to BLOB.
-      const textToBLOB = new Blob([JSON.stringify(data, null, 2)], {
-        type: 'application/json'
-      });
-      const sFileName = 'SfeS-circuit.json'; // The file to save the data.
-      let newLink = document.createElement('a');
-      newLink.download = sFileName;
-
-      if (window.webkitURL != null) {
-        newLink.href = window.webkitURL.createObjectURL(textToBLOB);
-      } else {
-        newLink.href = window.URL.createObjectURL(textToBLOB);
-      }
-      newLink.style.display = 'none';
-      document.body.appendChild(newLink);
-      newLink.click();
-      document.body.removeChild(newLink);
-    },
-    MBgetEmptyCircuit() {
-      if (
-        confirm(
-          'The current file will be deleted when you create a new one. Are you sure ?'
-        )
-      ) {
-        this.$emit('set-circuit');
-        EventBus.emit('BBSave');
-      }
+    let targetDiv = targetDivRef.value;
+    let tgt = targetDiv.getBoundingClientRect();
+    let valueTop = e.clientY - tgt.top + targetDiv.scrollTop;
+    let valueLeft = e.clientX - tgt.left + targetDiv.scrollLeft;
+    //check tgt.right && tgt.bottom
+    if (valueTop > tgt.bottom - 180) {
+      tooltip.style.top = valueTop - 70 + 'px';
+    } else {
+      tooltip.style.top = valueTop + 10 + 'px';
+    }
+    if (valueLeft > tgt.right - 225) {
+      tooltip.style.left = valueLeft - 150 + 'px';
+    } else {
+      tooltip.style.left = valueLeft + 10 + 'px';
     }
   }
-};
+}
+function hideTooltip() {
+  let tooltip = document.getElementById('tooltip');
+  tooltip.style.display = 'none';
+}
+function dynamicWidth() {
+  let targetDiv = targetDivRef.value;
+  if (targetDiv) {
+    if (state.inA4Format) {
+      targetDiv.style.maxWidth = '21cm';
+    } else {
+      targetDiv.style.maxWidth = 'none';
+      targetDiv.style.width = 'calc(100% - 112px)';
+    }
+    let width = targetDiv.scrollWidth;
+    return width + 'px';
+  }
+}
+function dynamicHeight() {
+  let targetDiv = targetDivRef.value;
+  if (targetDiv) {
+    if (state.inA4Format) {
+      targetDiv.style.maxHeight = '29.7cm';
+    } else {
+      targetDiv.style.maxHeight = 'none';
+      targetDiv.style.height = '99.2%';
+    }
+    let height = targetDiv.scrollHeight - 4;
+    return height + 'px';
+  }
+}
+
+function setMenu(top, left) {
+  let targetDiv = targetDivRef.value;
+  let tgt = targetDiv.getBoundingClientRect();
+  let valueScrollTop = targetDiv.scrollTop; //if the srollcar is used, valueScrollTop and Left take this offset
+  let valueScrollLeft = targetDiv.scrollLeft;
+
+  let valueTop = top - tgt.top + valueScrollTop; //calculate the correct coordinate
+  let valueLeft = left - tgt.left + valueScrollLeft;
+
+  state.top = valueTop + 'px';
+  state.left = valueLeft + 'px';
+}
+
+function closeMenu() {
+  state.viewMenu = false;
+  state.multipleRinSerie_data = false;
+  state.multipleRinParallel_data = false;
+  state.theveninToNorton_data = false;
+  state.nortonToThevenin_data = false;
+  state.dreieckToStern_data = false;
+  state.sternToDreieck_data = false;
+  state.permutation_data = false;
+}
+
+function openMenu(e) {
+  state.viewMenu = true;
+  nextTick().then(() => {
+    right.value.focus();
+    setMenu(e.y, e.x);
+  });
+  e.preventDefault();
+  circuit.value.components.forEach((c) => {
+    if (isClassicKnoten(c) && c.selected) {
+      c.selected = false; // a classic Knoten is useless
+    }
+  });
+  const selectedComp = circuit.value.getSelectedComponents();
+  if (hasMainVal(selectedComp) && selectedComp.length > 1) {
+    multipleRinSerie_openMenu();
+    multipleRinParallel_openMenu();
+    theveninToNorton_openMenu();
+    nortonToThevenin_openMenu();
+    dreieckToStern_openMenu();
+    sternToDreieck_openMenu();
+    permutation_openMenu();
+  }
+}
+function isClassicKnoten(comp) {
+  return comp instanceof KnotenJS && comp.valuePotentialSource === undefined;
+}
+function multipleRinSerie_openMenu() {
+  state.multipleRinSerie_instance = new MultipleRinSerie(circuit.value);
+  state.multipleRinSerie_data = state.multipleRinSerie_instance.isPossible();
+}
+function multipleRinParallel_openMenu() {
+  state.multiRinParallel_instance = new MultipleRinParallel(circuit.value);
+  state.multipleRinParallel_data = state.multiRinParallel_instance.isPossible();
+}
+function theveninToNorton_openMenu() {
+  state.theveninToNorton_instance = new TheveninToNorton(circuit.value);
+  state.theveninToNorton_data = state.theveninToNorton_instance.isPossible();
+}
+function nortonToThevenin_openMenu() {
+  state.nortonToThevenin_instance = new NortonToThevenin(circuit.value);
+  state.nortonToThevenin_data = state.nortonToThevenin_instance.isPossible();
+}
+function dreieckToStern_openMenu() {
+  state.dreieckToStern_instance = new DreieckToStern(circuit.value);
+  state.dreieckToStern_data = state.dreieckToStern_instance.isPossible();
+}
+function sternToDreieck_openMenu() {
+  state.sternToDreieck_instance = new SternToDreieck(circuit.value);
+  state.sternToDreieck_data = state.sternToDreieck_instance.isPossible();
+}
+function permutation_openMenu() {
+  state.permutation_instance = new Permutation(circuit.value);
+  state.permutation_data = state.permutation_instance.isPossible();
+}
+function multipleRinSerie_function() {
+  state.multipleRinSerie_instance.conversion();
+  resetAndSaveAfterConversion();
+}
+function multipleRinParallel_function() {
+  state.multiRinParallel_instance.conversion();
+  resetAndSaveAfterConversion();
+}
+function theveninToNorton_function() {
+  state.theveninToNorton_instance.conversion();
+  resetAndSaveAfterConversion();
+}
+function nortonToThevenin_function() {
+  state.nortonToThevenin_instance.conversion();
+  resetAndSaveAfterConversion();
+}
+function dreieckToStern_function() {
+  state.dreieckToStern_instance.conversion();
+  resetAndSaveAfterConversion();
+}
+function sternToDreieck_function() {
+  state.sternToDreieck_instance.conversion();
+  resetAndSaveAfterConversion();
+}
+function permutation_function() {
+  if (confirm('Potential values will change')) {
+    state.permutation_instance.conversion();
+    resetAndSaveAfterConversion();
+  }
+}
+function resetAndSaveAfterConversion() {
+  circuit.value.components.map((c) => {
+    c.selected = false;
+    c.recalculatePins();
+  });
+  emit('tool-state-changed', state.toolState.STATE_IDLE);
+  closeMenu();
+  EventBus.emit('BBSave');
+}
+
+function doubleClick(component) {
+  // clear if some text is selected by double click
+  if (document.selection && document.selection.empty) {
+    document.selection.empty();
+  } else if (window.getSelection) {
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+  }
+
+  if (props.selectedTool === state.toolState.STATE_IDLE) {
+    EventBus.emit('BBcomp', component);
+  }
+}
+
+/**
+ * #region Drag&Drop
+ */
+function dragStart(e) {
+  emit('tool-state-changed', state.toolState.STATE_IDLE);
+  resetbyfalseCreationWire(false);
+  resetCompFromWire();
+
+  // src: https://stackoverflow.com/questions/7680285/how-do-you-turn-off-setdragimage
+  var img = document.createElement('img');
+  img.src =
+    'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; //blank img
+  e.dataTransfer.setDragImage(img, 0, 0);
+
+  state.compToDD = e.target.alt; // target.alt is the correct name of the component
+}
+function drop(e, saveAfterDrop) {
+  const c_id = state.compToDD;
+  if (c_id != '') {
+    //security
+    let targetDiv = targetDivRef.value; //instead of document.getElementById("targetDiv");
+    let tgt = targetDiv.getBoundingClientRect();
+    let valueScrollTop = targetDiv.scrollTop; //if the srollcar is used, valueScrollTop and Left take this offset
+    let valueScrollLeft = targetDiv.scrollLeft;
+
+    let valueTop = e.clientY - tgt.top + valueScrollTop; //calculate the correct coordinate
+    let valueLeft = e.clientX - tgt.left + valueScrollLeft;
+
+    //method from dropComponent.js
+    const c = circuit.value.dropComp({
+      withPresValue: getWithPredefinedValue.value,
+      c_id,
+      valueLeft,
+      valueTop
+    });
+
+    if (saveAfterDrop === true) {
+      EventBus.emit('BBSave');
+    }
+    return c;
+  }
+}
+/**
+ * #endregion
+ */
+
+/**
+ * #region Movement
+ */
+function moveStart(event, component) {
+  if (props.selectedTool === state.toolState.TOOL_MOVE) {
+    state.selectedComponent = component;
+    state.shiftX = event.offsetX; //where I click inside Component
+    state.shiftY = event.offsetY;
+  }
+}
+function moveMotion(e) {
+  if (
+    state.selectedComponent &&
+    props.selectedTool === state.toolState.TOOL_MOVE
+  ) {
+    let targetDiv = targetDivRef.value;
+    let tgt = targetDiv.getBoundingClientRect();
+    let valueTop = null;
+    let valueLeft = null;
+
+    state.selectedComponent.recalculatePins();
+
+    if (
+      state.selectedComponent.rotation === 0 ||
+      state.selectedComponent.rotation === 180 ||
+      state.selectedComponent.isMultiPin === true
+    ) {
+      valueTop = e.clientY - tgt.top + targetDiv.scrollTop - state.shiftY;
+      valueLeft = e.clientX - tgt.left + targetDiv.scrollLeft - state.shiftX;
+    } else if (
+      state.selectedComponent.rotation === 90 ||
+      state.selectedComponent.rotation === 270
+    ) {
+      valueTop = e.clientY - tgt.top + targetDiv.scrollTop - 18.9; // because width === 63.31 and graphical mouse is in middle of comp
+      valueLeft = e.clientX - tgt.left + targetDiv.scrollLeft - 50; // because height === 100 => be placed on horizontal center
+    }
+
+    state.selectedComponent.y = valueTop;
+    state.selectedComponent.x = valueLeft;
+  }
+  if (
+    props.selectedTool === state.toolState.TOOL_CREATE_WIRE &&
+    state.onCreationWire === true
+  ) {
+    let targetDiv = targetDivRef.value;
+    let tgt = targetDiv.getBoundingClientRect();
+    const valTop = e.clientY - tgt.top + targetDiv.scrollTop;
+    const valLeft = e.clientX - tgt.left + targetDiv.scrollLeft;
+    const line = document.getElementById('tempLine');
+    line.setAttribute('x2', valLeft);
+    line.setAttribute('y2', valTop);
+  }
+}
+function moveEnd(e) {
+  if (
+    state.selectedComponent &&
+    props.selectedTool === state.toolState.TOOL_MOVE
+  ) {
+    moveMotion(e);
+    state.selectedComponent = null;
+    EventBus.emit('BBSave');
+  }
+  if (
+    props.selectedTool === state.toolState.TOOL_CREATE_WIRE &&
+    state.onCreationWire === true
+  ) {
+    //move up not on a pin
+    state.onCreationWire = false;
+    resetCompFromWire();
+    document.getElementById('tempLine').remove();
+  }
+}
+function pinMoveEnd(component, nr) {
+  if (
+    props.selectedTool === state.toolState.TOOL_CREATE_WIRE &&
+    state.onCreationWire === true
+  ) {
+    if (state.toComponent === null && state.fromComponent !== component) {
+      state.toComponentPin = nr;
+      state.toComponent = component;
+      drawWire();
+      EventBus.emit('BBSave');
+    } else if (
+      state.fromComponent !== null &&
+      state.toComponent === null &&
+      state.fromComponentPin !== nr
+    ) {
+      // you are on same comp BUT not same pin
+      let newValLeft;
+      if (state.fromComponent.x - 50 > 0) {
+        newValLeft = state.fromComponent.x - 10;
+      } else {
+        newValLeft = state.fromComponent.x + 80;
+      }
+      const newValTop = state.fromComponent.y + 50;
+      const kn = circuit.value.dropComp({
+        c_id: 'Knoten',
+        valueLeft: newValLeft,
+        valueTop: newValTop
+      });
+      //connect 2 pins from state.fromComponent with kn pin
+      circuit.value.createOneWire(state.fromComponent, 0, kn, 0);
+      circuit.value.createOneWire(state.fromComponent, 1, kn, 0);
+      EventBus.emit('BBSave');
+    } else {
+      alert('You can choose same pin of the same component');
+    }
+    resetCompFromWire();
+    state.onCreationWire = false;
+    document.getElementById('tempLine').remove();
+  }
+}
+/**
+ * #endregion
+ */
+
+function simpleClick(component) {
+  if (props.selectedTool === state.toolState.TOOL_SELECT) {
+    component.selection();
+    component.recalculatePins();
+  } else if (props.selectedTool === state.toolState.TOOL_DELETE) {
+    circuit.value.deleteOneComponent(component); //call the function delete
+    EventBus.emit('BBSave');
+  } else if (
+    props.selectedTool === state.toolState.TOOL_ROTATE &&
+    component.isMultiPin === false
+  ) {
+    component.rotateRight();
+    EventBus.emit('BBSave');
+  }
+}
+/**
+ * #region Wire
+ */
+function creationWire() {
+  if (props.selectedTool === state.toolState.TOOL_CREATE_WIRE) {
+    resetbyfalseCreationWire(false);
+  } else {
+    resetbyfalseCreationWire(true);
+  }
+  resetCompFromWire();
+}
+
+function pinClicked(component, nr) {
+  if (props.selectedTool !== state.toolState.TOOL_CREATE_WIRE) {
+    return;
+  }
+  state.onCreationWire = true;
+  state.fromComponentPin = nr;
+  state.fromComponent = component;
+  var newLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  newLine.style.stroke = 'black';
+  newLine.style.strokeWidth = '2';
+  newLine.setAttribute('id', 'tempLine');
+  newLine.setAttribute('x1', component.pins[nr].x);
+  newLine.setAttribute('y1', component.pins[nr].y);
+  newLine.setAttribute('x2', component.pins[nr].x);
+  newLine.setAttribute('y2', component.pins[nr].y);
+  document.getElementById('svgArea').append(newLine);
+}
+function resetbyfalseCreationWire(bool) {
+  if (bool === true) {
+    emit('tool-state-changed', state.toolState.TOOL_CREATE_WIRE);
+  } else if (bool === false) {
+    emit('tool-state-changed', state.toolState.STATE_IDLE);
+  }
+}
+function resetCompFromWire() {
+  state.fromComponent =
+    state.fromComponentPin =
+    state.toComponent =
+    state.toComponentPin =
+      null;
+}
+function selectedWire(line) {
+  if (props.selectedTool === state.toolState.TOOL_DELETE) {
+    circuit.value.deleteOneWire(line);
+    EventBus.emit('BBSave');
+  }
+}
+
+function dropOnWire(e, wire) {
+  if (confirm('Do you want to insert this component on the Wire?')) {
+    const comp = drop(e, false);
+    circuit.value.wires.forEach((w) => {
+      if (w === wire) {
+        const fromComp = circuit.value.componentFromPin(w.from);
+        const fromPin = circuit.value.pinIndexFromComponent(fromComp, w.from);
+        const toComp = circuit.value.componentFromPin(w.to);
+        const toPin = circuit.value.pinIndexFromComponent(toComp, w.to);
+        circuit.value.deleteOneWire(w);
+        if (comp.isMultiPin) {
+          circuit.value.createOneWire(comp, 0, fromComp, fromPin);
+          circuit.value.createOneWire(comp, 0, toComp, toPin);
+        } else {
+          const lengthPin0 = distanceBtw2Points(
+            fromComp.pins[fromPin],
+            comp.pins[0]
+          );
+          const lengthPin1 = distanceBtw2Points(
+            fromComp.pins[fromPin],
+            comp.pins[1]
+          );
+          if (lengthPin0 <= lengthPin1) {
+            circuit.value.createOneWire(comp, 0, fromComp, fromPin);
+            circuit.value.createOneWire(comp, 1, toComp, toPin);
+          } else {
+            circuit.value.createOneWire(comp, 1, fromComp, fromPin);
+            circuit.value.createOneWire(comp, 0, toComp, toPin);
+          }
+        }
+        EventBus.emit('BBSave');
+      }
+    });
+  } else {
+    drop(e, true);
+  }
+}
+function drawWire() {
+  let wire = new WireJS({
+    from: state.fromComponent.pins[state.fromComponentPin],
+    to: state.toComponent.pins[state.toComponentPin]
+  });
+  circuit.value.wires.push(wire);
+  pinOpacity0(wire);
+}
+
+//TODO à supprimer (enfin d'abord contrôler qu'on peut bien le supprimer)
+function pinOpacity0(wire) {
+  const showHidePin = (c, pinNB) => {
+    if (c.isMultiPin === false) {
+      if (pinNB === 0) {
+        c.showPin1 = false;
+      } else if (pinNB === 1) {
+        c.showPin2 = false;
+      }
+    }
+  };
+  const fromComp = circuit.value.componentFromPin(wire.from);
+  const toComp = circuit.value.componentFromPin(wire.to);
+  showHidePin(
+    fromComp,
+    circuit.value.pinIndexFromComponent(fromComp, wire.from)
+  );
+  showHidePin(toComp, circuit.value.pinIndexFromComponent(toComp, wire.to));
+}
+/**
+ * #endregion
+ */
+
+/**
+ * #region MenuBar function
+ */
+function MBcapture() {
+  let targetDiv = document.getElementById('targetDiv');
+  targetDiv.scrollTo(0, 0);
+  print();
+}
+
+function MBsolve() {
+  if (
+    hasMainVal(circuit.value.components) &&
+    circuit.value.components.length > 0
+  ) {
+    let solver = new CircuitSolver(circuit.value);
+    try {
+      solver.solveWithAttribution();
+      EventBus.emit('BBresult');
+      EventBus.emit('BBSave');
+    } catch (e) {
+      alert('*****ERROR*****\n' + e.message);
+    }
+  }
+}
+function MBopenFile() {
+  const file = document.getElementById('fileInput').files[0];
+  const blob = new Blob([file], { type: 'application/json' });
+  const fr = new FileReader();
+  let obj;
+
+  fr.onload = function () {
+    obj = JSON.parse(fr.result);
+    log('JSON.parse(fr.result)\n', obj);
+  };
+  fr.readAsText(blob);
+  fr.onloadend = function () {
+    log('START Load');
+    circuit.value.loadNewCircuit(obj);
+    log('Comp Ok, Wire load start');
+    circuit.value.loadWireOfNewCircuit(obj);
+    log('CIRCUIT LOADED', circuit.value);
+  };
+  EventBus.emit('BBSave');
+}
+function MBsaveFile() {
+  let data = circuit.value;
+  // Convert the text to BLOB.
+  const textToBLOB = new Blob([JSON.stringify(data, null, 2)], {
+    type: 'application/json'
+  });
+  const sFileName = 'SfeS-circuit.json'; // The file to save the data.
+  let newLink = document.createElement('a');
+  newLink.download = sFileName;
+
+  if (window.webkitURL != null) {
+    newLink.href = window.webkitURL.createObjectURL(textToBLOB);
+  } else {
+    newLink.href = window.URL.createObjectURL(textToBLOB);
+  }
+  newLink.style.display = 'none';
+  document.body.appendChild(newLink);
+  newLink.click();
+  document.body.removeChild(newLink);
+}
+function MBgetEmptyCircuit() {
+  if (
+    confirm(
+      'The current file will be deleted when you create a new one. Are you sure ?'
+    )
+  ) {
+    emit('set-circuit');
+    EventBus.emit('BBSave');
+  }
+}
 </script>
 
 <style>

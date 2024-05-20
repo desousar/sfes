@@ -15,13 +15,11 @@ https://medium.com/fbbd/intro-to-writing-undo-redo-systems-in-javascript-af17148
       @set-position="setPosition"
     />
     <BigBody
-      :currentLanguage="state.currentLanguage"
       :withPredefinedValue="state.withPredefinedValue"
       :selectedTool="state.tool"
       @tool-state-changed="onToolStateChanged"
       :theCircuit="state.theCircuit"
       @set-circuit="setCircuit"
-      :undoRedoData="state.undoRedoData"
       @set-position="setPosition"
       @shift-history="shiftHistory"
       @slice-history="sliceHistory"

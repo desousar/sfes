@@ -42,7 +42,7 @@ test('Rand2VS: Resistor and 2 Voltage sources', () => {
 
   console.log('circuit original created');
 
-  let solutionArray = [];
+  let solutionArray = [[]];
 
   expect(() => unitTest(original, solutionArray)).toThrow(
     ConsistentMatrixInfiniteError

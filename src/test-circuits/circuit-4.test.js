@@ -33,8 +33,8 @@ test('RandVS: Resistor and Voltage source', () => {
 
   console.log('circuit original created');
 
-  let solutionArray = [10, 5, 5, 5, 0, 0.1, 0.1, 0];
+  let solutionArray = [[10, 5, 5, 5, 0, 0.1, 0.1, 0]];
 
   const result = unitTest(original, solutionArray);
-  expect(result).toBe(0);
+  expect(result).toBe(true);
 });

@@ -41,8 +41,8 @@ test('RandRorVS: Resistor in Serie and Resistor and Voltage source in Parallel',
 
   console.log('circuit original created');
 
-  let solutionArray = [0, -5, 5, 5, 5, 0, 0.1, 0.25, 0.35, 0];
+  let solutionArray = [[0, -5, 5, 5, 5, 0, 0.1, 0.25, 0.35, 0]];
 
   const result = unitTest(original, solutionArray);
-  expect(result).toBe(0);
+  expect(result).toBe(true);
 });

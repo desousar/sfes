@@ -3,23 +3,25 @@ import CircuitSolver from '@/components/jsFolder/constructorComponent/CircuitSol
 /**
  *
  * @param {Circuit} original
- * @param {Array} solutionArray
- * @returns number (number === 0 => success)
+ * @param {Array of Array} solutionArray
  */
 export function unitTest(original, solutionArray) {
-  let solver = new CircuitSolver(original);
+  const solver = new CircuitSolver(original);
 
-  var projection = solver.solve();
+  const projection = solver.solve();
 
   for (let i = 0; i < projection.listOfSubCircuit.length; i++) {
-    projection.result[i].mtx.forEach((comp) => {
-      let tempIndex = solutionArray.indexOf(parseFloat(comp[i]));
+    for (const res of projection.result[i].mtx) {
+      let tempIndex = solutionArray[i].indexOf(parseFloat(res));
       if (tempIndex === -1) {
-        return solutionArray.length;
+        return false;
       } else {
-        solutionArray.splice(tempIndex, 1);
+        solutionArray[i].splice(tempIndex, 1);
       }
-    });
+    }
+    if (solutionArray[i].length !== 0) {
+      return false;
+    }
   }
-  return solutionArray.length;
+  return true;
 }

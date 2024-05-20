@@ -7,7 +7,6 @@ import Ampermeter from '../jsFolder/constructorComponent/jsComponents/Ampermeter
 import Voltmeter from '../jsFolder/constructorComponent/jsComponents/Voltmeter.js';
 import Klemme from '../jsFolder/constructorComponent/jsComponents/Klemme.js';
 import WireAsComp from '../jsFolder/constructorComponent/jsComponents/WireAsComp.js';
-import Wire from '../jsFolder/constructorComponent/Wire.js';
 
 import Matrix from '../jsFolder/Matrix.js';
 
@@ -158,10 +157,9 @@ export default class Circuit {
     console.log('STEP 1 started');
     /**
      * purpose: check that all 2-Pins-components have their main value
-     * => Done before calling checkAndSolveCircuit
+     * => Already done before calling checkAndSolveCircuit
      */
     try {
-      /* if you run test-circuit in command line comment following function call */
       this.isCircuitOpen();
     } catch (e) {
       throw new Error('ERROR by STEP 1: ' + e.message);
@@ -214,38 +212,40 @@ export default class Circuit {
     this.components.forEach((comp) => {
       if (comp.isMultiPin) {
         if (this.getCountConnection(comp) === 0) {
+          console.log('ADD A KNOTEN', kn1.symbol);
           const kn1 = this.dropComp({
             c_id: 'Knoten'
           });
-          console.log('ADD A KNOTEN', kn1.symbol);
-          const w1 = new Wire({
-            from: comp.pins[0],
-            to: kn1.pins[0]
-          });
-          this.wires.push(w1);
+          this.createOneWire(comp, 0, kn1, 0);
         }
       } else {
         if (comp.showPin1 === true && comp.showPin2 === true) {
+          // bind R to one Knoten on both pins to enable the solve process
           const kn1 = this.dropComp({
             c_id: 'Knoten'
           });
-          const w1 = new Wire({
-            from: comp.pins[0],
-            to: kn1.pins[0]
-          });
-          this.wires.push(w1);
-          if (!comp.isMultiPin) {
-            const w2 = new Wire({
-              from: comp.pins[1],
-              to: kn1.pins[0]
-            });
-            this.wires.push(w2);
-          }
+          this.createOneWire(comp, 0, kn1, 0);
+          this.createOneWire(comp, 1, kn1, 0);
         } else if (comp.showPin1 === true || comp.showPin2 === true) {
           throw new Error('circuit is open on ' + comp.symbol);
         }
       }
     });
+  }
+
+  getCountConnection(comp) {
+    let count = 0;
+    for (let wire of this.wires) {
+      var compFrom = this.componentFromPin(wire.from);
+      var compTo = this.componentFromPin(wire.to);
+      if (
+        comp.uniqueID === compFrom.uniqueID ||
+        comp.uniqueID === compTo.uniqueID
+      ) {
+        count++;
+      }
+    }
+    return count;
   }
 
   /*--------------------STEP 2--------------------*/
@@ -255,17 +255,17 @@ export default class Circuit {
    */
   verifyOneKnotenBetweenTwo2PinsKomp() {
     this.components.forEach((comp) => {
-      for (let wire of this.wires) {
-        const compFrom = this.componentFromPin(wire.from);
-        const pinFrom = this.pinIndexFromComponent(compFrom, wire.from);
-        const compTo = this.componentFromPin(wire.to);
-        const pinTo = this.pinIndexFromComponent(compTo, wire.to);
-        if (comp.uniqueID === compFrom.uniqueID && !comp.isMultiPin) {
-          if (!compTo.isMultiPin) {
+      if (!comp.isMultiPin) {
+        for (const wire of this.wires) {
+          const compFrom = this.componentFromPin(wire.from);
+          const pinFrom = this.pinIndexFromComponent(compFrom, wire.from);
+          const compTo = this.componentFromPin(wire.to);
+          const pinTo = this.pinIndexFromComponent(compTo, wire.to);
+          if (comp.uniqueID === compFrom.uniqueID && !compTo.isMultiPin) {
             //add a Knoten
-            let index = this.wires.indexOf(wire);
+            const index = this.wires.indexOf(wire);
             this.wires.splice(index, 1);
-            let kSTEP2 = this.dropComp({
+            const kSTEP2 = this.dropComp({
               c_id: 'Knoten'
             });
             console.log(
@@ -276,23 +276,14 @@ export default class Circuit {
               'and',
               compTo.symbol
             );
-            const wSTEP21 = new Wire({
-              from: compFrom.pins[pinFrom],
-              to: kSTEP2.pins[0]
-            });
-            const wSTEP22 = new Wire({
-              from: kSTEP2.pins[0],
-              to: compTo.pins[pinTo]
-            });
-            this.wires.push(wSTEP21, wSTEP22);
+            this.createOneWire(compFrom, pinFrom, kSTEP2, 0);
+            this.createOneWire(kSTEP2, 0, compTo, pinTo);
           }
-        }
-        if (comp.uniqueID === compTo.uniqueID && !comp.isMultiPin) {
-          if (!compFrom.isMultiPin) {
+          if (comp.uniqueID === compTo.uniqueID && !compFrom.isMultiPin) {
             //add a Knoten
-            let index = this.wires.indexOf(wire);
+            const index = this.wires.indexOf(wire);
             this.wires.splice(index, 1);
-            let kSTEP2 = this.dropComp({
+            const kSTEP2 = this.dropComp({
               c_id: 'Knoten'
             });
             console.log(
@@ -303,15 +294,8 @@ export default class Circuit {
               'and',
               compTo.symbol
             );
-            const wSTEP21 = new Wire({
-              from: compFrom.pins[pinFrom],
-              to: kSTEP2.pins[0]
-            });
-            const wSTEP22 = new Wire({
-              from: kSTEP2.pins[0],
-              to: compTo.pins[pinTo]
-            });
-            this.wires.push(wSTEP21, wSTEP22);
+            this.createOneWire(compFrom, pinFrom, kSTEP2, 0);
+            this.createOneWire(kSTEP2, 0, compTo, pinTo);
           }
         }
       }
@@ -332,75 +316,43 @@ export default class Circuit {
   getOneSubCircuit(startComp) {
     console.log('\n-----SESSION-----\n');
 
-    startComp.visitedPin0 = true;
-    console.log('START 00:', startComp.symbol);
-    console.log('\tvisitedPin0');
+    this.setAsVisited(startComp);
+    console.log('START with:', startComp.symbol);
 
-    /**
-     * if the circuit is open, you have to browse the circuit from the 2 pins of the component
-     */
-    if (startComp.isMultiPin) {
-      console.log('MULTIPIN OK', startComp.symbol);
-      startComp.visitedPin0 = true;
-      console.log(
-        '\tvisitedPin0 Knoten OK',
-        startComp.symbol,
-        startComp.uniqueID,
-        this.getCountConnection(startComp)
-      );
-      if (
-        this.getCountConnection(startComp) === 1 &&
-        this.getNextCompWith(startComp.pins[0]).visitedPin0 === true
-      ) {
-        console.log('\tvisitedPin0 EndOfWire MultiPin OK', startComp.symbol);
-      } else {
-        for (let wire of this.wires) {
-          const compFrom = this.componentFromPin(wire.from);
-          const compTo = this.componentFromPin(wire.to);
-          if (compFrom !== undefined && compTo !== undefined) {
-            if (startComp.uniqueID === compFrom.uniqueID) {
-              console.log('ENTER 100: OK', compTo.symbol);
-              if (!compTo.isMultiPin) {
-                const index = this.pinIndexFromComponent(compTo, wire.to);
-                compTo['visitedPin' + index] = true;
-                console.log('\tvisitedPin' + index);
-              }
-              this.nextNeighbor(compFrom, compTo); //Recursion
-            } else if (startComp.uniqueID === compTo.uniqueID) {
-              console.log('ENTER 200: OK', compFrom.symbol);
-              if (!compFrom.isMultiPin) {
-                const index = this.pinIndexFromComponent(compFrom, wire.from);
-                compFrom['visitedPin' + index] = true;
-                console.log('\tvisitedPin' + index);
-              }
-              this.nextNeighbor(compTo, compFrom); //Recursion
-            }
-          }
+    /*
+    I know the circuit is not open, so I annotate the component as visited
+    => use an arrow function explore to explore circuits 
+    */
+    const explore = (nComp) => {
+      log('EXPLORE', nComp.symbol);
+      const comps = this.getNeighborsOfOneComp(nComp.pins);
+
+      log('comps', comps);
+      for (const icomp of comps) {
+        log('icomp', icomp.symbol, icomp.visited);
+
+        if (icomp.visited) {
+          continue;
         }
-      }
-    } else {
-      const nextComp = this.getNextCompWith(startComp.pins[0]);
-      this.nextNeighbor(startComp, nextComp); //Recursion
-    }
 
-    if (startComp.visitedPin1 === undefined && startComp.isMultiPin === false) {
-      const nextComp = this.getNextCompWith(startComp.pins[1]);
-      this.nextNeighbor(startComp, nextComp); //Recursion
-    }
+        this.setAsVisited(icomp);
+        explore(icomp);
+      }
+    };
+
+    explore(startComp);
 
     console.log('\n----------add in SubCircuit----------\n');
     let subCircuit = [];
     for (let c = this.components.length - 1; c >= 0; c--) {
-      console.log('inside', this.components[c].symbol, this.components[c]);
-      if (
-        this.components[c].visitedPin0 === true ||
-        this.components[c].visitedPin1 === true
-      ) {
-        console.log(this.components[c].symbol);
-        subCircuit.push(this.components[c]);
+      const comp = this.components[c];
+      console.log('inside', comp.symbol, comp);
+      if (comp.visited) {
+        console.log(comp.symbol);
+        subCircuit.push(comp);
         this.components.splice(c, 1);
       } else {
-        console.log('not', this.components[c].symbol);
+        console.log('not', comp.symbol);
       }
     }
     console.log('\n----------use rest----------\n');
@@ -414,125 +366,8 @@ export default class Circuit {
     if (this.components.length > 0) {
       this.getOneSubCircuit(this.components[0]); //Recursion
     }
-  }
 
-  getNextCompWith(pin) {
-    for (let wire of this.wires) {
-      const compFrom = this.componentFromPin(wire.from);
-      const compTo = this.componentFromPin(wire.to);
-      if (pin === wire.from) {
-        console.log('ENTER 10:', compTo.symbol);
-        if (!compTo.isMultiPin) {
-          const index = this.pinIndexFromComponent(compTo, wire.to);
-          compTo['visitedPin' + index] = true; //dynamic attribute name with half part String
-          console.log('\tvisitedPin' + index);
-        }
-        return compTo;
-      } else if (pin === wire.to) {
-        console.log('ENTER 20:', compFrom.symbol);
-        if (!compFrom.isMultiPin) {
-          const index = this.pinIndexFromComponent(compFrom, wire.from);
-          compFrom['visitedPin' + index] = true;
-          console.log('\tvisitedPin' + index);
-        }
-        return compFrom;
-      }
-    }
-  }
-
-  nextNeighbor(origin, comp) {
-    if (comp.isMultiPin === false && (!comp.visitedPin0 || !comp.visitedPin1)) {
-      let pin;
-      if (comp.visitedPin0) {
-        pin = comp.pins[1];
-        comp.visitedPin1 = true;
-        console.log('\tvisitedPin1');
-      } else if (comp.visitedPin1) {
-        pin = comp.pins[0];
-        comp.visitedPin0 = true;
-        console.log('\tvisitedPin0');
-      }
-      const nextComp = this.getNextCompWith(pin);
-      if (nextComp === undefined) {
-        let kSTEP3 = this.dropComp({
-          c_id: 'Knoten'
-        });
-        console.log('-------Warning: Circuit open, ADD', kSTEP3.symbol);
-        kSTEP3.visitedPin0 = true;
-        if (comp.visitedPin0) {
-          const wSTEP3 = new Wire({
-            from: comp.pins[1],
-            to: kSTEP3.pins[0]
-          });
-          this.wires.push(wSTEP3);
-        } else {
-          const wSTEP3 = new Wire({
-            from: comp.pins[0],
-            to: kSTEP3.pins[0]
-          });
-          this.wires.push(wSTEP3);
-        }
-      } else {
-        this.nextNeighbor(comp, nextComp); //Recursion
-      }
-    } else if (comp.isMultiPin) {
-      console.log('MULTIPIN', comp.symbol);
-      comp.visitedPin0 = true;
-      console.log(
-        '\tvisitedPin0 Knoten',
-        comp.symbol,
-        comp.uniqueID,
-        this.getCountConnection(comp)
-      );
-      if (this.getCountConnection(comp) === 1) {
-        console.log('\tvisitedPin0 EndOfWire MultiPin', comp.symbol);
-      } else {
-        for (let wire of this.wires) {
-          const compFrom = this.componentFromPin(wire.from);
-          const compTo = this.componentFromPin(wire.to);
-          if (compFrom !== undefined && compTo !== undefined) {
-            if (
-              comp.uniqueID === compFrom.uniqueID &&
-              origin.uniqueID !== compTo.uniqueID
-            ) {
-              console.log('ENTER 100:', compTo.symbol);
-              if (!compTo.isMultiPin) {
-                const index = this.pinIndexFromComponent(compTo, wire.to);
-                compTo['visitedPin' + index] = true;
-                console.log('\tvisitedPin' + index);
-              }
-              this.nextNeighbor(compFrom, compTo); //Recursion
-            } else if (
-              comp.uniqueID === compTo.uniqueID &&
-              origin.uniqueID !== compFrom.uniqueID
-            ) {
-              console.log('ENTER 200:', compFrom.symbol);
-              if (!compFrom.isMultiPin) {
-                const index = this.pinIndexFromComponent(compFrom, wire.from);
-                compFrom['visitedPin' + index] = true;
-                console.log('\tvisitedPin' + index);
-              }
-              this.nextNeighbor(compTo, compFrom); //Recursion
-            }
-          }
-        }
-      }
-    }
-  }
-
-  getCountConnection(comp) {
-    let count = 0;
-    for (let wire of this.wires) {
-      var compFrom = this.componentFromPin(wire.from);
-      var compTo = this.componentFromPin(wire.to);
-      if (
-        comp.uniqueID === compFrom.uniqueID ||
-        comp.uniqueID === compTo.uniqueID
-      ) {
-        count++;
-      }
-    }
-    return count;
+    // there's no need to reset the visited attribute to false, as checkAndSolveCircuit is called on a projection
   }
 
   /*--------------------STEP 4--------------------*/
@@ -542,7 +377,7 @@ export default class Circuit {
    */
   verifyPotential() {
     for (let i = 0; i < this.listOfSubCircuit.length; i++) {
-      console.log('---SubCircuit---');
+      console.log('---SubCircuit---', i);
 
       let hasOnePotential = this.listOfSubCircuit[i].some(
         (c) => c instanceof Knoten && c.valuePotentialSource !== undefined
@@ -550,7 +385,6 @@ export default class Circuit {
       if (!hasOnePotential) {
         console.log('-------Warning: MISSING Potential, ADD one to 0');
         for (let sc of this.listOfSubCircuit[i]) {
-          // if (sc instanceof Knoten) {
           if (sc.isMultiPin) {
             sc.valuePotentialSource = 0;
             break; //to get just first Knoten
@@ -567,13 +401,13 @@ export default class Circuit {
    */
   addOneWireBetweenTwoMultiPinKomp() {
     for (let i = 0; i < this.listOfSubCircuit.length; i++) {
-      console.log('---SubCircuit---');
+      console.log('---SubCircuit---', i);
       this.listOfSubCircuit[i].forEach((comp) => {
         if (comp.isMultiPin) {
           for (let wire of this.wires) {
             const compFrom = this.componentFromPinInSubC(wire.from, i);
             const compTo = this.componentFromPinInSubC(wire.to, i);
-            if (compFrom !== undefined && compTo !== undefined) {
+            if (compFrom && compTo) {
               if (
                 (comp.uniqueID === compFrom.uniqueID ||
                   comp.uniqueID === compTo.uniqueID) &&
@@ -588,22 +422,15 @@ export default class Circuit {
                 });
                 this.listOfSubCircuit[i].push(wAsCSTEP5);
                 console.log(
-                  'add Wire btw',
+                  'add WireAsComp btw',
                   compFrom.symbol,
                   'and',
                   compTo.symbol
                 );
                 const pinFrom = this.pinIndexFromComponent(compFrom, wire.from);
                 const pinTo = this.pinIndexFromComponent(compTo, wire.to);
-                const wSTEP51 = new Wire({
-                  from: compFrom.pins[pinFrom],
-                  to: wAsCSTEP5.pins[0]
-                });
-                const wSTEP52 = new Wire({
-                  from: wAsCSTEP5.pins[1],
-                  to: compTo.pins[pinTo]
-                });
-                this.wires.push(wSTEP51, wSTEP52);
+                this.createOneWire(compFrom, pinFrom, wAsCSTEP5, 0);
+                this.createOneWire(wAsCSTEP5, 1, compTo, pinTo);
               }
             }
           }
@@ -613,26 +440,24 @@ export default class Circuit {
   }
 
   /*---------------Knotenpotentialverfahren---------------*/
-  numberMultiPinKomp(nb) {
-    let count = 0;
+
+  getNumberMultiPin_and_2PinsComp(nb) {
+    let countMultiPin = 0;
+    let count2Pins = 0;
     this.listOfSubCircuit[nb].forEach((comp) => {
       if (comp.isMultiPin) {
-        count++;
+        countMultiPin++;
+        if (comp.valuePotentialSource !== undefined) {
+          count2Pins++;
+        }
       }
-    });
-    return count;
-  }
-  number2PinsKomp(nb) {
-    let count = 0;
-    this.listOfSubCircuit[nb].forEach((comp) => {
       if (!comp.isMultiPin) {
-        count++;
-      } else if (comp.valuePotentialSource !== undefined) {
-        count++;
+        count2Pins++;
       }
     });
-    return count;
+    return { countMultiPin: countMultiPin, count2Pins: count2Pins };
   }
+
   createAndSolveMatrix() {
     //every Sub-Circuit will have his own matrix
     this.A = [];
@@ -641,10 +466,11 @@ export default class Circuit {
     this.result = [];
 
     for (let i = 0; i < this.listOfSubCircuit.length; i++) {
-      console.log('multiPin:', this.numberMultiPinKomp(i));
-      console.log('2Pins:', this.number2PinsKomp(i));
-      let cols = this.numberMultiPinKomp(i) + this.number2PinsKomp(i) * 2;
-      let rows = this.numberMultiPinKomp(i) + this.number2PinsKomp(i) * 2;
+      const { countMultiPin, count2Pins } =
+        this.getNumberMultiPin_and_2PinsComp(i);
+      console.log('multiPin:', countMultiPin, 'and 2Pins:', count2Pins);
+      let cols = countMultiPin + count2Pins * 2;
+      let rows = countMultiPin + count2Pins * 2;
       console.log('rows:', rows, ' cols:', cols);
       this.A[i] = new Matrix({ row: rows, column: cols });
       this.b[i] = new Matrix({ row: rows, column: 1 });
@@ -652,13 +478,13 @@ export default class Circuit {
 
       this.A[i].print('A');
       this.b[i].print('b');
-      console.log('------KnotenGleichungen------');
+      console.log('------KnotenGleichungen------', i);
       this.knotenEquation(i);
-      console.log('------BauteilGleichungen------');
+      console.log('------BauteilGleichungen------', i);
       this.bauteilEquation(i);
-      console.log('------PotenzialGleichungen------');
+      console.log('------PotenzialGleichungen------', i);
       this.potenzialEquation(i);
-      console.log('------END Gleichung Sammlung------');
+      console.log('------END Gleichung Sammlung------', i);
 
       const cc = this.A[i].deepCopy();
       cc.toReducedRowEchelonForm();
@@ -709,43 +535,45 @@ export default class Circuit {
         for (let wire of this.wires) {
           const compFrom = this.componentFromPinInSubC(wire.from, nb);
           const compTo = this.componentFromPinInSubC(wire.to, nb);
-          if (comp.uniqueID === compFrom.uniqueID) {
-            const pinTo = this.pinIndexFromComponent(compTo, wire.to);
-            let indexI = compTo.addValueIinListModelANDgetIndex(
-              this.listModel,
-              nb
-            );
-            if (pinTo === 0) {
-              if (compTo.directionI === Component.PIN0_TO_PIN1) {
-                this.A[nb].set(rowCounter, indexI, -1); //-1*valueI
-              } else if (compTo.directionI === Component.PIN1_TO_PIN0) {
-                this.A[nb].set(rowCounter, indexI, 1); //+1*valueI
-              }
-            } else if (pinTo === 1) {
-              if (compTo.directionI === Component.PIN0_TO_PIN1) {
-                this.A[nb].set(rowCounter, indexI, 1); //+1*valueI
-              } else if (compTo.directionI === Component.PIN1_TO_PIN0) {
-                this.A[nb].set(rowCounter, indexI, -1); //-1*valueI
+          if (compFrom && compTo) {
+            if (comp.uniqueID === compFrom.uniqueID) {
+              const pinTo = this.pinIndexFromComponent(compTo, wire.to);
+              let indexI = compTo.addValueIinListModelANDgetIndex(
+                this.listModel,
+                nb
+              );
+              if (pinTo === 0) {
+                if (compTo.directionI === Component.PIN0_TO_PIN1) {
+                  this.A[nb].set(rowCounter, indexI, -1); //-1*valueI
+                } else if (compTo.directionI === Component.PIN1_TO_PIN0) {
+                  this.A[nb].set(rowCounter, indexI, 1); //+1*valueI
+                }
+              } else if (pinTo === 1) {
+                if (compTo.directionI === Component.PIN0_TO_PIN1) {
+                  this.A[nb].set(rowCounter, indexI, 1); //+1*valueI
+                } else if (compTo.directionI === Component.PIN1_TO_PIN0) {
+                  this.A[nb].set(rowCounter, indexI, -1); //-1*valueI
+                }
               }
             }
-          }
-          if (comp.uniqueID === compTo.uniqueID) {
-            const pinFrom = this.pinIndexFromComponent(compFrom, wire.from);
-            let indexI = compFrom.addValueIinListModelANDgetIndex(
-              this.listModel,
-              nb
-            );
-            if (pinFrom === 0) {
-              if (compFrom.directionI === Component.PIN0_TO_PIN1) {
-                this.A[nb].set(rowCounter, indexI, -1); //-1*valueI
-              } else if (compFrom.directionI === Component.PIN1_TO_PIN0) {
-                this.A[nb].set(rowCounter, indexI, 1); //+1*valueI
-              }
-            } else if (pinFrom === 1) {
-              if (compFrom.directionI === Component.PIN0_TO_PIN1) {
-                this.A[nb].set(rowCounter, indexI, 1); //+1*valueI
-              } else if (compFrom.directionI === Component.PIN1_TO_PIN0) {
-                this.A[nb].set(rowCounter, indexI, -1); //-1*valueI
+            if (comp.uniqueID === compTo.uniqueID) {
+              const pinFrom = this.pinIndexFromComponent(compFrom, wire.from);
+              let indexI = compFrom.addValueIinListModelANDgetIndex(
+                this.listModel,
+                nb
+              );
+              if (pinFrom === 0) {
+                if (compFrom.directionI === Component.PIN0_TO_PIN1) {
+                  this.A[nb].set(rowCounter, indexI, -1); //-1*valueI
+                } else if (compFrom.directionI === Component.PIN1_TO_PIN0) {
+                  this.A[nb].set(rowCounter, indexI, 1); //+1*valueI
+                }
+              } else if (pinFrom === 1) {
+                if (compFrom.directionI === Component.PIN0_TO_PIN1) {
+                  this.A[nb].set(rowCounter, indexI, 1); //+1*valueI
+                } else if (compFrom.directionI === Component.PIN1_TO_PIN0) {
+                  this.A[nb].set(rowCounter, indexI, -1); //-1*valueI
+                }
               }
             }
           }
@@ -758,7 +586,8 @@ export default class Circuit {
   }
   /*-------------------StepB: BauteilGleichungen----------------------*/
   bauteilEquation(nb) {
-    let rowCounter = this.numberMultiPinKomp(nb);
+    const { countMultiPin } = this.getNumberMultiPin_and_2PinsComp(nb);
+    let rowCounter = countMultiPin;
     console.log(nb, this.listOfSubCircuit);
     this.listOfSubCircuit[nb].forEach((comp) => {
       if (!comp.isMultiPin || comp.valuePotentialSource !== undefined) {
@@ -771,7 +600,9 @@ export default class Circuit {
   }
   /*-------------------StepC: PotenzialGleichungen----------------------*/
   potenzialEquation(nb) {
-    let rowCounter = this.numberMultiPinKomp(nb) + this.number2PinsKomp(nb);
+    const { countMultiPin, count2Pins } =
+      this.getNumberMultiPin_and_2PinsComp(nb);
+    let rowCounter = countMultiPin + count2Pins;
     this.listOfSubCircuit[nb].forEach((comp) => {
       if (!comp.isMultiPin || comp.valuePotentialSource !== undefined) {
         if (comp.valuePotentialSource !== undefined) {
@@ -793,45 +624,47 @@ export default class Circuit {
           for (let wire of this.wires) {
             const compFrom = this.componentFromPinInSubC(wire.from, nb);
             const compTo = this.componentFromPinInSubC(wire.to, nb);
-            if (comp.uniqueID === compFrom.uniqueID) {
-              let indexPHI = compTo.addValuePHIinListModelANDgetIndex(
-                this.listModel,
-                nb
-              );
-              if (comp.pins[0] === wire.from) {
-                //Knoten connected on comp.pin[0]
-                if (comp.directionU === Component.PIN0_TO_PIN1) {
-                  this.A[nb].set(rowCounter, indexPHI, -1); //-> (-1)*kOFpin[0]
-                } else if (comp.directionU === Component.PIN1_TO_PIN0) {
-                  this.A[nb].set(rowCounter, indexPHI, 1); //-> 1*kOFpin[0]
-                }
-              } else if (comp.pins[1] === wire.from) {
-                //Knoten connected on comp.pin[1]
-                if (comp.directionU === Component.PIN0_TO_PIN1) {
-                  this.A[nb].set(rowCounter, indexPHI, 1); //-> 1*kOFpin[0]
-                } else if (comp.directionU === Component.PIN1_TO_PIN0) {
-                  this.A[nb].set(rowCounter, indexPHI, -1); //-> (-1)*kOFpin[0]
+            if (compFrom && compTo) {
+              if (comp.uniqueID === compFrom.uniqueID) {
+                let indexPHI = compTo.addValuePHIinListModelANDgetIndex(
+                  this.listModel,
+                  nb
+                );
+                if (comp.pins[0] === wire.from) {
+                  //Knoten connected on comp.pin[0]
+                  if (comp.directionU === Component.PIN0_TO_PIN1) {
+                    this.A[nb].set(rowCounter, indexPHI, -1); //-> (-1)*kOFpin[0]
+                  } else if (comp.directionU === Component.PIN1_TO_PIN0) {
+                    this.A[nb].set(rowCounter, indexPHI, 1); //-> 1*kOFpin[0]
+                  }
+                } else if (comp.pins[1] === wire.from) {
+                  //Knoten connected on comp.pin[1]
+                  if (comp.directionU === Component.PIN0_TO_PIN1) {
+                    this.A[nb].set(rowCounter, indexPHI, 1); //-> 1*kOFpin[0]
+                  } else if (comp.directionU === Component.PIN1_TO_PIN0) {
+                    this.A[nb].set(rowCounter, indexPHI, -1); //-> (-1)*kOFpin[0]
+                  }
                 }
               }
-            }
-            if (comp.uniqueID === compTo.uniqueID) {
-              let indexPHI = compFrom.addValuePHIinListModelANDgetIndex(
-                this.listModel,
-                nb
-              );
-              if (comp.pins[0] === wire.to) {
-                //Knoten connected on comp.pin[0]
-                if (comp.directionU === Component.PIN0_TO_PIN1) {
-                  this.A[nb].set(rowCounter, indexPHI, -1); //-> (-1)*kOFpin[0]
-                } else if (comp.directionU === Component.PIN1_TO_PIN0) {
-                  this.A[nb].set(rowCounter, indexPHI, 1); //-> 1*kOFpin[0]
-                }
-              } else if (comp.pins[1] === wire.to) {
-                //Knoten connected on comp.pin[1]
-                if (comp.directionU === Component.PIN0_TO_PIN1) {
-                  this.A[nb].set(rowCounter, indexPHI, 1); //-> 1*kOFpin[0]
-                } else if (comp.directionU === Component.PIN1_TO_PIN0) {
-                  this.A[nb].set(rowCounter, indexPHI, -1); //-> (-1)*kOFpin[0]
+              if (comp.uniqueID === compTo.uniqueID) {
+                let indexPHI = compFrom.addValuePHIinListModelANDgetIndex(
+                  this.listModel,
+                  nb
+                );
+                if (comp.pins[0] === wire.to) {
+                  //Knoten connected on comp.pin[0]
+                  if (comp.directionU === Component.PIN0_TO_PIN1) {
+                    this.A[nb].set(rowCounter, indexPHI, -1); //-> (-1)*kOFpin[0]
+                  } else if (comp.directionU === Component.PIN1_TO_PIN0) {
+                    this.A[nb].set(rowCounter, indexPHI, 1); //-> 1*kOFpin[0]
+                  }
+                } else if (comp.pins[1] === wire.to) {
+                  //Knoten connected on comp.pin[1]
+                  if (comp.directionU === Component.PIN0_TO_PIN1) {
+                    this.A[nb].set(rowCounter, indexPHI, 1); //-> 1*kOFpin[0]
+                  } else if (comp.directionU === Component.PIN1_TO_PIN0) {
+                    this.A[nb].set(rowCounter, indexPHI, -1); //-> (-1)*kOFpin[0]
+                  }
                 }
               }
             }
@@ -897,7 +730,7 @@ export default class Circuit {
     this.wires.forEach((wire) => {
       const compTo = this.componentFromPinInSubC(wire.to, nb);
       const compFrom = this.componentFromPinInSubC(wire.from, nb);
-      if (compFrom !== undefined || compTo !== undefined) {
+      if (compFrom && compTo) {
         if (c.uniqueID === compFrom.uniqueID) {
           this.attributeValuePhi(c, wire.from, compTo, nb);
         }

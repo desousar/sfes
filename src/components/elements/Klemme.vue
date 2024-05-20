@@ -26,7 +26,7 @@
       transform="translate(-52.000099,-278.55344)"
     >
       <circle
-        r="8"
+        r="10"
         style="
           opacity: 1;
           fill: #ffffff;

@@ -40,7 +40,7 @@
           stroke-dasharray: none;
           stroke-opacity: 1;
         "
-        r="8"
+        r="10"
         class="pin"
         @mousedown="(ev) => emit('pin', 0)"
         @mouseup="(ev) => emit('pinMouseUp', 0)"

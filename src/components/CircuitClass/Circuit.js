@@ -921,7 +921,6 @@ export default class Circuit {
 
   loadNewCircuit(obj) {
     this.components = undefined;
-    // TODO load circuit from String / JSON
     console.log('obj before comp:', obj);
     obj.components.forEach((comp) => {
       /**

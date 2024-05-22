@@ -119,9 +119,9 @@
         :width="dynamicWidth()"
         :height="dynamicHeight()"
         :class="{
-          limitA4Paper: state.inA4Format,
-          gridPoint: state.setGridPoint,
-          gridLine: state.setGridLine
+          limitA4Paper: inA4Format,
+          gridPoint: setGridPoint,
+          gridLine: setGridLine
         }"
       >
         <template
@@ -210,16 +210,15 @@ import {
   reactive,
   ref,
   computed,
-  onMounted,
   defineProps,
   defineEmits,
   nextTick
 } from 'vue';
 
-import log from '@/consoleLog';
+import { useEventBusListeners } from './BigBodyComposable/useEventBus.js';
+
 import EventBus from '../jsFolder/event-bus';
 import toolStates from '../../states.js';
-import CircuitSolver from '../jsFolder/constructorComponent/CircuitSolver.js';
 
 import Knoten from '../elements/Knoten.vue';
 import Klemme from '../elements/Klemme.vue';
@@ -282,38 +281,7 @@ const props = defineProps({
 
 const emit = defineEmits(['tool-state-changed', 'set-circuit']);
 
-onMounted(() => {
-  EventBus.on('MBcapture', () => {
-    MBcapture();
-  });
-  EventBus.on('MBa4Format', (newA4Bool) => {
-    state.inA4Format = newA4Bool;
-  });
-  EventBus.on('MBsetGridPoint', (bool) => {
-    state.setGridPoint = bool;
-  });
-  EventBus.on('MBsetGridLine', (bool) => {
-    state.setGridLine = bool;
-  });
-  EventBus.on('MBsolve', () => {
-    MBsolve();
-  });
-  EventBus.on('MBopenFile', () => {
-    MBopenFile();
-  });
-  EventBus.on('MBsaveFile', () => {
-    MBsaveFile();
-  });
-
-  EventBus.on('MBgetEmptyCircuit', () => {
-    MBgetEmptyCircuit();
-  });
-});
-
 const state = reactive({
-  setGridPoint: false,
-  setGridLine: false,
-  inA4Format: false,
   componentsItem: componentsItem,
   wireItem: wireItem,
   selectedComponent: null,
@@ -356,6 +324,11 @@ const circuit = computed(() => {
 const getWithPredefinedValue = computed(() => {
   return props.withPredefinedValue;
 });
+
+const { setGridPoint, setGridLine, inA4Format } = useEventBusListeners(
+  circuit,
+  emit
+);
 
 const getComponent = (name) => {
   return components[name] || null;
@@ -415,7 +388,7 @@ function hideTooltip() {
 function dynamicWidth() {
   let targetDiv = targetDivRef.value;
   if (targetDiv) {
-    if (state.inA4Format) {
+    if (inA4Format.value) {
       targetDiv.style.maxWidth = '21cm';
     } else {
       targetDiv.style.maxWidth = 'none';
@@ -428,7 +401,7 @@ function dynamicWidth() {
 function dynamicHeight() {
   let targetDiv = targetDivRef.value;
   if (targetDiv) {
-    if (state.inA4Format) {
+    if (inA4Format.value) {
       targetDiv.style.maxHeight = '29.7cm';
     } else {
       targetDiv.style.maxHeight = 'none';
@@ -439,6 +412,7 @@ function dynamicHeight() {
   }
 }
 
+//TODO menu in composable file
 function setMenu(top, left) {
   let targetDiv = targetDivRef.value;
   let tgt = targetDiv.getBoundingClientRect();
@@ -486,6 +460,8 @@ function openMenu(e) {
     permutation_openMenu();
   }
 }
+
+//TODO replace with instance from file instanceFunction
 function isClassicKnoten(comp) {
   return comp instanceof KnotenJS && comp.valuePotentialSource === undefined;
 }
@@ -866,79 +842,6 @@ function pinOpacity0(wire) {
 /**
  * #endregion
  */
-
-/**
- * #region MenuBar function
- */
-function MBcapture() {
-  let targetDiv = document.getElementById('targetDiv');
-  targetDiv.scrollTo(0, 0);
-  print();
-}
-
-function MBsolve() {
-  if (
-    hasMainVal(circuit.value.components) &&
-    circuit.value.components.length > 0
-  ) {
-    let solver = new CircuitSolver(circuit.value);
-    try {
-      solver.solveWithAttribution();
-      EventBus.emit('BBresult');
-      EventBus.emit('BBSave');
-    } catch (e) {
-      alert('*****ERROR*****\n' + e.message);
-    }
-  }
-}
-function MBopenFile() {
-  const file = document.getElementById('fileInput').files[0];
-  const blob = new Blob([file], { type: 'application/json' });
-  const fr = new FileReader();
-  let obj;
-
-  fr.onload = function () {
-    obj = JSON.parse(fr.result);
-    log('JSON.parse(fr.result)\n', obj);
-  };
-  fr.readAsText(blob);
-  fr.onloadend = function () {
-    log('START Load');
-    circuit.value.loadNewCircuit(obj);
-    log('CIRCUIT LOADED', circuit.value);
-  };
-  EventBus.emit('BBSave');
-}
-function MBsaveFile() {
-  let data = circuit.value;
-  // Convert the text to BLOB.
-  const textToBLOB = new Blob([JSON.stringify(data, null, 2)], {
-    type: 'application/json'
-  });
-  const sFileName = 'SfeS-circuit.json'; // The file to save the data.
-  let newLink = document.createElement('a');
-  newLink.download = sFileName;
-
-  if (window.webkitURL != null) {
-    newLink.href = window.webkitURL.createObjectURL(textToBLOB);
-  } else {
-    newLink.href = window.URL.createObjectURL(textToBLOB);
-  }
-  newLink.style.display = 'none';
-  document.body.appendChild(newLink);
-  newLink.click();
-  document.body.removeChild(newLink);
-}
-function MBgetEmptyCircuit() {
-  if (
-    confirm(
-      'The current file will be deleted when you create a new one. Are you sure ?'
-    )
-  ) {
-    emit('set-circuit');
-    EventBus.emit('BBSave');
-  }
-}
 </script>
 
 <style>

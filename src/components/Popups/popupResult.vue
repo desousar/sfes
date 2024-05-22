@@ -166,7 +166,7 @@ function close() {
 </script>
 
 <style>
-@import './cssFolder/popUp.css';
+@import './../cssFolder/popUp.css';
 
 .modalRes {
   position: fixed;

@@ -141,7 +141,7 @@
       <img
         class="logo"
         alt="BeNet"
-        src="../assets/logo.svg"
+        src="../../assets/logo.svg"
       />
       <div id="descContainer">
         <p id="titledescription">

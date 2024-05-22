@@ -217,17 +217,17 @@ import {
 } from 'vue';
 
 import log from '@/consoleLog';
-import EventBus from './jsFolder/event-bus';
-import toolStates from '../states.js';
-import CircuitSolver from './jsFolder/constructorComponent/CircuitSolver.js';
+import EventBus from '../jsFolder/event-bus';
+import toolStates from '../../states.js';
+import CircuitSolver from '../jsFolder/constructorComponent/CircuitSolver.js';
 
-import Knoten from './elements/Knoten.vue';
-import Klemme from './elements/Klemme.vue';
-import Resistor from './elements/Resistor.vue';
-import CurrentSource from './elements/CurrentSource.vue';
-import VoltageSource from './elements/VoltageSource.vue';
-import Ampermeter from './elements/Ampermeter.vue';
-import Voltmeter from './elements/Voltmeter.vue';
+import Knoten from '../elements/Knoten.vue';
+import Klemme from '../elements/Klemme.vue';
+import Resistor from '../elements/Resistor.vue';
+import CurrentSource from '../elements/CurrentSource.vue';
+import VoltageSource from '../elements/VoltageSource.vue';
+import Ampermeter from '../elements/Ampermeter.vue';
+import Voltmeter from '../elements/Voltmeter.vue';
 /*import Inductor from "./elements/Inductor.vue";
 import Capacitor from "./elements/Capacitor.vue";*/
 
@@ -241,19 +241,19 @@ const components = {
   Voltmeter
 };
 
-import WireJS from './jsFolder/constructorComponent/Wire.js';
-import KnotenJS from './jsFolder/constructorComponent/jsComponents/Knoten.js';
-import KlemmeJS from './jsFolder/constructorComponent/jsComponents/Klemme.js';
+import WireJS from '../jsFolder/constructorComponent/Wire.js';
+import KnotenJS from '../jsFolder/constructorComponent/jsComponents/Knoten.js';
+import KlemmeJS from '../jsFolder/constructorComponent/jsComponents/Klemme.js';
 
-import { hasMainVal } from './Conversion/util/hasMainValue';
-import { distanceBtw2Points } from './Conversion/util/mathFunction';
-import MultipleRinSerie from './Conversion/implementations/MultipleRinSerie.js';
-import MultipleRinParallel from './Conversion/implementations/MultipleRinParallel.js';
-import TheveninToNorton from './Conversion/implementations/TheveninToNorton.js';
-import NortonToThevenin from './Conversion/implementations/NortonToThevenin.js';
-import DreieckToStern from './Conversion/implementations/DreieckToStern.js';
-import SternToDreieck from './Conversion/implementations/SternToDreieck.js';
-import Permutation from './Conversion/implementations/Permutation.js';
+import { hasMainVal } from '../Conversion/util/hasMainValue';
+import { distanceBtw2Points } from '../Conversion/util/mathFunction';
+import MultipleRinSerie from '../Conversion/implementations/MultipleRinSerie.js';
+import MultipleRinParallel from '../Conversion/implementations/MultipleRinParallel.js';
+import TheveninToNorton from '../Conversion/implementations/TheveninToNorton.js';
+import NortonToThevenin from '../Conversion/implementations/NortonToThevenin.js';
+import DreieckToStern from '../Conversion/implementations/DreieckToStern.js';
+import SternToDreieck from '../Conversion/implementations/SternToDreieck.js';
+import Permutation from '../Conversion/implementations/Permutation.js';
 
 function srcPath(file) {
   return './image/components/' + file;
@@ -942,7 +942,7 @@ function MBgetEmptyCircuit() {
 </script>
 
 <style>
-@import './cssFolder/bigBody.css';
+@import './../cssFolder/bigBody.css';
 
 @page {
   size: A4;

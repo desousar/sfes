@@ -707,7 +707,7 @@ function checkSymbolisUnique() {
 </script>
 
 <style>
-@import './cssFolder/popUp.css';
+@import './../cssFolder/popUp.css';
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {

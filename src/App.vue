@@ -77,16 +77,16 @@ https://medium.com/fbbd/intro-to-writing-undo-redo-systems-in-javascript-af17148
 <script setup>
 import { reactive, onMounted } from 'vue';
 
-import MenuBar from '@/components/MenuBar.vue';
-import ToolBar from '@/components/ToolBar.vue';
-import BigBody from '@/components/BigBody.vue';
+import MenuBar from '@/components/Pages/MenuBar.vue';
+import ToolBar from '@/components/Pages/ToolBar.vue';
+import BigBody from '@/components/Pages/BigBody.vue';
 
-import popupAboutUs from '@/components/popupAboutUs.vue';
-import popupSettings from '@/components/popupSettings.vue';
-import popupComp from '@/components/popupComp.vue';
-import popupResult from '@/components/popupResult.vue';
-import popupEquivalentSrc from '@/components/popupEquivalentSrc.vue';
-import popupHelp from '@/components/popupHelp.vue';
+import popupAboutUs from '@/components/Popups/popupAboutUs.vue';
+import popupSettings from '@/components/Popups/popupSettings.vue';
+import popupComp from '@/components/Popups/popupComp.vue';
+import popupResult from '@/components/Popups/popupResult.vue';
+import popupEquivalentSrc from '@/components/Popups/popupEquivalentSrc.vue';
+import popupHelp from '@/components/Popups/popupHelp.vue';
 
 import toolStates from '@/states.js';
 import EventBus from '@/components/jsFolder/event-bus';

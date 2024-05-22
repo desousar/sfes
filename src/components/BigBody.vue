@@ -905,8 +905,6 @@ function MBopenFile() {
   fr.onloadend = function () {
     log('START Load');
     circuit.value.loadNewCircuit(obj);
-    log('Comp Ok, Wire load start');
-    circuit.value.loadWireOfNewCircuit(obj);
     log('CIRCUIT LOADED', circuit.value);
   };
   EventBus.emit('BBSave');

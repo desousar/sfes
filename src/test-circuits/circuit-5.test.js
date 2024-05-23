@@ -1,3 +1,5 @@
+import { expect, test } from 'vitest';
+
 import Knoten from '@/components/jsFolder/constructorComponent/jsComponents/Knoten.js';
 import Resistor from '@/components/jsFolder/constructorComponent/jsComponents/Resistor.js';
 import VoltageSource from '@/components/jsFolder/constructorComponent/jsComponents/VoltageSource.js';

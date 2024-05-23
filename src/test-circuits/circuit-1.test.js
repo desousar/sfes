@@ -1,3 +1,5 @@
+import { expect, test } from 'vitest';
+
 import CurrentSource from '@/components/jsFolder/constructorComponent/jsComponents/CurrentSource.js';
 import Knoten from '@/components/jsFolder/constructorComponent/jsComponents/Knoten.js';
 import Klemme from '@/components/jsFolder/constructorComponent/jsComponents/Klemme.js';

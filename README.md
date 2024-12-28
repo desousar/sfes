@@ -1,5 +1,9 @@
 # Simulation tool for electronic circuits
 
+### THIS VERSION IS OUTDATED
+
+Current Version : https://gitlab.fhnw.ch/eit/simulationstool
+
 #### _(Simulationstool Für Elektronische Schaltungen)_
 
 Want to run this app locally ? check the file helpDevFolder/GitHubOrderCloneCommit.txt
